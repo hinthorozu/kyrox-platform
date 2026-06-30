@@ -20,10 +20,12 @@ Establish repository strategy, ecosystem vision, decision workflow, and the kyro
 
 ## M2 — Identity (active)
 
-Implement identity and access foundations in **kyrox-core**: users, organizations/tenants, authentication, authorization model, and session/token strategy suitable for multi-tenant SaaS.
+Implement identity and access foundations in **kyrox-core**: users, organizations (account boundary), authentication, authorization model, and session/token strategy suitable for multi-tenant SaaS.
+
+Security baseline defined in [ADR-0003](decisions/0003-identity-security-strategy.md): Argon2id passwords, JWT access tokens (15 min), hashed rotating refresh tokens (30 days), email verification, token revocation, and multi-device sessions. MFA deferred to a future ADR.
 
 **Primary repo:** kyrox-core  
-**Outcome:** Products can authenticate users and scope data by tenant.
+**Outcome:** Products can authenticate users and scope data by organization.
 
 ## M3 — Platform Services (planned)
 
