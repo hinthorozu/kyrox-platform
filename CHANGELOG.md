@@ -6,25 +6,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ## [Unreleased]
 
-### Added
+## [0.4.0] - 2026-07-01
 
-- [STATUS.md](STATUS.md) — live ecosystem capability and sprint snapshot.
-- [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md) — intentionally deferred work backlog.
-- README updated: kyrox-platform as management repository and single source of truth.
+### Completed (kyrox-core / M3)
+
+- **Platform Services** — kyrox-core **v0.4.0** released (commit `c4544b6`, Alembic head `20260701_0024`).
+- **Audit Query API** — query surface for audit logs.
+- **Settings Platform** — tenant-scoped and system-scoped configuration.
+- **Background Jobs Platform** — job registration, scheduling, status.
+- **Notifications Platform** — outbound notification dispatch abstraction.
+- **Organization & Membership** — delivered in v0.3.0; included in platform baseline.
+- **Authorization Hardening** — delivered in v0.2.1.
+
+### Changed
+
+- M3 Platform Services marked **completed**; platform baseline complete.
+- kyrox-core **frozen** — changes limited to bug fixes, security fixes, performance fixes, and CRM-driven platform needs.
+- Active milestone moved to **M4 FAIR CRM v1**; current phase **FAIR CRM Integration Preparation**.
+- STATUS and ROADMAP reflect **307 passed, 1 skipped** tests.
 
 ## [0.2.0] - 2026-07-01
 
-### Completed (kyrox-core / M2–M3)
+### Completed (kyrox-core / M2–M3 partial)
 
 - **Identity** — user and organization model; org-scoped authorization boundary.
 - **Authentication** — JWT access tokens, refresh token flow, Core auth APIs.
 - **Authorization** — roles and permissions scoped to organization.
-- **Audit** — audit service baseline (M3; Sprint 0.4.2).
+- **Audit** — audit service baseline.
 
 ### Changed
 
 - M2 Identity Platform marked **completed**; active milestone moved to **M3 Platform Services**.
-- ROADMAP and STATUS reflect kyrox-core **v0.2.0** with **74 passing tests**.
 
 ## [0.1.0] - 2026-07-01
 
@@ -36,6 +48,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 - ADR-0002: Core and product separation (Core independent; products depend on Core).
 - Milestone definitions M1–M4; M1 Foundation completed.
 
-[Unreleased]: https://github.com/kyrox/kyrox-platform/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/kyrox/kyrox-platform/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/kyrox/kyrox-platform/compare/v0.2.0...v0.4.0
 [0.2.0]: https://github.com/kyrox/kyrox-platform/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/kyrox/kyrox-platform/releases/tag/v0.1.0

@@ -2,7 +2,7 @@
 
 **Management repository and single source of truth for the KYROX ecosystem.**
 
-This repository holds roadmap, vision, architecture decisions, product plans, milestone tracking, live status, and intentionally deferred work. It is the authoritative place for *what* we build, *why* we build it, and *when* — not *how* the code is written.
+This repository holds roadmap, vision, architecture decisions, product plans, milestone tracking, live status, and intentionally deferred work. It is the authoritative place for *what* we build, *why* we build it, and *when* — not *how* the code is written. **Application code remains in [kyrox-core](https://github.com/kyrox/kyrox-core) and [fair-crm](https://github.com/kyrox/fair-crm).**
 
 ## What this repository contains
 
@@ -43,10 +43,11 @@ See [docs/REPOSITORY_STRATEGY.md](docs/REPOSITORY_STRATEGY.md) and [decisions/00
 
 | Area                    | Status                          |
 |-------------------------|---------------------------------|
-| Active implementation   | [kyrox-core](https://github.com/kyrox/kyrox-core) — v0.2.0, 74 tests passing |
+| Platform baseline       | **Completed** — kyrox-core **v0.4.0** (307 passed, 1 skipped) |
+| kyrox-core              | **Frozen** — bug, security, performance, and CRM-driven platform fixes only |
 | Active product          | [fair-crm](https://github.com/kyrox/fair-crm) — not started |
-| Current milestone       | **M3 Platform Services** (active) |
-| Current sprint          | Sprint 0.4.2 — Audit Service |
+| Current milestone       | **M4 FAIR CRM v1** (active) |
+| Current phase           | FAIR CRM Integration Preparation |
 
 See [STATUS.md](STATUS.md) for the full capability matrix.
 
@@ -60,6 +61,7 @@ kyrox-platform/
 ├── ROADMAP.md
 ├── CHANGELOG.md
 ├── KNOWN_DEFERRED.md
+├── AI_WORKFLOW.md
 ├── docs/
 │   ├── ECOSYSTEM.md
 │   ├── REPOSITORY_STRATEGY.md
@@ -82,7 +84,7 @@ kyrox-platform/
 2. Read [VISION.md](VISION.md) for the long-term direction.
 3. Check [ROADMAP.md](ROADMAP.md) and the active milestone in `milestones/`.
 4. Review [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md) before assuming missing features are oversights.
-5. Follow [docs/WORKFLOW.md](docs/WORKFLOW.md) when making or implementing decisions.
+5. Follow [docs/WORKFLOW.md](docs/WORKFLOW.md) or [AI_WORKFLOW.md](AI_WORKFLOW.md) when making or implementing decisions.
 6. Record significant choices as ADRs in `decisions/`.
 
 ## Related documents

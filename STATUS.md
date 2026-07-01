@@ -1,16 +1,18 @@
 # KYROX PLATFORM STATUS
 
+Single source of truth for ecosystem progress. Application code lives in **kyrox-core** and **fair-crm**; this repository records status only.
+
 ---
 
 # KYROX Core
 
 ## Foundation
 
-✅ Completed
+✅ Completed — v0.1.0
 
 ## Identity
 
-✅ Completed
+✅ Completed — v0.2.0
 
 ## Authentication
 
@@ -18,23 +20,31 @@
 
 ## Authorization
 
+✅ Completed — v0.2.1 Authorization Hardening
+
+## Organization
+
+✅ Completed — v0.3.0 Organization & Membership Platform
+
+## Membership
+
+✅ Completed — v0.3.0 Organization & Membership Platform
+
+## Audit Query API
+
 ✅ Completed
 
-## Audit
+## Settings Platform
 
-✅ Completed
+✅ Completed — v0.4.0 Platform Services
 
-## Settings
+## Background Jobs Platform
 
-⬜ Planned
+✅ Completed — v0.4.0 Platform Services
 
-## Background Jobs
+## Notifications Platform
 
-⬜ Planned
-
-## Notifications
-
-⬜ Planned
+✅ Completed — v0.4.0 Platform Services
 
 ## File Storage
 
@@ -48,19 +58,35 @@
 
 ⬜ Planned
 
+## DevOps
+
+⬜ Planned
+
 ---
 
 Current Version
 
-v0.2.0
+v0.4.0
+
+Latest Commit
+
+c4544b6
+
+Alembic Head
+
+20260701_0024
 
 Current Test Count
 
-74 Passing
+307 Passed, 1 Skipped
 
 Repository Status
 
-Active
+Frozen — bug fixes, security fixes, performance fixes, and CRM-driven platform needs only
+
+Platform Baseline
+
+✅ Completed
 
 ---
 
@@ -94,8 +120,12 @@ Not Started
 
 Current Milestone
 
-M3 — Platform Services
+M4 — FAIR CRM v1 (active)
 
-Current Sprint
+Current Phase
 
-Sprint 0.4.2 Audit Service
+FAIR CRM Integration Preparation
+
+Next Product
+
+fair-crm

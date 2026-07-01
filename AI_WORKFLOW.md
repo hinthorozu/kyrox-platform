@@ -10,6 +10,8 @@ Never rely solely on previous conversations.
 
 The repository is always the source of truth.
 
+Application code lives in **kyrox-core** and **fair-crm** — not here.
+
 ---
 
 # Roles
@@ -41,27 +43,36 @@ No application code.
 
 ## kyrox-core
 
-Reusable SaaS Platform.
+Reusable SaaS Platform — **v0.4.0** (commit `c4544b6`).
+
+**Status:** Platform baseline complete. **Frozen** except bug fixes, security fixes, performance fixes, and CRM-driven platform needs.
 
 Contains:
 
-- Identity
 - Authentication
 - Authorization
-- Audit
-- Platform Services
+- Organization
+- Membership
+- Audit Query API
+- Settings Platform
+- Background Jobs Platform
+- Notifications Platform
 
 Never contains product logic.
+
+**Tests:** 307 passed, 1 skipped. **Alembic head:** `20260701_0024`.
 
 ---
 
 ## fair-crm
 
-Business product.
+Business product — **next active implementation repo**.
 
-Consumes KYROX Core.
+Consumes KYROX Core v0.4.0.
 
 Contains CRM logic only.
+
+**Current milestone:** M4 FAIR CRM v1 — FAIR CRM Integration Preparation.
 
 ---
 
@@ -107,12 +118,14 @@ Always:
 - Review before Commit
 - Product never depends backwards
 - No duplicated logic
+- kyrox-core changes during M4 only for fixes or CRM-driven reusable platform needs
 
 Never:
 
 - Put CRM logic into Core
 - Skip review
 - Skip quality gate
+- Add application code to kyrox-platform
 
 ---
 

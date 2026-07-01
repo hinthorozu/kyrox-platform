@@ -1,81 +1,67 @@
 # M3 — Platform Services
 
-- **Status:** Active
+- **Status:** Completed
 - **Primary repository:** kyrox-core (implementation); kyrox-platform (decisions and planning)
+- **Delivered in:** kyrox-core **v0.4.0** (commit `c4544b6`, Alembic head `20260701_0024`)
 
 ## Goal
 
 Extend KYROX Core with shared platform services that multiple products can reuse, reducing duplicate backend work in fair-crm and future products.
 
-## Service sequence (M3)
+## Delivered services
 
-| Order | Service        | Design ADR | Implementation (kyrox-core) |
-|-------|----------------|------------|-----------------------------|
-| 1     | **Audit**      | [ADR-0004](../decisions/0004-audit-service-strategy.md) | Sprint 0.4.2+ |
-| 2     | Settings       | TBD        | Planned |
-| 3     | Background Jobs| TBD        | Planned |
-| 4     | Notifications  | TBD        | Planned |
+| Service              | Status        | Notes |
+|----------------------|---------------|-------|
+| Audit Query API      | ✅ Completed  | Append-only audit trail with query surface |
+| Settings Platform    | ✅ Completed  | Tenant-scoped and system-scoped configuration |
+| Background Jobs      | ✅ Completed  | Job registration, scheduling, status |
+| Notifications        | ✅ Completed  | Outbound notification dispatch abstraction |
+| File Storage         | ⬜ Planned    | Deferred beyond v0.4.0 baseline |
 
-Additional capabilities (files, billing hooks) may follow within M3 or later milestones.
+## kyrox-core releases (M2–M3)
 
-## Sprint 0.4.1 — Audit Service Design
+| Release | Scope |
+|---------|-------|
+| v0.2.0 | Identity Core |
+| v0.2.1 | Authorization Hardening |
+| v0.3.0 | Organization & Membership Platform |
+| v0.4.0 | Platform Services (M3 complete) |
 
-- **Status:** Completed (design)
-- **Repository:** kyrox-platform
-- **Deliverable:** [ADR-0004: Audit service strategy](../decisions/0004-audit-service-strategy.md)
+**Test count at completion:** 307 passed, 1 skipped.
 
-### Design summary
+## Platform baseline
 
-- Central **`audit_logs`** table in kyrox-core (append-only)
-- **JSONB** for `old_values`, `new_values`, `metadata`
-- **Organization-aware**, **user-aware**, **session-aware** (nullable fields for system events)
-- **Product-independent** — fair-crm emits events via Core; audit does not import products
-- **Application-level** `AuditService` + domain repository port
-- **Explicit audit calls** first; HTTP middleware deferred
-- **Best-effort** writes generally; **security-critical events must not fail silently**
+Platform baseline is **complete**. kyrox-core is **frozen** except for:
 
-### Action naming (examples)
+- Bug fixes
+- Security fixes
+- Performance fixes
+- CRM-driven platform needs identified during M4
 
-- `identity.user.login` / `identity.user.logout`
-- `identity.permission.granted`
-- `core.settings.updated`
-- `fair_crm.company.created` — product example only (documented in ADR, not Core logic)
-
-### Next implementation sprint (kyrox-core)
-
-Sprint **0.4.2** — Audit persistence and `AuditService` (domain, migration, repository, tests).
-
-## Scope (M3)
-
-- **Audit** — append-only activity trail ([ADR-0004](../decisions/0004-audit-service-strategy.md))
-- **Settings** — tenant-scoped and system-scoped configuration
-- **Background Jobs** — job registration, scheduling, status
-- **Notifications** — outbound notification dispatch abstraction
-
-## Out of scope (M3)
-
-- FAIR CRM domain features (M4)
-- Audit read UI / compliance export (later sprint)
-- Automatic audit middleware for all HTTP routes (deferred per ADR-0004)
-- Product-specific validation inside Core settings schemas
-
-## Dependencies
-
-- M2 Identity completed in kyrox-core
-
-## Success criteria
-
-- At least one platform service (audit) is consumable by fair-crm without product-specific code in Core
-- Service contracts documented via ADRs and kyrox-core module docs
-- Milestone-worthy release tagged in kyrox-core when M3 services are delivered
-
-## Related
+## Design references
 
 - [ADR-0004: Audit service strategy](../decisions/0004-audit-service-strategy.md)
 - [ADR-0002: Core and product separation](../decisions/0002-core-product-separation.md)
+
+## Out of scope (deferred)
+
+- File Storage, Caching, Observability, DevOps — see [KNOWN_DEFERRED.md](../KNOWN_DEFERRED.md)
+- FAIR CRM domain features (M4)
+- Audit read UI / compliance export (later sprint)
+- Automatic audit middleware for all HTTP routes (deferred per ADR-0004)
+
+## Success criteria
+
+- [x] Platform services consumable by fair-crm without product-specific code in Core
+- [x] Service contracts documented via ADRs and kyrox-core module docs
+- [x] Milestone-worthy release tagged in kyrox-core (**v0.4.0**)
+
+## Related
+
+- [STATUS.md](../STATUS.md)
 - [ROADMAP.md](../ROADMAP.md)
 - [ECOSYSTEM.md](../docs/ECOSYSTEM.md)
 
-## Next (after completion)
+## Next
 
-→ [M4 FAIR CRM v1](M4_FAIR_CRM_V1.md)
+→ [M4 FAIR CRM v1](M4_FAIR_CRM_V1.md) (active — FAIR CRM Integration Preparation)
