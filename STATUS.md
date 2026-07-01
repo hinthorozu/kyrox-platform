@@ -1,82 +1,101 @@
 # KYROX PLATFORM STATUS
 
-Live snapshot of ecosystem implementation progress. For planning history and decisions, see [ROADMAP.md](ROADMAP.md) and [decisions/](decisions/). Intentionally postponed work is tracked in [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md).
+---
 
-## KYROX Core
+# KYROX Core
 
-Foundation  
+## Foundation
+
 ✅ Completed
 
-Identity  
+## Identity
+
 ✅ Completed
 
-Authentication  
+## Authentication
+
 ✅ Completed
 
-Authorization  
+## Authorization
+
 ✅ Completed
 
-Audit  
+## Audit
+
 ✅ Completed
 
-Settings  
+## Settings
+
 ⬜ Planned
 
-Background Jobs  
+## Background Jobs
+
 ⬜ Planned
 
-Notifications  
+## Notifications
+
 ⬜ Planned
 
-File Storage  
+## File Storage
+
 ⬜ Planned
 
-Caching  
+## Caching
+
 ⬜ Planned
 
-Observability  
+## Observability
+
 ⬜ Planned
 
-DevOps  
-⬜ Planned
+---
 
-Current Test Count:  
-74 Passing Tests
+Current Version
 
-Current Version:  
 v0.2.0
 
-Repository Status:  
+Current Test Count
+
+74 Passing
+
+Repository Status
+
 Active
 
 ---
 
-## FAIR CRM
+# FAIR CRM
 
-Architecture  
+Architecture
+
 ⬜ Planned
 
-Backend  
+Backend
+
 ⬜ Planned
 
-Frontend  
+Frontend
+
 ⬜ Planned
 
-Import Engine  
+Import Engine
+
 ⬜ Planned
 
-CRM Modules  
+CRM Modules
+
 ⬜ Planned
 
-Status:  
+Status
+
 Not Started
 
 ---
 
-## Current Milestone
+Current Milestone
 
 M3 — Platform Services
 
-## Current Sprint
+Current Sprint
 
 Sprint 0.4.2 Audit Service
