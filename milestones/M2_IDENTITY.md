@@ -1,6 +1,6 @@
 # M2 — Identity
 
-- **Status:** Active
+- **Status:** Completed
 - **Primary repository:** kyrox-core
 
 ## Goal

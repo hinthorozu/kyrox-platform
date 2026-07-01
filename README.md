@@ -1,13 +1,22 @@
 # kyrox-platform
 
-**Management and decision center for the KYROX ecosystem.**
+**Management repository and single source of truth for the KYROX ecosystem.**
 
-This repository holds roadmap, vision, architecture decisions, product plans, and milestone tracking. It is the single source of truth for *what* we build, *why* we build it, and *when* — not *how* the code is written.
+This repository holds roadmap, vision, architecture decisions, product plans, milestone tracking, live status, and intentionally deferred work. It is the authoritative place for *what* we build, *why* we build it, and *when* — not *how* the code is written.
+
+## What this repository contains
+
+- **Vision** — long-term direction ([VISION.md](VISION.md))
+- **ADRs** — architecture and ecosystem decisions ([decisions/](decisions/))
+- **Status** — current implementation snapshot ([STATUS.md](STATUS.md))
+- **Roadmap** — milestone sequence and progress ([ROADMAP.md](ROADMAP.md))
+- **Milestones** — detailed scope per phase ([milestones/](milestones/))
+- **Deferred backlog** — intentionally postponed work ([KNOWN_DEFERRED.md](KNOWN_DEFERRED.md))
 
 ## What this repository is
 
-- The strategic hub for the KYROX SaaS ecosystem
-- Home for vision, roadmap, and milestone definitions
+- The strategic hub and management center for the KYROX SaaS ecosystem
+- Home for vision, roadmap, status, and milestone definitions
 - Record of architecture decisions (ADRs)
 - Product planning and ecosystem documentation
 - The place where decisions are made before implementation begins
@@ -24,7 +33,7 @@ KYROX uses three repositories. This structure is final for now.
 
 | Repository        | Role                                              |
 |-------------------|---------------------------------------------------|
-| **kyrox-platform** | Ecosystem strategy, roadmap, ADRs, product planning |
+| **kyrox-platform** | Ecosystem strategy, roadmap, ADRs, status, product planning |
 | **kyrox-core**     | Reusable SaaS backend platform                    |
 | **fair-crm**       | First product built on KYROX Core                 |
 
@@ -34,9 +43,12 @@ See [docs/REPOSITORY_STRATEGY.md](docs/REPOSITORY_STRATEGY.md) and [decisions/00
 
 | Area                    | Status                          |
 |-------------------------|---------------------------------|
-| Active implementation   | [kyrox-core](https://github.com/kyrox/kyrox-core) |
-| Active product          | [fair-crm](https://github.com/kyrox/fair-crm)     |
-| Current milestone       | **M2 Identity** (active)        |
+| Active implementation   | [kyrox-core](https://github.com/kyrox/kyrox-core) — v0.2.0, 74 tests passing |
+| Active product          | [fair-crm](https://github.com/kyrox/fair-crm) — not started |
+| Current milestone       | **M3 Platform Services** (active) |
+| Current sprint          | Sprint 0.4.2 — Audit Service |
+
+See [STATUS.md](STATUS.md) for the full capability matrix.
 
 ## Repository layout
 
@@ -44,16 +56,17 @@ See [docs/REPOSITORY_STRATEGY.md](docs/REPOSITORY_STRATEGY.md) and [decisions/00
 kyrox-platform/
 ├── README.md
 ├── VISION.md
+├── STATUS.md
 ├── ROADMAP.md
 ├── CHANGELOG.md
+├── KNOWN_DEFERRED.md
 ├── docs/
 │   ├── ECOSYSTEM.md
 │   ├── REPOSITORY_STRATEGY.md
 │   └── WORKFLOW.md
 ├── decisions/
 │   ├── ADR_INDEX.md
-│   ├── 0001-repository-strategy.md
-│   └── 0002-core-product-separation.md
+│   └── ...
 ├── products/
 │   └── FAIR_CRM.md
 └── milestones/
@@ -65,15 +78,19 @@ kyrox-platform/
 
 ## Getting started
 
-1. Read [VISION.md](VISION.md) for the long-term direction.
-2. Check [ROADMAP.md](ROADMAP.md) and the active milestone in `milestones/`.
-3. Follow [docs/WORKFLOW.md](docs/WORKFLOW.md) when making or implementing decisions.
-4. Record significant choices as ADRs in `decisions/`.
+1. Read [STATUS.md](STATUS.md) for what is done and in progress today.
+2. Read [VISION.md](VISION.md) for the long-term direction.
+3. Check [ROADMAP.md](ROADMAP.md) and the active milestone in `milestones/`.
+4. Review [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md) before assuming missing features are oversights.
+5. Follow [docs/WORKFLOW.md](docs/WORKFLOW.md) when making or implementing decisions.
+6. Record significant choices as ADRs in `decisions/`.
 
 ## Related documents
 
+- [Status](STATUS.md)
 - [Vision](VISION.md)
 - [Roadmap](ROADMAP.md)
+- [Deferred backlog](KNOWN_DEFERRED.md)
 - [Changelog](CHANGELOG.md)
 - [Ecosystem overview](docs/ECOSYSTEM.md)
 - [ADR index](decisions/ADR_INDEX.md)
