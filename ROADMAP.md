@@ -4,14 +4,14 @@ High-level milestone sequence for the KYROX ecosystem. Live progress is summariz
 
 ## Milestones
 
-| Milestone | Name               | Status        | Document |
-|-----------|--------------------|---------------|----------|
-| **M1**    | Foundation         | ✅ Completed  | [M1_FOUNDATION.md](milestones/M1_FOUNDATION.md) |
-| **M2**    | Identity Platform  | ✅ Completed  | [M2_IDENTITY.md](milestones/M2_IDENTITY.md) |
-| **M3**    | Platform Services  | ✅ Completed  | [M3_PLATFORM_SERVICES.md](milestones/M3_PLATFORM_SERVICES.md) |
-| **M4**    | FAIR CRM v1        | 🚧 Active     | [M4_FAIR_CRM_V1.md](milestones/M4_FAIR_CRM_V1.md) |
+| Milestone | Name | Status | Document |
+|-----------|------|--------|----------|
+| **M1** | Foundation | Completed | [M1_FOUNDATION.md](milestones/M1_FOUNDATION.md) |
+| **M2** | Identity Platform | Completed | [M2_IDENTITY.md](milestones/M2_IDENTITY.md) |
+| **M3** | Platform Services | Completed | [M3_PLATFORM_SERVICES.md](milestones/M3_PLATFORM_SERVICES.md) |
+| **M4** | FAIR CRM v1 | Active | [M4_FAIR_CRM_V1.md](milestones/M4_FAIR_CRM_V1.md) |
 
-## kyrox-core release history
+## kyrox-core Release History
 
 | Release | Scope |
 |---------|-------|
@@ -19,57 +19,71 @@ High-level milestone sequence for the KYROX ecosystem. Live progress is summariz
 | v0.2.0 | Identity Core |
 | v0.2.1 | Authorization Hardening |
 | v0.3.0 | Organization & Membership Platform |
-| v0.4.0 | Platform Services |
+| v0.4.0 | Platform Services and product integration baseline |
 
-**Current:** v0.4.0 — platform baseline complete. kyrox-core is frozen except bug fixes, security fixes, performance fixes, and CRM-driven platform needs.
+**Current:** v0.4.0 - platform baseline complete. kyrox-core is frozen except bug fixes, security fixes, performance fixes, and CRM-driven reusable platform needs.
 
-## M1 — Foundation ✅
+## M1 - Foundation
 
 Establish repository strategy, ecosystem vision, decision workflow, and the kyrox-platform documentation hub. Define the three-repo model and Core vs product separation.
 
 **Primary repo:** kyrox-platform  
 **Outcome:** Clear structure and ADRs; team aligned on where work happens.
 
-## M2 — Identity Platform ✅
+## M2 - Identity Platform
 
-Implement identity and access foundations in **kyrox-core**: users, organizations (account boundary), authentication, authorization, and session/token strategy suitable for multi-tenant SaaS.
+Implement identity and access foundations in **kyrox-core**: users, organizations, authentication, authorization, and session/token strategy suitable for multi-tenant SaaS.
 
-Security baseline: [ADR-0003](decisions/0003-identity-security-strategy.md). Delivered across kyrox-core **v0.2.0**–**v0.3.0**.
+Security baseline: [ADR-0003](decisions/0003-identity-security-strategy.md). Delivered across kyrox-core **v0.2.0** through **v0.3.0**.
 
 **Primary repo:** kyrox-core  
 **Outcome:** Products can authenticate users and scope data by organization.
 
-## M3 — Platform Services ✅
+## M3 - Platform Services
 
-Extend **kyrox-core** with shared platform services consumed by all KYROX products.
+Extend **kyrox-core** with shared platform services consumed by KYROX products.
 
-| Service              | Status        |
-|----------------------|---------------|
-| Audit Query API      | ✅ Completed  |
-| Settings Platform    | ✅ Completed  |
-| Background Jobs      | ✅ Completed  |
-| Notifications        | ✅ Completed  |
-| File Storage         | ⬜ Planned    |
+| Service | Status |
+|---------|--------|
+| Audit Query API | Completed |
+| Audit Event Write API | Completed |
+| Product Authorization Check API | Completed |
+| Settings Platform | Completed |
+| Background Jobs | Completed |
+| Notifications | Completed |
+| FAIR CRM permission seeds | Completed |
+| File Storage | Planned |
 
-Delivered in kyrox-core **v0.4.0** (307 passed, 1 skipped; Alembic head `20260701_0024`).
+Delivered in kyrox-core **v0.4.0** with Alembic head `20260701_0025`.
 
 **Primary repo:** kyrox-core  
 **Outcome:** Reusable platform baseline ready for product integration.
 
-## M4 — FAIR CRM v1 🚧
+## M4 - FAIR CRM v1
 
-Deliver the first shippable version of **fair-crm** on top of Core identity and platform services: core CRM workflows, product UI, and production readiness for initial users.
+Deliver the first shippable version of **fair-crm** on top of Core identity and platform services: CRM workflows, product UI, data integration workflows, and production readiness for initial users.
 
-**Current phase:** FAIR CRM Integration Preparation
-
+**Current phase:** Active FAIR CRM product delivery and data-integration pipeline hardening.  
 **Primary repo:** fair-crm (with dependencies on kyrox-core)  
 **Outcome:** First KYROX product in production; feedback loop into Core and platform planning.
 
-## How to use this roadmap
+### Current FAIR CRM Delivery Snapshot
 
-- **Planning and scope changes** — Update milestone docs and ADRs in kyrox-platform before large implementation shifts.
-- **Implementation** — Track progress in kyrox-core and fair-crm; reference milestone IDs in commits and tags when appropriate.
-- **Status updates** — When a milestone or service completes, update [STATUS.md](STATUS.md), this file, and [CHANGELOG.md](CHANGELOG.md).
-- **Deferred work** — Items intentionally postponed are listed in [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md).
+- FAIR CRM is active in development.
+- Customer, Fair, and Participation foundation modules exist.
+- Adapter Management is completed.
+- Linked Fairs are completed.
+- Fair -> Adapter relationship is completed.
+- Adapter CRUD is completed.
+- Run v2 + JSON Handoff is completed.
+- Next technical target: Canonical Import Schema.
+- Following target: Import Batch / Preview / Duplicate / Merge pipeline.
+
+## How To Use This Roadmap
+
+- **Planning and scope changes** - update milestone docs and ADRs in kyrox-platform before large implementation shifts.
+- **Implementation** - track code progress in kyrox-core and fair-crm; reference milestone IDs in commits and tags when appropriate.
+- **Status updates** - when a milestone or service completes, update [STATUS.md](STATUS.md), this file, and [CHANGELOG.md](CHANGELOG.md).
+- **Deferred work** - items intentionally postponed are listed in [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md).
 
 See [docs/WORKFLOW.md](docs/WORKFLOW.md) for the end-to-end process from decision to release.

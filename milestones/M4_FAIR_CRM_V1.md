@@ -1,35 +1,49 @@
-# M4 — FAIR CRM v1
+# M4 - FAIR CRM v1
 
 - **Status:** Active
-- **Current phase:** FAIR CRM Integration Preparation
+- **Current phase:** Active product delivery and data-integration pipeline hardening
 - **Primary repository:** fair-crm
 
 ## Goal
 
 Ship the first production-ready version of FAIR CRM on top of KYROX Core identity (M2) and platform services (M3).
 
-Application code for FAIR CRM lives in **fair-crm**. Platform decisions and status remain in **kyrox-platform**. kyrox-core is frozen except for bug fixes, security fixes, performance fixes, and CRM-driven platform needs.
+Application code for FAIR CRM lives in **fair-crm**. Platform decisions and status remain in **kyrox-platform**. kyrox-core is frozen except for bug fixes, security fixes, performance fixes, and CRM-driven reusable platform needs.
 
-## Prerequisites (met)
+## Prerequisites (Met)
 
-- [x] M2 Identity Platform — kyrox-core v0.2.0–v0.3.0
-- [x] M3 Platform Services — kyrox-core v0.4.0 (platform baseline complete)
-- [x] Core modules available: Authentication, Authorization, Organization, Membership, Audit Query API, Settings, Background Jobs, Notifications
+- [x] M2 Identity Platform - kyrox-core v0.2.0 through v0.3.0
+- [x] M3 Platform Services - kyrox-core v0.4.0 (platform baseline complete)
+- [x] Core product-integration APIs available: authorization check, audit event write, settings, jobs, notifications
 
-## Scope (indicative — refine during Integration Preparation)
+## Current Delivery Snapshot
+
+FAIR CRM is active in development. It is no longer in a "not started" or pure integration-preparation state.
+
+- Customer, Fair, and Participation foundation modules exist.
+- Adapter Management is completed.
+- Linked Fairs are completed.
+- Fair -> Adapter relationship is completed.
+- Adapter CRUD is completed.
+- Run v2 + JSON Handoff is completed.
+- Current technical target: Canonical Import Schema.
+- Next target: Import Batch / Preview / Duplicate / Merge pipeline.
+
+## Scope
 
 - Core CRM workflows and domain model
 - Product UI integrated with Core auth and organization scoping
 - Configuration and deployment for initial users
 - Product-specific integrations not belonging in Core
 - Integration patterns against kyrox-core v0.4.0 APIs
+- Data-integration pipeline with preview, duplicate detection, and merge decisions
 
 ## Dependencies
 
 - kyrox-core **v0.4.0** (frozen baseline)
 - [FAIR CRM product outline](../products/FAIR_CRM.md)
 
-## Success criteria
+## Success Criteria
 
 - FAIR CRM v1 deployable and usable by target initial users
 - No reverse dependency from kyrox-core to fair-crm
