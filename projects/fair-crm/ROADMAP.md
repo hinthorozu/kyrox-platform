@@ -99,16 +99,16 @@ Bu doküman FAIR CRM için yapılan işleri ve bundan sonra yapılacak işleri i
 - Mobil toolbar CSS standardı iyileştirilecek.
 - Mobil/tablet kullanımında tablo, toolbar, pagination ve modal davranışı daha da güçlendirilecek.
 
+### Scraper / Run History Yönetimi
+
+- Çalışan scraper run duraklatılabilecek.
+- Duraklatılmış scraper run devam ettirilebilecek.
+- Çalışan scraper run tamamen sonlandırılabilecek.
+- Çalışan scraper run silinebilecek; silme işleminde run önce güvenli şekilde tamamen durdurulacak, ardından Run History kaydı silinecek.
+
 ### Task Engine / Operation Tasks
 
 Görevler sadece fuara bağlı kalmayacak. Uzun vadede görevler operasyon motoruna dönüşecek.
-
-#### Çalışan Görev Yönetimi
-
-- Çalışan görev duraklatılabilecek.
-- Duraklatılmış görev devam ettirilebilecek.
-- Çalışan görev tamamen sonlandırılabilecek.
-- Çalışan görev silinebilecek; silme işleminde görev önce güvenli şekilde tamamen durdurulacak, ardından geçmiş kaydı silinecek.
 
 Hedef görev tipleri:
 
