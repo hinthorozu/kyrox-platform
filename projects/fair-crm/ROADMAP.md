@@ -108,12 +108,12 @@ Bu doküman FAIR CRM için yapılan işleri ve bundan sonra yapılacak işleri i
 
 ### Operation Engine / Görev Ayrımı
 
-FAIR CRM operasyon altyapısı iki sorumluluğa ayrılacak:
+FAIR CRM operasyon altyapısı iki sorumluluğa ayrılır:
 
-- **Operation Engine:** sistem tarafından yürütülen veya orkestre edilen işler.
-- **Todo:** kullanıcı tarafından yapılacak insan işleri.
+- **Operation Engine / Otomasyonlar:** sistem tarafından yürütülen veya orkestre edilen işler.
+- **Todo / Görevler:** kullanıcı tarafından yapılacak insan işleri.
 
-Operation tipleri:
+Otomasyon tipleri:
 
 - scraper
 - email
@@ -122,22 +122,45 @@ Operation tipleri:
 - duplicate_check
 - data_cleanup
 - whatsapp
-- manual_task
 - reminder
 
-`manual_task` bağımsız ikinci bir görev sistemi olmayacak.
+#### Ortak Operation Engine, tipe özel yürütme
 
-Akış:
+Tüm otomasyon tipleri aynı Operation Engine lifecycle altyapısını kullanır. Ortak olan katmanlar:
+
+- lifecycle ve status yönetimi
+- queue / çalışma durumu
+- progress
+- loglama
+- history
+- error / retry kayıtları
+- başlangıç / bitiş zamanları
+- cancel / durdurma davranışı
+
+Gerçek iş davranışı otomasyon tipine göre ayrılır:
+
+- Her otomasyon tipinin **kendi wizard akışı** vardır; tek bir ortak Operation Wizard kullanılmaz.
+- Her otomasyon tipinin kendi input/ayarları ve validation kuralları vardır.
+- Her otomasyon tipi kendi **handler** implementasyonuna yönlendirilir.
+- Operation Engine ortak lifecycle'ı yönetir; handler gerçek işi yapar.
+
+Örnek:
 
 ```text
-Operation Wizard
-→ manual_task
-→ Operation
-→ ManualTaskHandler
-→ Todo
+Scraper Wizard
+→ Operation(type=scraper)
+→ ScraperHandler
+
+Bulk Email Wizard
+→ Operation(type=bulk_email)
+→ BulkEmailHandler
+
+Enrichment Wizard
+→ Operation(type=enrichment)
+→ EnrichmentHandler
 ```
 
-Todo oluşturulduktan sonra mevcut Todo lifecycle, worklist, follow-up, outcome ve activity altyapısı kullanılacak.
+Bu nedenle scraper ile email aynı wizard adımlarını paylaşmaz; yalnızca ortak Operation Engine çalışma, loglama, history, progress ve hata yönetimi altyapısını paylaşırlar.
 
 Amaç:
 
@@ -164,7 +187,7 @@ Aynı yapı tek veya birden fazla fuarı destekler.
 
 `multiple_fairs` source type kullanılmayacak.
 
-Wizard'da kullanıcı fuar seçtikçe aynı seçim listesine yeni fuarlar ekleyebilecek.
+İlgili otomasyon tipinin wizard'ında kullanıcı fuar seçtikçe aynı seçim listesine yeni fuarlar ekleyebilecek.
 
 Hedef kaynak tipleri:
 
@@ -183,15 +206,15 @@ Desteklenecek kaynaklar:
 
 Amaç:
 
-- Görevler sadece tek fuara bağlı kalmayacak.
-- Kullanıcı birden fazla fuardan görev oluşturabilecek.
-- Import edilen müşteri listeleri görev kaynağı olabilecek.
-- Filtrelenmiş müşteri segmentleri görev kaynağı olabilecek.
-- Manuel seçilmiş müşteri listeleri görev kaynağı olabilecek.
+- Otomasyonlar sadece tek fuara bağlı kalmayacak.
+- Kullanıcı birden fazla fuardan otomasyon başlatabilecek.
+- Import edilen müşteri listeleri otomasyon kaynağı olabilecek.
+- Filtrelenmiş müşteri segmentleri otomasyon kaynağı olabilecek.
+- Manuel seçilmiş müşteri listeleri otomasyon kaynağı olabilecek.
 
 Operation Engine tamamlandıktan ve mevcut modüller güvenli şekilde taşındıktan sonra fuar/müşteri ekranlarındaki scraper, enrichment ve benzeri operasyon başlatma aksiyonları kaldırılacak.
 
-Operasyon başlatmanın ana giriş noktası ortak **Operation Wizard** olacak.
+Operasyon başlatma Otomasyonlar ekranından yapılacak; seçilen otomasyon tipi kendi wizard akışını açacak.
 
 ### Otomatik Mail Görevleri
 
