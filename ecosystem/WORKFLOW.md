@@ -63,6 +63,17 @@ Read:
 3. Owning project README + PROJECT_STATUS
 4. Relevant standards and ADRs
 
+### Requirements / ambiguity gate
+
+- AI agents and automation must **not invent, infer, reinterpret, or silently complete** product requirements when the user request or canonical documentation is incomplete, ambiguous, or conflicting.
+- Before implementation, compare the request against the canonical roadmap, status, constitution, standards, ADRs, and existing behavior relevant to the task.
+- If a material requirement is missing, unclear, contradictory, or would require choosing between multiple valid product behaviors, **stop before changing code and ask the user for a decision**.
+- Do not choose a default behavior merely because it is common practice, technically convenient, or appears reasonable.
+- Do not broaden task scope beyond what the user approved and what canonical documentation requires.
+- Existing canonical rules remain binding unless the user explicitly changes them. When the user changes a rule, update the owning canonical document as part of the work.
+- Minor implementation details that do not change product behavior may follow existing project patterns without an extra question.
+- When uncertainty is discovered after implementation has started, pause further changes, preserve completed safe work, and surface the exact ambiguity before continuing.
+
 ### Boundaries
 
 - Work only in the repository that owns the change.
