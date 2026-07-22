@@ -106,25 +106,38 @@ Bu doküman FAIR CRM için yapılan işleri ve bundan sonra yapılacak işleri i
 - Çalışan scraper run tamamen sonlandırılabilecek.
 - Çalışan scraper run silinebilecek; silme işleminde run önce güvenli şekilde tamamen durdurulacak, ardından Run History kaydı silinecek.
 
-### Task Engine / Operation Tasks
+### Operation Engine / Görev Ayrımı
 
-Görevler sadece fuara bağlı kalmayacak. Uzun vadede görevler operasyon motoruna dönüşecek.
+FAIR CRM operasyon altyapısı iki sorumluluğa ayrılacak:
 
-Hedef görev tipleri:
+- **Operation Engine:** sistem tarafından yürütülen veya orkestre edilen işler.
+- **Todo:** kullanıcı tarafından yapılacak insan işleri.
 
-- call_followup
+Operation tipleri:
+
+- scraper
+- email
 - bulk_email
 - enrichment
+- duplicate_check
 - data_cleanup
+- whatsapp
+- manual_task
 - reminder
 
-Hedef kaynak tipleri:
+`manual_task` bağımsız ikinci bir görev sistemi olmayacak.
 
-- fair
-- multiple_fairs
-- import
-- segment
-- manual_selection
+Akış:
+
+```text
+Operation Wizard
+→ manual_task
+→ Operation
+→ ManualTaskHandler
+→ Todo
+```
+
+Todo oluşturulduktan sonra mevcut Todo lifecycle, worklist, follow-up, outcome ve activity altyapısı kullanılacak.
 
 Amaç:
 
@@ -136,21 +149,33 @@ Amaç:
 - Veri problemi olanları ayrı operasyon listesine al.
 - Mail sonrası dönüş bekleyenlere hatırlatma oluştur.
 
-### Multi-source Görev Kaynağı
+### Operation Kaynak Modeli
 
-Mevcut yapı:
+Kaynak cardinality için ayrı source type oluşturulmayacak.
 
-- source_fair_id
+Fuar kaynağı:
 
-Gelecek yapı:
+```text
+source_kind = fair
+source_ids = [fair_id_1, fair_id_2, ...]
+```
 
-- source_type
-- source_ids
+Aynı yapı tek veya birden fazla fuarı destekler.
+
+`multiple_fairs` source type kullanılmayacak.
+
+Wizard'da kullanıcı fuar seçtikçe aynı seçim listesine yeni fuarlar ekleyebilecek.
+
+Hedef kaynak tipleri:
+
+- fair
+- import
+- segment
+- manual_selection
 
 Desteklenecek kaynaklar:
 
-- Tek fuar
-- Çoklu fuar
+- Tek veya birden fazla fuar
 - Import
 - Segment
 - Manuel müşteri seçimi
@@ -164,6 +189,10 @@ Amaç:
 - Filtrelenmiş müşteri segmentleri görev kaynağı olabilecek.
 - Manuel seçilmiş müşteri listeleri görev kaynağı olabilecek.
 
+Operation Engine tamamlandıktan ve mevcut modüller güvenli şekilde taşındıktan sonra fuar/müşteri ekranlarındaki scraper, enrichment ve benzeri operasyon başlatma aksiyonları kaldırılacak.
+
+Operasyon başlatmanın ana giriş noktası ortak **Operation Wizard** olacak.
+
 ### Otomatik Mail Görevleri
 
 Amaç:
@@ -173,8 +202,7 @@ Amaç:
 Kapsam:
 
 - Görev tipi bulk_email.
-- Tek fuar seçimi.
-- Çoklu fuar seçimi.
+- Fuar kaynağı tek veya çoklu `source_ids` ile seçilebilecek.
 - Segment seçimi.
 - Mail template seçimi.
 - SMTP hesabı seçimi.
@@ -258,46 +286,3 @@ Kapsam:
 - Kullanıcı bazlı işlem sayıları.
 - Mail başarısızlıkları.
 - Timeout sayıları.
-
-### UI / UX Kalite
-
-- Modal ve form standartları tüm ekrana yayılacak.
-- DataTable standardı tüm listelerde aynı olacak.
-- Empty state standardı yapılacak.
-- Loading state standardı yapılacak.
-- Error state standardı yapılacak.
-- Türkçe label tutarlılığı sağlanacak.
-- Ana aksiyon / yan aksiyon ayrımı tüm ekranlarda uygulanacak.
-- Mobil/tablet responsive polish devam edecek.
-- Toolbar / pagination standardı netleştirilecek.
-- Sayfa header / breadcrumb davranışı standart hale getirilecek.
-- Form grid davranışı tüm ekranlarda tutarlı olacak.
-- Buton metinleri açık ve kullanıcı dostu olacak.
-
-### Raporlama
-
-- Görev bazlı performans.
-- Fuar bazlı müşteri durumu.
-- Mail gönderim raporu.
-- Outcome dağılımı.
-- Takip dönüşüm oranı.
-- Veri kalitesi raporu.
-- Kullanıcı bazlı işlem raporu.
-- Geciken takip raporu.
-- Kapanan konu raporu.
-- Data problem raporu.
-
-### İleri Aşama
-
-- Segment builder.
-- Etiket sistemi.
-- Otomasyon kuralları.
-- Hatırlatma motoru.
-- Mail kampanya akışı.
-- WhatsApp entegrasyonu.
-- Yetki bazlı UI görünürlüğü.
-- Audit log ekranı.
-- Gelişmiş müşteri segmentasyonu.
-- Otomatik müşteri puanlama.
-- Operasyon bazlı bildirimler.
-- Kullanıcıya özel iş listeleri.
