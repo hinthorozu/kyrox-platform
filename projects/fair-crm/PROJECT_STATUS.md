@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | **Current Version** | v0.9.4 (Backup Format Options) |
-| **Last updated** | 2026-07-21 (Central Activities + hard delete) |
+| **Last updated** | 2026-07-22 (Todo / Participation / Automation UI finalize) |
 | **Constitution** | [CONSTITUTION.md](CONSTITUTION.md) |
 | **Changelog** | [CHANGELOG.md](CHANGELOG.md) |
 | **Product Vision** | [VISION.md](VISION.md) |
@@ -16,11 +16,14 @@
 
 | Check | Status |
 |-------|--------|
-| Backend tests | **210 PASS** |
+| Backend tests (targeted this delivery: todos / participations / operations / activities) | **184 PASS** (2026-07-22) |
 | Frontend build | **PASS** |
+| Frontend vitest (ActivityForm mapping helpers) | **PASS** (144 tests suite, 2026-07-22) |
+| UI governance gate `ALL` | **PASS** |
 | Migration `0010_data_integration` | **APPLIED** (PostgreSQL) |
 | Migration `0011_system_backups` | **APPLIED** (PostgreSQL) |
 | Migration `0014_backup_format_options` | **READY** (PostgreSQL) |
+| Migrations `0050`–`0054` (operations + todo customer_id + activity todo links) | **SHIPPED** |
 | Runtime verification (Sprint 09.2.2) | **PASS** — migration, reset-dev, Swagger, live API, live UI |
 | Dev auto-start (`dev-start.ps1`) | **PASS** — idempotent; Windows reboot verified manually |
 | Import mapping grid + analyze queue | **PASS** — grid UI, background analyze, org lock (74 backend tests) |
@@ -46,6 +49,29 @@ Details: [ops/DEV_RUNTIME.md](ops/DEV_RUNTIME.md) · [../../archive/fair-crm/rep
 ---
 
 ## Completed
+
+### ✅ Todo / Participation / Automation UI finalize (2026-07-22)
+
+**Todo — human work**
+
+- Optional `customer_id` + `source_fair_id` (bare / +customer / +fair / +both); detail + edit always available
+- Activity only on explicit complete (atomic + idempotent `task_completed`); create/update never create Activity
+- UI: `task_completed` → **Diğer** on list/detail/edit (backend type preserved)
+- Acceptance: detail/edit matrix PASS; Activity rules PASS; responsive + browser/network/console PASS
+
+**Participation — Customer ↔ Fair (ADR-034)**
+
+- Active fields: Fair, Salon, Stand, Not
+- Status / visited_at / primary_contact removed from active API/UI
+- Visual QA 390/768/1024/1440 + FINAL UI gate PASS
+
+**Operations Engine + Otomasyonlar UI (ADR-035)**
+
+- Backend Operation Engine (`/api/v1/operations`, migrations `0050`–`0052`)
+- User-facing: İşlemler → **Otomasyonlar** (technical names unchanged)
+- Frontend tests / UI gates / build PASS
+
+Canon: [decisions/DECISIONS.md](decisions/DECISIONS.md) ADR-034 / ADR-035; [todo/TODO_MODULE_DECISIONS.md](todo/TODO_MODULE_DECISIONS.md)
 
 ### ✅ Central Activities Screen + Hard Delete (ADR-033)
 
@@ -151,16 +177,15 @@ Details: [ops/DEV_RUNTIME.md](ops/DEV_RUNTIME.md) · [../../archive/fair-crm/rep
 **Completed Features**
 
 - `CustomerFairParticipation` entity and `crm_customer_fair_participations` table
-- Many-to-many Customer ↔ Fair with hall, stand, participation status, notes, primary contact, visited_at
-- Participation status enum (planned, exhibitor, visited, contacted, follow_up_required, not_interested, customer, other)
+- Many-to-many Customer ↔ Fair relationship (ADR-010 hall/stand on participation)
+- **Active model (ADR-034):** Fair + Salon + Stand + Not; Customer + Fair required; status/visited_at/primary_contact no longer in active API/UI (legacy columns may remain)
 - Unique active customer + fair constraint; soft delete with recreate after delete
-- Primary contact validation (same customer only)
 - Archived customer/fair create blocked
 - API: list by customer, list by fair, CRUD on `/fair-participations`
 - Customer detail **Katıldığı Fuarlar** tab with add/edit/delete
 - Fair detail page with **Katılımcı Firmalar** tab (clickable company → customer detail)
-- Turkish labels and status translations
-- Backend tests (12 scenarios) and live verification script
+- Turkish labels
+- Backend tests and live verification
 - Import-ready model: hall/stand on participation, not on Customer/Fair
 
 ### ✅ Sprint 07 — Smart Import Wizard Phase 1

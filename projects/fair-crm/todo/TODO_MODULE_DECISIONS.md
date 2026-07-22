@@ -63,24 +63,60 @@ Bu alan ileride arama listesi, WhatsApp gönderimi, SMS gönderimi, toplu mail v
 
 DB/API tarafında ASCII slug kullanılacak. Türkçe karakterli değerler yalnızca frontend UI label olarak gösterilecek (bkz. karar §11).
 
-İlk kategori listesi (slug):
+**Creatable (yeni create/update) insan işi kategorileri:**
 
 - `arama`
-- `toplu_mail`
-- `sms`
-- `whatsapp`
 - `ziyaret`
 - `teklif`
-- `veri_temizleme`
 - `import_kontrol`
 - `musteri_guncelleme`
 - `genel_gorev`
 - `stand_tasarim`
 - `diger`
 
-Varsayılan:
+Varsayılan: `genel_gorev`
 
-- `genel_gorev`
+**Legacy / sistem-operasyon slug'ları** (enum ve okuma korunur; yeni create/update reddedilir — Operation Engine sorumluluğu):
+
+- `toplu_mail`
+- `sms`
+- `whatsapp`
+- `veri_temizleme`
+
+Mevcut DB kayıtları migration ile değiştirilmez veya silinmez.
+
+---
+
+### 8b. Operation / Todo / Activity sınırı
+
+- **Operation** (UI: **Otomasyon / Otomasyonlar**) = sistemin çalıştırdığı iş (scraper, enrichment, bulk email, duplicate check, data cleanup, …). Backend/domain adları değişmez: `Operation`, `OperationRun`, `/api/v1/operations`, `crm_operations*`.
+- **Todo** = insanın yapacağı iş
+- **Activity** = yapılmış işin geçmiş kaydı
+
+**Activity yazma kuralı (zorunlu):** Todo “tamamlandı” onayı olmadan Activity yazılmaz.
+
+- create → Activity yok
+- update (müşteri/fuar ekle/değiştir/kaldır dahil) → Activity yok
+- `POST /todos/{id}/complete` → exactly 1 Activity (`task_completed`)
+
+Complete atomik + idempotent. Activity alanları Todo’dan: `todo_id`, varsa `customer_id`, varsa `fair_id`, completion note → `description`. `todo_id` FK `ON DELETE SET NULL`.
+
+**UI:** `task_completed` her yüzeyde Aktivite Türü = **Diğer** (backend tipi `task_completed` kalır; edit select Telefon’a fallback etmez; PATCH `type` ile overwrite etmez).
+
+---
+
+### 8c. Todo bağlamsal ilişkiler (müşteri / fuar)
+
+Todo = insan işi. Geçerli kombinasyonlar:
+
+1. Sadece görev
+2. Görev + müşteri (`customer_id`)
+3. Görev + fuar (`source_fair_id`)
+4. Görev + müşteri + fuar
+
+`customer_id` ve `source_fair_id` opsiyoneldir. Fuar/müşteri eksikliği Todo’yu geçersiz yapmaz. Todo detail her durumda görüntülenir; Todo her durumda düzenlenebilir.
+
+**Worklist notu:** Mevcut kodda Todo + fair durumunda worklist hâlâ bulunabilir. Bu davranış product owner ile ayrıca değerlendiriliyor; yeni karar verilmeden worklist Operation’a taşınmaz veya kaldırılmaz. Canonical model Todo = insan işi / Operation = sistem işi ayrımını korur — worklist’i yeni canonical iş modeli gibi genişletme.
 
 ---
 

@@ -871,12 +871,28 @@ When in conflict between speed and architecture, **architecture wins** — the c
 
 ## Activity Timeline Principle
 
-The Activity Timeline is the canonical history of all Customer and Contact interactions.
+The Activity Timeline is the canonical history of performed work and customer interactions.
+
+Architectural boundary:
+
+- **Operation** — system / orchestration work
+- **Todo** — human work to be done
+- **Activity** — history of work that was performed / completed
 
 Activities may be created in two ways:
 
 - Manually by users
-- Automatically by the system
+- Automatically by the system (including Todo completion → `task_completed`)
+
+`crm_activities.customer_id` and `fair_id` are optional. An Activity may be:
+
+- customer-scoped (appears on customer timeline)
+- fair-scoped (`fair_id` set; filterable in Activity list APIs)
+- org-wide only (both null) — still listed in the central Activities screen
+
+Todo completion creates exactly one `task_completed` Activity linked via `todo_id` (`ON DELETE SET NULL` so history survives Todo hard-delete). Create and update of a Todo never write Activity.
+
+UI rule: `task_completed` is always shown to users as **Diğer** (list, detail, edit). Backend type remains `task_completed`.
 
 Automatic activity sources include, but are not limited to:
 
@@ -885,9 +901,9 @@ Automatic activity sources include, but are not limited to:
 - WhatsApp messages
 - Meetings
 - Calls
-- Tasks
+- Task / Todo completion
 - Future communication integrations
 
-Every automated communication with a Customer or Contact must create an Activity record.
+Every automated communication with a Customer or Contact must create an Activity record when a customer context exists.
 
-This principle ensures that Customer history remains centralized, searchable, and auditable.
+This principle ensures that history remains centralized, searchable, and auditable.

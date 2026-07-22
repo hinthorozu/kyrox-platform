@@ -14,7 +14,7 @@ This document describes **where the product is going**, not only where it is tod
 
 KYROX Fair CRM is **not only a CRM**.
 
-Today it is a fair and exhibition relationship management product: customers, contacts, fairs, participations, import, and merge workflows.
+Today it is a fair and exhibition relationship management product: customers, contacts, fairs, participations (Customer ↔ Fair link with optional hall/stand/notes), human Todos, system Automations (Operations), import, and merge workflows.
 
 **Long-term vision:**
 

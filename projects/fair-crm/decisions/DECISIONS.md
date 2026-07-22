@@ -808,3 +808,51 @@ Sprint 04 introduced activities with soft delete (`deleted_at` + `is_active`). T
 - Fair bulk-email uniqueness (partial unique index on non-deleted rows) continues to work: hard delete frees the outbox slot.
 - Worklist denormalized fields (`last_note_summary`, `last_activity_at`, …) may remain stale after deleting the referenced last activity — acceptable; pointer is cleared.
 
+---
+
+## ADR-034: Participation active model = Customer ↔ Fair link (hall / stand / notes)
+
+**Status:** Accepted  
+**Date:** 2026-07-22
+
+**Context:**
+
+Sprint 06 shipped a participation status workflow (`participation_status`, `visited_at`, `primary_contact_id`, Planlandı / Katılımcı / Ziyaret Edildi, …). Product acceptance now treats Participation as the **relationship** between Customer and Fair, not a status machine.
+
+**Decision:**
+
+1. Active business fields: **Fair**, **Salon (hall)**, **Stand**, **Not (notes)**. Customer + Fair are required relationship keys; hall / stand / notes are optional.
+2. Create/update API and list/detail UI **do not** use `participation_status`, `visited_at`, or `primary_contact_id`.
+3. Legacy DB columns may remain for historical rows; they are not part of the active product model.
+4. Hall/stand remain on participation (ADR-010 unchanged).
+
+**Consequences:**
+
+- Participation forms and tables show only Fair / Salon / Stand / Not (+ relationship identity).
+- Status-workflow labels and filters are removed from the active UI.
+
+---
+
+## ADR-035: Todo vs Operation boundary; Activity only on Todo complete; Automation UI label
+
+**Status:** Accepted  
+**Date:** 2026-07-22
+
+**Context:**
+
+Human work (Todo) and system work (Operation Engine) must stay separated. Operators must not get Activity timeline noise from Todo create/update. User-facing Turkish for Operations was confusing (“İşlemler”).
+
+**Decision:**
+
+1. **Todo** = human work. Optional `customer_id` / `source_fair_id` (bare, +customer, +fair, +both). Missing customer/fair does not invalidate a Todo; detail and edit always work.
+2. **Operation** = system-executed work (scraper, enrichment, bulk email, duplicate check, data cleanup, …). Domain/API names stay `Operation*` / `/api/v1/operations` / `crm_operations*`.
+3. User-facing Turkish for Operations: **Otomasyon / Otomasyonlar** (not İşlem / İşlemler).
+4. Activity is written **only** after explicit Todo complete (`POST /todos/{id}/complete`): atomic, idempotent, exactly one `task_completed` linked by `todo_id` (optional `customer_id` / `fair_id` / note). Create/update never create Activity.
+5. UI displays `task_completed` as **Diğer** everywhere; backend type remains `task_completed`.
+6. **Worklist:** existing Todo+fair worklist code may remain; do not document or migrate it as the new canonical Operation model until a separate product-owner decision.
+
+**Consequences:**
+
+- See [todo/TODO_MODULE_DECISIONS.md](../todo/TODO_MODULE_DECISIONS.md) §8–§8c and Constitution Activity Timeline Principle.
+- Navigation and page titles use Otomasyonlar; technical identifiers unchanged.
+

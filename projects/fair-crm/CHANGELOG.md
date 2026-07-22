@@ -8,6 +8,32 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### Todo / Participation / Automation UI finalize (acceptance 2026-07-22)
+
+**Todo (insan işi)**
+
+- Optional `customer_id` + `source_fair_id` — valid combos: bare / +customer / +fair / +both; detail+edit always available
+- Activity **only** on explicit complete (`POST /todos/{id}/complete`): atomic, idempotent, exactly 1 `task_completed`
+- create/update (including customer/fair attach/detach) never creates Activity
+- UI: “Tamamla ve sonucu kaydet”; `task_completed` displays as **Diğer** on list/detail/edit (backend type preserved)
+- Creatable categories exclude system-operation slugs (`toplu_mail`, `whatsapp`, `veri_temizleme`, `sms`); legacy rows readable
+- Acceptance: independent/customer/fair/customer+fair detail/edit UI PASS; complete/update Activity rules PASS; responsive + browser/network/console PASS
+
+**Participation (Customer ↔ Fair)**
+
+- Active model fields: Fair, Salon (hall), Stand, Not — Customer + Fair required keys
+- Create/update API and UI no longer use `participation_status`, `visited_at`, `primary_contact_id` (legacy DB columns may remain)
+- Customer table + fair-side UI PASS; Visual QA 390/768/1024/1440 PASS; FINAL UI gate PASS
+
+**Operations Engine + Automation UI rename**
+
+- Backend: Operation / OperationRun / `/api/v1/operations` / `crm_operations*` (technical names unchanged)
+- User-facing Turkish: **İşlemler → Otomasyonlar**, **İşlem → Otomasyon**
+- Examples: scraper, enrichment, bulk email, duplicate check, data cleanup
+- Frontend tests / UI gates / build PASS
+
+Canon: [CONSTITUTION.md](CONSTITUTION.md) Activity Timeline; [todo/TODO_MODULE_DECISIONS.md](todo/TODO_MODULE_DECISIONS.md) §8–§8c; [decisions/DECISIONS.md](decisions/DECISIONS.md) ADR-034 / ADR-035
+
 ### Central Activities screen + hard delete (ADR-033)
 
 - Org-wide `GET /api/v1/activities` with server-side search, customer, type, status, date-range filters
