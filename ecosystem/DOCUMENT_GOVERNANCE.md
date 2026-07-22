@@ -36,7 +36,7 @@ Single source of truth rules for all KYROX documentation. Documentation lives **
 | Fair CRM import architecture | `projects/fair-crm/import/IMPORT_ARCHITECTURE.md` |
 | Core live status | `projects/kyrox-core/PROJECT_STATUS.md` |
 | Core product integration contract | `projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md` |
-| Backend layered architecture standard | `standards/backend/../../standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md` |
+| Backend layered architecture standard | [standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md](../standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md) |
 
 ## Hard rules
 
