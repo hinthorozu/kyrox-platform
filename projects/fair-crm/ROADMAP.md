@@ -103,6 +103,13 @@ Bu doküman FAIR CRM için yapılan işleri ve bundan sonra yapılacak işleri i
 
 Görevler sadece fuara bağlı kalmayacak. Uzun vadede görevler operasyon motoruna dönüşecek.
 
+#### Çalışan Görev Yönetimi
+
+- Çalışan görev duraklatılabilecek.
+- Duraklatılmış görev devam ettirilebilecek.
+- Çalışan görev tamamen sonlandırılabilecek.
+- Çalışan görev silinebilecek; silme işleminde görev önce güvenli şekilde tamamen durdurulacak, ardından geçmiş kaydı silinecek.
+
 Hedef görev tipleri:
 
 - call_followup
