@@ -8,6 +8,36 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### Bulk Email Wizard — Gönder + Operation Detail (step 4) — 2026-07-24
+
+- Wizard 4. adım gerçek gönderim: `POST /api/v1/operations/bulk-email/send` → Operation + BulkEmailHandler → mevcut batch/outbox/worker
+- Migration `0058` (nullable fair_id/customer_id/participation_id + attempt-based activity unique) + `0059` (`outbox.fair_name`)
+- Manuel/Excel: aynı motor; CRM’siz recipient’te activity yok; CRM bağlıysa attempt bazlı activity audit
+- Retry tamamen manuel (`Gönderilmeyenleri Tekrar Gönder`); `sent` yeniden gönderilmez; `sending_timeout` failed grubunda, otomatik retry yok
+- Ortak `OperationDetailPage`: canlı log, alıcı sonuç tablosu, JSON/Excel export (gerçek outbox)
+- Multi-fair: tek Operation, global dedupe; frontend `npm run build` PASS; targeted backend tests PASS
+
+### Bulk Email Wizard — Özet / Önizleme (step 3) — 2026-07-23
+
+- Özet adımında gerçek alıcı + mail template preview (`POST /api/v1/operations/bulk-email/preview`)
+- Manuel/Excel: birleştirme, tekilleştirme, geçersiz eleme; Fuar Listesi: mevcut `fair_emails` recipient resolution + filtreler (çoklu fuar)
+- Gönderim / batch / outbox / worker yok; 0 alıcıda Gönder adımına geçiş engelli
+- Frontend `npm run build` PASS; Manuel + Fuar UI doğrulandı; batch sayısı değişmedi
+
+### Bulk Email Wizard — Alıcı Kaynağı (step 1) — 2026-07-23
+
+- Tip-özel wizard route: `/operations/new/bulk-email`
+- Otomasyonlar → Yeni Otomasyon → Toplu E-posta → Devam Et → Alıcı Kaynağı
+- Kaynak A/B: Manuel / Excel veya Fuar Listesi (birlikte değil); gönderim/sorgulama yok
+- Frontend `npm run build` PASS; UI flow verified
+
+### Bulk Email Wizard — Mail Ayarları (step 2) — 2026-07-23
+
+- Stepper: Alıcı Kaynağı → Mail Ayarları → Özet → Gönder (Özet/Gönder henüz yok)
+- Mail Şablonu / SMTP Hesabı / Konu; `listMailTemplates` + `listSmtpAccounts`
+- Geri/ileri form state korunur; gönderim yok
+- Frontend `npm run build` PASS; real API + UI verified
+
 ### Scraper Automation e2e (ADR-036) — 2026-07-22
 
 - First executable Operation type: `scraper` via `ScraperHandler`

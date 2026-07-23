@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | **Current Version** | v0.9.4 (Backup Format Options) |
-| **Last updated** | 2026-07-22 (Scraper Automation e2e) |
+| **Last updated** | 2026-07-24 (Bulk Email wizard — Gönder + Operation Detail) |
 | **Constitution** | [CONSTITUTION.md](CONSTITUTION.md) |
 | **Changelog** | [CHANGELOG.md](CHANGELOG.md) |
 | **Product Vision** | [VISION.md](VISION.md) |
@@ -49,6 +49,46 @@ Details: [ops/DEV_RUNTIME.md](ops/DEV_RUNTIME.md) · [../../archive/fair-crm/rep
 ---
 
 ## Completed
+
+### ✅ Bulk Email Wizard — Gönder + Operation Detail (step 4) (2026-07-24)
+
+**Toplu E-posta gerçek gönderim + ortak detay**
+
+- Step 4 `Gönder`: server-side resolve → Operation(`bulk_email`) + run → `BulkEmailHandler` → mevcut `fair_emails` batch/outbox/worker
+- Aynı motor: Manuel/Excel (`fair_id`/`customer_id`/`participation_id` nullable) ve Fuar Listesi (multi-fair global dedupe)
+- Activity: CRM bağlıysa attempt bazlı; CRM’siz Manuel/Excel → activity yok
+- Retry: yalnızca manuel failed (`sending_timeout` dahil); `sent` asla yeniden gönderilmez; otomatik retry yok
+- `OperationDetailPage`: progress, canlı log, alıcı sonuçları, JSON/Excel export
+- Migrations: `0058_fair_email_bulk_ops_nullable`, `0059_fair_email_outbox_fair_name`
+- Preview hâlâ batch/outbox oluşturmaz
+
+### ✅ Bulk Email Wizard — Özet / Önizleme (step 3) (2026-07-23)
+
+**Toplu E-posta tip-özel wizard (3. adım)**
+
+- Mail Ayarları → Özet: gerçek recipient preview + template render (gönderim yok)
+- Endpoint: `POST /api/v1/operations/bulk-email/preview` (mevcut `fair_emails` resolution + Jinja render)
+- Manuel/Excel birleşik liste; Fuar Listesi çoklu fuar + ülke/şehir/firma filtreleri
+- 0 tekil alıcı → Gönder adımına geçilemez; batch/outbox oluşmaz
+- Adım 4 Gönder: gerçek Operation + BulkEmailHandler gönderimi (bkz. step 4)
+
+### ✅ Bulk Email Wizard — Mail Ayarları (step 2) (2026-07-23)
+
+**Toplu E-posta tip-özel wizard (2. adım)**
+
+- Stepper: Alıcı Kaynağı → Mail Ayarları → Özet → Gönder
+- Mail Şablonu / SMTP Hesabı / Konu — mevcut `listMailTemplates` + `listSmtpAccounts`
+- Varsayılan şablon/SMTP mevcut davranışla seçilir; geri/ileri state korunur
+- Gönderim / BulkEmailHandler yok
+
+### ✅ Bulk Email Wizard — Alıcı Kaynağı (step 1) (2026-07-23)
+
+**Toplu E-posta tip-özel wizard (ilk adım)**
+
+- Route: `/operations/new/bulk-email` (scraper ile aynı tip-özel wizard yaklaşımı)
+- Otomasyonlar → Yeni Otomasyon → Toplu E-posta → Devam Et → Alıcı Kaynağı
+- Kaynak tipi A/B: Manuel / Excel **veya** Fuar Listesi (birlikte kullanılmaz)
+- Mail ayarları / özet / gönderim / alıcı sorgusu / Excel parse: henüz yok
 
 ### ✅ Scraper Automation e2e (ADR-036) (2026-07-22)
 
