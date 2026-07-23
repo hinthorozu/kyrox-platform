@@ -238,6 +238,23 @@ Token + class (eşdeğer):
 
 `FormGrid`: varsayılan responsive 3 → 2 → 1 kolon (desktop / tablet / mobile). Sabit px kolon genişlikleriyle taşırma yasaktır.
 
+### Universal dirty-form / kaydedilmemiş değişiklikler kuralı (bağlayıcı)
+
+Bu kural **veri girişi yapılan tüm add/create/edit/update akışlarında zorunludur**. Kapsam yalnızca modal değildir; page form, modal, drawer, wizard ve benzeri tüm veri giriş yüzeyleri bu kurala tabidir.
+
+- Formun güncel değerleri başlangıç/baseline değerlerinden farklıysa form **dirty** kabul edilir.
+- Dirty formdan çıkış, kapanış veya mevcut girilmiş veriyi kaybettirecek bir navigasyon girişimi kullanıcı onayı olmadan gerçekleşemez.
+- Kapsama X/kapat, İptal/Vazgeç, sayfa geri, browser back, sidebar/nav link, route değişimi, drawer/modal kapanışı ve wizard’dan çıkış dahildir.
+- Canonical uyarı: **“Kaydedilmemiş değişiklikler var. Çıkmak istediğinize emin misiniz?”**
+- Canonical aksiyonlar: **Forma Dön** (değişiklikleri koru) / **Çık** (değişiklikleri at).
+- Form clean ise çıkış doğrudan yapılır; gereksiz onay gösterilmez.
+- Başarılı create/save/update sonrası yeni kaydedilmiş değerler baseline olur ve dirty state temizlenir.
+- Save/create/update başarısız olursa dirty state temizlenmez.
+- Mevcut shared dirty-guard mekanizması/patterni reuse edilir; sayfa veya feature özel `window.confirm`, ad-hoc confirm modalı veya ikinci dirty sistemi oluşturulmaz.
+- ADR-028’deki modal dirty-guard davranışı bu genel kuralın **modal alt kümesidir**; ADR-028 kapsamı bu kuralı modal ile sınırlamaz.
+
+**Acceptance zorunluluğu:** Add/create/edit/update içeren her yeni veya değişen UI işi, gerçek render üzerinde en az şu senaryolarla doğrulanır: clean çıkış → uyarı yok; alan değiştir → çıkış → uyarı; Forma Dön → veri korunur; Çık → değişiklik atılır; başarılı save → tekrar çıkışta uyarı yok.
+
 Modal içi form action’ları modal `footer` chrome’una aittir; rastgele ad-hoc footer üretilmez (ADR-028 dirty-guard kuralları geçerlidir).
 
 ---
@@ -537,6 +554,7 @@ Bir frontend UI işi aşağıdaki maddeler sağlanmadan **DONE değildir**:
 - [ ] Breakpoint boundary problemi yok
 - [ ] Overflow / overlap / clipping yok
 - [ ] Form / control width doğru (§9)
+- [ ] Add/create/edit/update veri girişinde dirty-guard doğrulandı (§9)
 - [ ] Visual hierarchy doğru (§17)
 - [ ] Gerçek Visual QA geçti (§18)
 - [ ] Accessibility regression yok (§19)
