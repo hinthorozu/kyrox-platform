@@ -36,6 +36,16 @@ How humans and AI agents decide, document, and implement work across the three r
    - Archive superseded design docs instead of leaving conflicting “live” copies
 ```
 
+### Authorization and real-runtime acceptance gate
+
+When a feature introduces or depends on a new permission code, authorization is part of the same delivery path as the feature. The permission catalog, product role matrix/mapping, seed or synchronization path, and real runtime authorization check must all be aligned before the feature can be accepted.
+
+- Mock authorization, `AllowAllAuthorization`, dev bypass, or unit/API tests with authorization overridden are useful implementation tests, but they are **not acceptance evidence**.
+- A feature that requires authorization is **not complete** while a real user/JWT receives `401`/`403` on the intended flow.
+- For UI work, build success alone is insufficient. The affected UI flow must open with real authorization and display the real API data required by that workflow.
+- End-to-end acceptance must follow the production-shaped path: real login/JWT → Core authorization check → product API → affected UI/workflow → real result/data.
+- If any link in that chain fails, report the feature as implemented but **not accepted / not complete**; do not mark it DONE because mocks, bypasses, unit tests, or frontend build pass.
+
 ## Active milestone
 
 Only **M4 — FAIR CRM v1** is active. M1–M3 are completed and archived. See [ROADMAP.md](ROADMAP.md) and [STATUS.md](STATUS.md).
