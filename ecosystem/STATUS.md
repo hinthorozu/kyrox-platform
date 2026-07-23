@@ -49,6 +49,7 @@ FAIR CRM is **active in product development** (M4). It is not in “integration 
 | Universal Source Adapter Framework + Excel adapter | Completed (09.2) |
 | Admin Database Backups (+ format options) | Completed (09.2.2 / 09.2.4) |
 | Global responsive UI / UniversalDataTable standard | Completed (ADR-032) |
+| Operations Engine + first Scraper Automation e2e | Completed (ADR-035 / ADR-036) |
 | Current planned sprint | **09.3 — CSV Source Adapter** |
 | Product version (as of last status sync) | v0.9.4 |
 

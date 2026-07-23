@@ -1,4 +1,4 @@
-﻿# FAIR CRM Roadmap
+# FAIR CRM Roadmap
 
 Bu doküman FAIR CRM için yapılan işleri ve bundan sonra yapılacak işleri iki ana başlık altında toplar.
 
@@ -212,9 +212,9 @@ Amaç:
 - Filtrelenmiş müşteri segmentleri otomasyon kaynağı olabilecek.
 - Manuel seçilmiş müşteri listeleri otomasyon kaynağı olabilecek.
 
-Operation Engine tamamlandıktan ve mevcut modüller güvenli şekilde taşındıktan sonra fuar/müşteri ekranlarındaki scraper, enrichment ve benzeri operasyon başlatma aksiyonları kaldırılacak.
+Operation Engine tamamlandıktan sonra fuar/müşteri ekranlarındaki enrichment ve benzeri operasyon başlatma aksiyonları kaldırılacak (ürün sahibi onayıyla). Fair Detail scraper başlatma UI aksiyonu **kaldırılmıştır**; scraper yalnızca **Otomasyonlar → Web Scraper** üzerinden başlatılır.
 
-Operasyon başlatma Otomasyonlar ekranından yapılacak; seçilen otomasyon tipi kendi wizard akışını açacak.
+Operasyon başlatmanın ana giriş noktası **Otomasyonlar → tip seçici → tip-özel wizard** olacak (ortak tek Wizard yok). Scraper: ADR-036.
 
 ### Otomatik Mail Görevleri
 

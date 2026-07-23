@@ -648,6 +648,8 @@ Users lost form data when modals closed accidentally via backdrop click or Escap
 - New screens must use shared `Modal`; no custom backdrop-close overlays.
 - `.cursor/rules/shared-modal-focus.mdc` updated to reflect ADR-028.
 
+**Amendment (2026-07-23):** Dirty guard is no longer Modal-only. Shared `FormDirtyHost` + `useReportFormDirty` / `useModalFormCancel` apply to Modal, Drawer, page forms, and wizards. App-level `useNavigationDirtyGate` blocks sidebar/route/back/`beforeunload` while any host reports dirty, using the same discard confirm copy (*Forma Dön* / *Çık*). See `FRONTEND_UI_MASTER_STANDARD.md` §9 Dirty form kuralı.
+
 ---
 
 ## ADR-029: Universal Decision Queue Standard — Bulk Decision Assignment
@@ -855,4 +857,33 @@ Human work (Todo) and system work (Operation Engine) must stay separated. Operat
 
 - See [todo/TODO_MODULE_DECISIONS.md](../todo/TODO_MODULE_DECISIONS.md) §8–§8c and Constitution Activity Timeline Principle.
 - Navigation and page titles use Otomasyonlar; technical identifiers unchanged.
+
+---
+
+## ADR-036: Scraper Automation via Operation Engine; per-type wizards
+
+**Status:** Accepted  
+**Date:** 2026-07-22
+
+**Context:**
+
+Operation Engine shipped with only `ManualTaskHandler` executable. Fair Detail already runs scrapers through `RunFairScraperUseCase` → `FairScraperJobRunner` → import handoff. Product needs the first end-to-end automation type under **Otomasyonlar**, without rewriting the scraper engine or merging enrichment into scraper.
+
+Earlier roadmap wording implied a single shared Operation Wizard. Product clarified that each automation type owns its own wizard.
+
+**Decision:**
+
+1. **Scraper** is the first executable `Operation(type=scraper)` handler (`ScraperHandler`).
+2. Entry: Otomasyonlar → Yeni Otomasyon → tip seçici → tip-özel wizard (`/operations/new/scraper`, …). No single shared multi-type configuration wizard.
+3. Scraper Wizard steps: adapter → fair (filtered by adapter) → `requested_fields` → real settings (`scraper_config` read-only + `max_pages` / `use_http` / `scrape_detail`) → summary/start.
+4. URL / `scraper_config` are read-only from the fair (Fair Detail parity); wizard does not mutate the fair.
+5. Execution reuses existing fair scraper job runner + handoff → Veri Entegrasyonu import batch. Scraper never writes CRM customers directly.
+6. `CustomerContactEnrichmentAdapter` is excluded from Scraper Wizard; enrichment remains a separate automation type.
+7. `scraper_run_history` remains the technical run/log store; Operation is the user-facing execution record, linked via `scraper_run_id` in run result metadata.
+8. Fair Detail “Scraper Çalıştır…” UI action is **removed**. User-facing scraper start is **Otomasyonlar → Web Scraper** only. Legacy `RunFairScraper` API may remain for internal/compat use until a separate cleanup; it is not exposed on Fair Detail.
+
+**Consequences:**
+
+- Engine stays lifecycle-only; type rules live in `ScraperHandler`.
+- ROADMAP “ortak Operation Wizard” wording is superseded by per-type wizards for automation creation UX.
 

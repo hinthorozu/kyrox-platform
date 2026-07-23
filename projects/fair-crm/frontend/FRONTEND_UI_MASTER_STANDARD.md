@@ -257,6 +257,45 @@ Bu kural **veri girişi yapılan tüm add/create/edit/update akışlarında zoru
 
 Modal içi form action’ları modal `footer` chrome’una aittir; rastgele ad-hoc footer üretilmez (ADR-028 dirty-guard kuralları geçerlidir).
 
+### Dirty form kuralı (evrensel — Modal / Drawer / Page / Wizard)
+
+Kaydedilmemiş değişiklik varken kullanıcı formu/sihirbazı terk edemez; aynı confirm metni ve çıkış yolları her yüzeyde geçerlidir (ADR-028 + `FormDirtyHost`).
+
+**Confirm kopyası (canonical):**
+
+- Başlık: *Kaydedilmemiş değişiklikler*
+- Mesaj: *Kaydedilmemiş değişiklikler var. Çıkmak istediğinize emin misiniz?*
+- **Forma Dön** — kal; değişiklikler korunur
+- **Çık** — discard + leave
+
+**Zorunlu yüzeyler:** Modal, Drawer, sayfa formu (add/edit), wizard. Temiz formda İptal/X/breadcrumb sessizce çıkar; dirty iken confirm zorunlu.
+
+**API (`components/ui/form/FormDirty.tsx`):**
+
+- `FormDirtyHost` — yüzeyi sarmalar; `onClose` = leave / cancel eylemi; `enabled` ile read-only kabuk kapatılabilir
+- `useReportFormDirty(values, baseline)` — değerler baseline’dan sapınca dirty kaydı
+- `useFormDirtyCancel` / `useModalFormCancel` — İptal, breadcrumb, geri için guard’lı leave
+- App `useNavigationDirtyGate` — sidebar / route / browser back / `beforeunload` aynı confirm’i kullanır
+
+**Sayfa / wizard kalıbı:**
+
+```tsx
+export function Page({ onCancel, ... }) {
+  return (
+    <FormDirtyHost onClose={onCancel}>
+      <PageInner onCancel={onCancel} ... />
+    </FormDirtyHost>
+  );
+}
+function PageInner({ onCancel }) {
+  const requestLeave = useModalFormCancel(onCancel);
+  useReportFormDirty(values, baseline);
+  // breadcrumbs / İptal / Vazgeç → requestLeave
+}
+```
+
+Başarılı kayıt/oluşturma sonrası navigation dirty temizlenmeden guarded nav çağrılmamalıdır (`clearNavigationDirtySources` veya unmount).
+
 ---
 
 ## 10. Button standardı
@@ -346,7 +385,7 @@ Davranış:
 - Desktop: centered
 - Tablet: wide
 - Mobile: full-width bottom-sheet tarzı + sticky footer
-- Focus trap; dirty formda backdrop/Escape ile sessiz dismiss yok (ADR-028)
+- Focus trap; dirty formda backdrop/Escape ile sessiz dismiss yok (ADR-028; evrensel kural §9 Dirty form)
 - Ad-hoc backdrop / custom footer chrome yasak
 
 ---

@@ -5,7 +5,7 @@
 | Field | Value |
 |-------|-------|
 | **Current Version** | v0.9.4 (Backup Format Options) |
-| **Last updated** | 2026-07-22 (Todo / Participation / Automation UI finalize) |
+| **Last updated** | 2026-07-22 (Scraper Automation e2e) |
 | **Constitution** | [CONSTITUTION.md](CONSTITUTION.md) |
 | **Changelog** | [CHANGELOG.md](CHANGELOG.md) |
 | **Product Vision** | [VISION.md](VISION.md) |
@@ -16,7 +16,7 @@
 
 | Check | Status |
 |-------|--------|
-| Backend tests (targeted this delivery: todos / participations / operations / activities) | **184 PASS** (2026-07-22) |
+| Backend tests (targeted this delivery: operations + fair scraper) | **52 PASS** (2026-07-22) |
 | Frontend build | **PASS** |
 | Frontend vitest (ActivityForm mapping helpers) | **PASS** (144 tests suite, 2026-07-22) |
 | UI governance gate `ALL` | **PASS** |
@@ -49,6 +49,18 @@ Details: [ops/DEV_RUNTIME.md](ops/DEV_RUNTIME.md) · [../../archive/fair-crm/rep
 ---
 
 ## Completed
+
+### ✅ Scraper Automation e2e (ADR-036) (2026-07-22)
+
+**First Operation type: Scraper**
+
+- `ScraperHandler` registered (`supports_retry`; pause/resume/schedule/items = false)
+- Create/start/cancel/retry via Operation Engine; background job = existing `FairScraperJobRunner`
+- Wizard: `/operations/new` tip seçici → `/operations/new/scraper`
+- Adapter-first fair filter; URL/`scraper_config` read-only; `requested_fields` + `max_pages`/`use_http`/`scrape_detail`
+- Result metadata: `scraper_run_id`, `import_batch_id`, total rows; Operation detail polls + Veri Entegrasyonu link
+- Enrichment adapter excluded; Fair Detail “Scraper Çalıştır…” UI action **removed** (start only via Otomasyonlar → Web Scraper)
+- Canon: [decisions/DECISIONS.md](decisions/DECISIONS.md) ADR-036
 
 ### ✅ Todo / Participation / Automation UI finalize (2026-07-22)
 

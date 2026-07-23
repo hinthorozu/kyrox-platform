@@ -8,6 +8,16 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### Scraper Automation e2e (ADR-036) — 2026-07-22
+
+- First executable Operation type: `scraper` via `ScraperHandler`
+- Otomasyonlar → tip seçici → `/operations/new/scraper` (Scraper Wizard)
+- Adapter → fair (adapter-filtered) → `requested_fields` → settings → summary/start
+- Reuses `FairScraperJobRunner` + import handoff; Operation ↔ `scraper_run_id` link; cancel/progress mapping
+- Fair Detail “Scraper Çalıştır…” UI action removed; scraper start is Otomasyonlar → Web Scraper only
+- Backend operations/scraper targeted tests PASS; frontend `npm run build` PASS
+- Canon: [decisions/DECISIONS.md](decisions/DECISIONS.md) ADR-036
+
 ### Todo / Participation / Automation UI finalize (acceptance 2026-07-22)
 
 **Todo (insan işi)**
