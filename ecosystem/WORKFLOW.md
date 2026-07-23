@@ -84,6 +84,16 @@ Read:
 - Minor implementation details that do not change product behavior may follow existing project patterns without an extra question.
 - When uncertainty is discovered after implementation has started, pause further changes, preserve completed safe work, and surface the exact ambiguity before continuing.
 
+### Simple-first / need-now execution rule
+
+- Implement and validate the **smallest working vertical slice first**. Prove the real path with the minimum fields, minimum UI, minimum API behavior, and minimum data needed for that step before enriching it.
+- A screen, wizard step, modal, or workflow stage must do **only the work required for that current stage**.
+- Do **not** preload, prefetch, validate, transform, prepare, or execute work for a later stage merely because it will be needed eventually.
+- Fetch or compute later-stage data **when the user enters or explicitly advances to the stage that needs it**, unless there is a measured, documented performance reason to preload it.
+- Do not add helper copy, summary rows, secondary metadata, extra controls, background preparation, or speculative UX before the basic working flow is accepted.
+- Enrichment happens **after** the simple real flow works end-to-end. “Future usefulness”, “common UX”, or “it may save a click later” is not sufficient justification to complicate the current step.
+- Example: if Step 1 is only “select a Fair”, Step 1 loads the Fair options, stores the selected Fair, and enables Next. Adapter capabilities, scraper config, output fields, and other Step 2 data must not block or delay Step 1; they load when Step 2 is entered.
+
 ### Boundaries
 
 - Work only in the repository that owns the change.
