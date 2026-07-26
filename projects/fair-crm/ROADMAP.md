@@ -259,7 +259,7 @@ Kapsam:
 
 ### Veri Temizleme Görevleri
 
-- Duplicate müşteri kontrolü.
+- Fuarsız Müşteri Analizi.
 - Eksik email listesi.
 - Eksik telefon listesi.
 - Hatalı ülke / şehir listesi.
