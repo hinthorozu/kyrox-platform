@@ -366,6 +366,35 @@ Bir tabloda `status`, `state`, `progress`, provider durumu, job/run durumu veya 
 
 Bu kural ilk veri yüklemesini veya kullanıcının bilinçli olarak farklı sayfa/filtre/sort sorgusuna geçmesini değil, **aynı tablo görünümündeki state/progress güncellemelerini** kapsar.
 
+### Initial loading / empty / error (bağlayıcı)
+
+Bir ekran veya component **ilk açıldığında** backend/API isteği devam ediyorsa ve henüz gösterilecek **başarılı veri yoksa**, kullanıcı **asla boş ekran görmez**.
+
+Zorunlu davranış:
+
+| Durum | UI |
+| --- | --- |
+| **Initial load** — `loading` ve henüz başarılı data yok | Açık loading state (`LoadingState` veya `TableSkeleton` / `ServerDataTableFrame`) |
+| **Request tamamlandı + 0 data** | `EmptyState` (yalnızca başarılı boş yanıt sonrası) |
+| **Request failed** — data yokken hata | `Banner` / `EmptyState` error; loading sonsuza kadar kalmaz |
+| **Data var + background refresh** | Mevcut data görünür; §11 sessiz yenileme |
+
+Kesinlikle yasak:
+
+- API devam ederken boş sayfa veya “kayıt bulunamadı” göstermek
+- Background refresh sırasında full-page / full-table initial loader veya skeleton açmak
+- Refresh sırasında mevcut başarılı datayı silmek veya gizlemek
+
+**Deliberate query change** (sayfa, filtre, sıralama, arama): kullanıcı yeni sorguya geçtiğinde loading UI gösterilir; bu sessiz refresh değildir. `useServerDataTable` + `ServerDataTableFrame`: `loading && !isRefreshing` → skeleton; `isRefreshing` → mevcut satırlar kalır.
+
+**Ortak pattern:**
+
+- Tam sayfa / panel / detay: `LoadingState` (`components/ui/LoadingState.tsx`); bağlama uygun mesaj (`uiLabels.loading*` / domain label).
+- Sunucu tabloları: `UniversalDataTable` + `ServerDataTableFrame` + `TableSkeleton`.
+- İsteğe bağlı sarmalayıcı: `InitialLoadGate` (aynı dosya).
+
+Mesaj bağlama göre özelleşebilir; **görsel loading pattern** ortak kalır (spinner + `loading-state` veya tablo skeleton).
+
 **Tablo yalnızca overflow vermiyor diye doğru kabul edilmez.** Okunabilirlik, hiyerarşi, action erişimi ve child-row davranışı da PASS koşuludur.
 
 Detay: [RESPONSIVE_UI_STANDARD.md](RESPONSIVE_UI_STANDARD.md) §8 — çelişkide bu master.
@@ -608,6 +637,8 @@ Bir frontend UI işi aşağıdaki maddeler sağlanmadan **DONE değildir**:
 - [ ] Form / control width doğru (§9)
 - [ ] Add/create/edit/update veri girişinde dirty-guard doğrulandı (§9)
 - [ ] Tablo state/progress yenilemesi varsa full loading yerine sessiz arka plan yenilemesi kullanılıyor (§11)
+- [ ] İlk async veri yüklemesinde boş UI gösterilmiyor; loading / empty / error ayrılmış (§11 Initial loading)
+- [ ] Mevcut başarılı data üzerindeki refresh sessiz yapılıyor (§11)
 - [ ] Visual hierarchy doğru (§17)
 - [ ] Gerçek Visual QA geçti (§18)
 - [ ] Accessibility regression yok (§19)
