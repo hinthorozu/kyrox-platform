@@ -353,6 +353,19 @@ Kurallar:
 - Column squeeze / `word-break: break-all` hack yasak.
 - Dual top+bottom pagination varsayılandır.
 
+### Sessiz state / progress yenileme kuralı (bağlayıcı)
+
+Bir tabloda `status`, `state`, `progress`, provider durumu, job/run durumu veya benzeri canlı alanların güncel tutulması gerekiyorsa **tam tabloyu veya sayfayı yeniden loading/skeleton durumuna almak yasaktır**.
+
+- Yenileme arka planda **sessiz** yapılır.
+- Mevcut tablo görünür kalır; yalnızca değişen satır/hücre değerleri yeni veriyle güncellenir.
+- Sayfalama, filtreler, sıralama, arama, scroll konumu ve seçili/genişletilmiş satırlar korunur.
+- Açık modal/form/drawer/wizard state’i background refresh nedeniyle bozulamaz veya kapanamaz.
+- Polling, işlem sonrası otomatik refresh ve aynı görünüm içindeki state senkronizasyonu bu kurala tabidir.
+- Background refresh sırasında mevcut başarılı veri boşaltılamaz ve kullanıcıya full-table loading flicker gösterilemez.
+
+Bu kural ilk veri yüklemesini veya kullanıcının bilinçli olarak farklı sayfa/filtre/sort sorgusuna geçmesini değil, **aynı tablo görünümündeki state/progress güncellemelerini** kapsar.
+
 **Tablo yalnızca overflow vermiyor diye doğru kabul edilmez.** Okunabilirlik, hiyerarşi, action erişimi ve child-row davranışı da PASS koşuludur.
 
 Detay: [RESPONSIVE_UI_STANDARD.md](RESPONSIVE_UI_STANDARD.md) §8 — çelişkide bu master.
@@ -594,6 +607,7 @@ Bir frontend UI işi aşağıdaki maddeler sağlanmadan **DONE değildir**:
 - [ ] Overflow / overlap / clipping yok
 - [ ] Form / control width doğru (§9)
 - [ ] Add/create/edit/update veri girişinde dirty-guard doğrulandı (§9)
+- [ ] Tablo state/progress yenilemesi varsa full loading yerine sessiz arka plan yenilemesi kullanılıyor (§11)
 - [ ] Visual hierarchy doğru (§17)
 - [ ] Gerçek Visual QA geçti (§18)
 - [ ] Accessibility regression yok (§19)
