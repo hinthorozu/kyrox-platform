@@ -28,6 +28,7 @@ Single source of truth rules for all KYROX documentation. Documentation lives **
 | Core vs product separation | [ADR-0002](decisions/0002-core-product-separation.md) |
 | Identity security (as-built) | [ADR-0003](decisions/0003-identity-security-strategy.md) |
 | Audit strategy | [ADR-0004](decisions/0004-audit-service-strategy.md) |
+| Role templates and permission governance | [ADR-0005](decisions/0005-role-template-and-permission-governance.md) |
 | Process / workflow | `ecosystem/WORKFLOW.md` |
 | Fair CRM live product status | `projects/fair-crm/PROJECT_STATUS.md` |
 | Fair CRM product constitution / DoD | `projects/fair-crm/CONSTITUTION.md` |

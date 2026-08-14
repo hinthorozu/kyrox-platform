@@ -20,6 +20,7 @@ Index of architecture and ecosystem decisions for KYROX. ADRs live in this direc
 | [0002](0002-core-product-separation.md) | Core and product separation | Accepted | 2026-07-01 |
 | [0003](0003-identity-security-strategy.md) | Identity security strategy | Accepted | 2026-07-01 |
 | [0004](0004-audit-service-strategy.md) | Audit service strategy | Accepted | 2026-07-01 |
+| [0005](0005-role-template-and-permission-governance.md) | Role template and permission governance | Accepted | 2026-08-14 |
 
 ## Creating a new ADR
 

@@ -104,6 +104,14 @@ Products must honor this Core authorization result and must not add local role, 
 
 The canonical invariant and lifecycle protections are defined in [ADR-0003: Identity security strategy](../../../ecosystem/decisions/0003-identity-security-strategy.md#platform-super-admin-invariant).
 
+### Role templates and permission lifecycle
+
+`OrganizationAdmin`, `ReadUser`, `CreateUpdateUser`, and `FullUser` are database-backed system definitions and never authorization bypasses. `OrganizationAdmin` is a protected role assignable in every organization. The other three are templates from which Super Admin creates organization-specific, editable roles. Products must authorize from Core's permission decision, never from a role name or template type.
+
+Super Admin may explicitly synchronize existing derived roles from a changed template. Core also owns platform-wide permission locking: a locked or inactive permission is removed from all system, derived, and custom roles and cannot be reassigned by an organization administrator. Super Admin remains unaffected because ADR-0003's flag-based bypass runs before permission lifecycle enforcement.
+
+The canonical model, propagation scopes, preview/audit requirements, and permission states are defined in [ADR-0005: Role template and permission governance](../../../ecosystem/decisions/0005-role-template-and-permission-governance.md).
+
 ### Permission code format
 
 Dot-separated, lowercase, minimum three segments:
