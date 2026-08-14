@@ -1,6 +1,6 @@
 # ADR-0003: Identity security strategy
 
-- **Status:** Accepted (as-built amendment 2026-07-22)
+- **Status:** Accepted (as-built amendments 2026-07-22 and 2026-08-14)
 - **Date:** 2026-07-01
 - **Deciders:** KYROX ecosystem maintainers
 
@@ -31,6 +31,7 @@ Adopt the following **Identity Security Strategy** for KYROX Core:
 | 13 | Secrets management | **Environment-based** initially; secret manager later |
 | 14 | JWT claims (access token, as-built) | `sub`, `email`, `sid`, `exp`, `iat`, `jti` |
 | 15 | Organization context | **`X-Organization-Id` header** (not a JWT claim) |
+| 16 | Platform Super Admin | **User flag, never a role; complete authorization bypass** |
 
 ### JWT claims (as-built)
 
@@ -47,6 +48,23 @@ Adopt the following **Identity Security Strategy** for KYROX Core:
 - Users belong to one or more **organizations**.
 - Org-scoped Core and product routes require `Authorization: Bearer …` and `X-Organization-Id`.
 - Domain language uses **organization**, not a parallel *tenant* entity (see Core ADR on organization naming).
+
+### Platform Super Admin invariant
+
+`identity_users.is_super_admin` is the sole source of Platform Super Admin authority. Platform Super Admin is **not a role** and must never be represented, inferred, inherited, or granted through a role, permission, membership, organization assignment, or permission seed.
+
+After successful authentication, a user whose current database record has `is_super_admin = true` bypasses every authorization restriction across Core and integrated products, including:
+
+- RBAC, role, and CRUD permission checks;
+- permission-code normalization, registration, seed, and lookup requirements;
+- organization membership, organization scope, and ownership checks;
+- authorization guards added by future modules or endpoints.
+
+Therefore a Platform Super Admin remains authorized when a permission record or seed does not yet exist. Authentication and token-validity checks are not bypassed.
+
+For every user with `is_super_admin = false`, normal database-backed RBAC, CRUD permission, membership, scope, and ownership rules apply. No role, including `OrganizationAdmin`, may contain a hardcoded bypass.
+
+Only an existing active Platform Super Admin may set or clear another user's `is_super_admin` flag through the application/API. A user cannot obtain this authority through role, permission, or membership changes. The system must always retain at least one active, non-deleted Platform Super Admin: the last one cannot be demoted, suspended, deactivated, or deleted, including by themselves.
 
 ## Consequences
 

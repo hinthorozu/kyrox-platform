@@ -96,6 +96,14 @@ Rules:
 
 ## 5. Authorization (RBAC)
 
+### Platform Super Admin
+
+Platform Super Admin is not a role. It is determined only by the authenticated user's `identity_users.is_super_admin` database flag. After authentication, Core returns an authorization allow result before account authorization state, RBAC, permission lookup, membership, organization scope, or ownership enforcement. This also covers new or unseeded permission codes.
+
+Products must honor this Core authorization result and must not add local role, membership, scope, ownership, hide, disable, or CRUD checks that can deny a Platform Super Admin. For all other users, products must remain fail-closed and enforce the normal database-backed authorization result. Only an active Platform Super Admin may change the flag, and no role—including `OrganizationAdmin`—may receive the same bypass.
+
+The canonical invariant and lifecycle protections are defined in [ADR-0003: Identity security strategy](../../../ecosystem/decisions/0003-identity-security-strategy.md#platform-super-admin-invariant).
+
 ### Permission code format
 
 Dot-separated, lowercase, minimum three segments:
@@ -152,9 +160,10 @@ Response:
 
 Notes:
 
-- Requires authentication and active organization membership.
+- Requires authentication. Normal users also require active organization membership; Platform Super Admin bypasses membership and organization-scope authorization.
 - Does **not** require the permission being checked — use this before enforcing product route access.
 - Returns `allowed: false` when the user lacks the permission (HTTP 200, not 403).
+- Returns `allowed: true` for a Platform Super Admin even when the requested permission code has not been registered or seeded.
 
 Protected Core routes use `require_permission` internally and return `403` when denied.
 
