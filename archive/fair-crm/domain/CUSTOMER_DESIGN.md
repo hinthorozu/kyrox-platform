@@ -288,7 +288,7 @@ Search is combined with optional `status` and `customer_type` filters. Archived 
 | `GET /customers/{id}` | `fair_crm.customers.read` |
 | `POST /customers` | `fair_crm.customers.create` |
 | `PATCH /customers/{id}` | `fair_crm.customers.update` |
-| `DELETE /customers/{id}` | `fair_crm.customers.archive` |
+| `DELETE /customers/{id}` | `fair_crm.customers.delete` |
 
 **Enforcement (service boundary):**
 

@@ -140,7 +140,7 @@ Product routes require product permissions:
 | `fair_crm.customers.read` | List and get customers |
 | `fair_crm.customers.create` | Create customers |
 | `fair_crm.customers.update` | Update customers |
-| `fair_crm.customers.archive` | Archive customers |
+| `fair_crm.customers.delete` | Archive customers |
 
 ### Intended flow
 

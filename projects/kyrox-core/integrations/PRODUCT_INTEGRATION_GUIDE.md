@@ -143,7 +143,7 @@ Migration `20260701_0025` registers:
 | `fair_crm.customers.create` | Create CRM customers |
 | `fair_crm.customers.read` | Read CRM customers |
 | `fair_crm.customers.update` | Update CRM customers |
-| `fair_crm.customers.archive` | Archive CRM customers |
+| `fair_crm.customers.delete` | Archive CRM customers |
 
 Assign these codes to organization roles in Core. Products check them via the authorization check API above.
 

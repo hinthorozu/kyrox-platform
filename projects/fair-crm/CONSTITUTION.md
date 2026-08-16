@@ -2,7 +2,7 @@
 
 **Status:** Canonical development constitution  
 **Scope:** `fair-crm` repository only  
-**Current version:** v0.3.0
+**Current version:** v0.9.4
 
 This document is the official development constitution of the KYROX Fair CRM project. All future development in `fair-crm` must follow these rules. When in doubt, this file takes precedence over informal notes or chat history.
 

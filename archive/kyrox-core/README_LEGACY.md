@@ -96,7 +96,7 @@ python scripts/quality_check.py
 | `fair_crm.customers.create` | FAIR CRM | Create CRM customers |
 | `fair_crm.customers.read` | FAIR CRM | Read CRM customers |
 | `fair_crm.customers.update` | FAIR CRM | Update CRM customers |
-| `fair_crm.customers.archive` | FAIR CRM | Archive CRM customers |
+| `fair_crm.customers.delete` | FAIR CRM | Archive CRM customers |
 
 Seeded by migration `20260701_0025`. Assign to roles via Core RBAC; products enforce access through the authorization check API.
 
