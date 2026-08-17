@@ -16,6 +16,7 @@ First KYROX product: multi-tenant fair / exhibition CRM built on KYROX Core iden
 | [CHANGELOG.md](CHANGELOG.md) | Product release history |
 | [CONSTITUTION.md](CONSTITUTION.md) | Binding development constitution / DoD |
 | [DEVELOPMENT_STANDARD.md](DEVELOPMENT_STANDARD.md) | Binding feature-delivery execution order and acceptance gates |
+| [FEATURE_APPLICABILITY_STANDARD.md](FEATURE_APPLICABILITY_STANDARD.md) | Binding feature profiles and REQUIRED / N/A gate rules |
 | [VISION.md](VISION.md) | Long-term product vision |
 | [architecture/ARCHITECTURE.md](architecture/ARCHITECTURE.md) | Service layout and modules |
 | [decisions/DECISIONS.md](decisions/DECISIONS.md) | Product ADRs |
