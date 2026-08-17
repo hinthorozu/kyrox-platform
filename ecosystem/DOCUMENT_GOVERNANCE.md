@@ -32,8 +32,10 @@ Single source of truth rules for all KYROX documentation. Documentation lives **
 | Process / workflow | `ecosystem/WORKFLOW.md` |
 | Fair CRM live product status | `projects/fair-crm/PROJECT_STATUS.md` |
 | Fair CRM product constitution / DoD | `projects/fair-crm/CONSTITUTION.md` |
+| Fair CRM feature delivery execution order / acceptance gates | `projects/fair-crm/DEVELOPMENT_STANDARD.md` |
 | Fair CRM product ADRs | `projects/fair-crm/decisions/DECISIONS.md` |
 | Fair CRM UI standard | `projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md` |
+| Fair CRM permission scope governance | `projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md` |
 | Fair CRM import architecture | `projects/fair-crm/import/IMPORT_ARCHITECTURE.md` |
 | Core live status | `projects/kyrox-core/PROJECT_STATUS.md` |
 | Core product integration contract | `projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md` |
