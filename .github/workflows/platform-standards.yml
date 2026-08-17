@@ -1,0 +1,162 @@
+name: Platform Standards CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  platform-standards:
+    name: Platform Standards CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate platform documentation governance
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import re
+          import sys
+          from pathlib import Path
+          from urllib.parse import unquote
+
+          root = Path.cwd().resolve()
+
+          required_files = [
+              "AGENTS.md",
+              "ecosystem/DOCUMENT_GOVERNANCE.md",
+              "ecosystem/STATUS.md",
+              "ecosystem/ROADMAP.md",
+              "ecosystem/WORKFLOW.md",
+              "ecosystem/REPOSITORY_STRATEGY.md",
+              "projects/fair-crm/README.md",
+              "projects/fair-crm/PROJECT_STATUS.md",
+              "projects/fair-crm/CONSTITUTION.md",
+              "projects/fair-crm/DEVELOPMENT_STANDARD.md",
+              "projects/fair-crm/FEATURE_APPLICABILITY_STANDARD.md",
+              "projects/fair-crm/QUALITY_GATE_STANDARD.md",
+              "projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md",
+              "projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md",
+              "projects/kyrox-core/README.md",
+              "projects/kyrox-core/PROJECT_STATUS.md",
+              "projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md",
+              "standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md",
+          ]
+
+          errors: list[str] = []
+
+          for relative in required_files:
+              path = root / relative
+              if not path.is_file():
+                  errors.append(f"missing canonical file: {relative}")
+              elif path.stat().st_size == 0:
+                  errors.append(f"empty canonical file: {relative}")
+
+          governance_path = root / "ecosystem/DOCUMENT_GOVERNANCE.md"
+          if governance_path.is_file():
+              governance = governance_path.read_text(encoding="utf-8")
+              ssot_paths = [
+                  "projects/fair-crm/DEVELOPMENT_STANDARD.md",
+                  "projects/fair-crm/FEATURE_APPLICABILITY_STANDARD.md",
+                  "projects/fair-crm/QUALITY_GATE_STANDARD.md",
+                  "projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md",
+                  "projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md",
+                  "standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md",
+              ]
+              for relative in ssot_paths:
+                  if relative not in governance:
+                      errors.append(f"canonical SSoT is not registered in DOCUMENT_GOVERNANCE.md: {relative}")
+
+          # kyrox-platform is documentation-only. CI/tooling under .github is allowed,
+          # but application source files must not be introduced into the live tree.
+          application_suffixes = {
+              ".py", ".pyi", ".js", ".jsx", ".ts", ".tsx", ".go", ".rs",
+              ".java", ".kt", ".kts", ".cs", ".php", ".rb", ".swift",
+          }
+          application_filenames = {
+              "Dockerfile", "docker-compose.yml", "docker-compose.yaml",
+              "package.json", "pnpm-lock.yaml", "yarn.lock", "pyproject.toml",
+              "requirements.txt", "Cargo.toml", "go.mod",
+          }
+
+          for path in root.rglob("*"):
+              if not path.is_file():
+                  continue
+              rel = path.relative_to(root)
+              if rel.parts and rel.parts[0] in {".git", ".github", "archive", "_migration"}:
+                  continue
+              if path.suffix.lower() in application_suffixes or path.name in application_filenames:
+                  errors.append(f"application code/config is not allowed in documentation-only repo: {rel.as_posix()}")
+
+          live_markdown: list[Path] = []
+          for path in root.rglob("*.md"):
+              rel = path.relative_to(root)
+              if rel.parts and rel.parts[0] in {"archive", "_migration", ".git"}:
+                  continue
+              live_markdown.append(path)
+
+          conflict_markers = ("<<<<<<<", "=======", ">>>>>>>")
+          for path in live_markdown:
+              text = path.read_text(encoding="utf-8")
+              if any(marker in text for marker in conflict_markers):
+                  errors.append(f"merge-conflict marker found: {path.relative_to(root).as_posix()}")
+
+          # Validate local Markdown links in live documentation. External URLs and
+          # anchor-only links are intentionally excluded from this deterministic gate.
+          link_pattern = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+          schemes = ("http://", "https://", "mailto:", "tel:")
+
+          for path in live_markdown:
+              text = path.read_text(encoding="utf-8")
+              for raw_target in link_pattern.findall(text):
+                  target = raw_target.strip().strip("<>")
+                  if not target or target.startswith("#") or target.startswith(schemes):
+                      continue
+                  # Absolute site links are not repository-local filesystem links.
+                  if target.startswith("/"):
+                      continue
+                  # Optional Markdown link titles are not used by canonical docs; if
+                  # encountered, keep only the target token.
+                  if " \"" in target or " '" in target:
+                      target = target.split(" ", 1)[0]
+                  target = unquote(target.split("#", 1)[0].split("?", 1)[0])
+                  if not target:
+                      continue
+                  resolved = (path.parent / target).resolve()
+                  try:
+                      resolved.relative_to(root)
+                  except ValueError:
+                      errors.append(
+                          f"local link escapes repository: {path.relative_to(root).as_posix()} -> {raw_target}"
+                      )
+                      continue
+                  if not resolved.exists():
+                      errors.append(
+                          f"broken local link: {path.relative_to(root).as_posix()} -> {raw_target}"
+                      )
+
+          if errors:
+              print("Platform Standards CI FAILED", file=sys.stderr)
+              for error in sorted(set(errors)):
+                  print(f"- {error}", file=sys.stderr)
+              raise SystemExit(1)
+
+          print(f"Platform Standards CI PASS: {len(required_files)} canonical files verified")
+          print(f"Platform Standards CI PASS: {len(live_markdown)} live Markdown files checked")
+          print("Platform Standards CI PASS: SSoT registration, repository shape, conflict markers, and local links verified")
+          PY
