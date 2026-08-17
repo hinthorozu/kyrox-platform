@@ -15,10 +15,12 @@ First KYROX product: multi-tenant fair / exhibition CRM built on KYROX Core iden
 | [ROADMAP.md](ROADMAP.md) | Product ops / sprint backlog |
 | [CHANGELOG.md](CHANGELOG.md) | Product release history |
 | [CONSTITUTION.md](CONSTITUTION.md) | Binding development constitution / DoD |
+| [DEVELOPMENT_STANDARD.md](DEVELOPMENT_STANDARD.md) | Binding feature-delivery execution order and acceptance gates |
 | [VISION.md](VISION.md) | Long-term product vision |
 | [architecture/ARCHITECTURE.md](architecture/ARCHITECTURE.md) | Service layout and modules |
 | [decisions/DECISIONS.md](decisions/DECISIONS.md) | Product ADRs |
 | [frontend/FRONTEND_UI_MASTER_STANDARD.md](frontend/FRONTEND_UI_MASTER_STANDARD.md) | UI master standard |
+| [PERMISSION_SCOPE_GOVERNANCE.md](PERMISSION_SCOPE_GOVERNANCE.md) | Permission scope / role governance |
 | [import/IMPORT_ARCHITECTURE.md](import/IMPORT_ARCHITECTURE.md) | Import / data integration architecture |
 | [integrations/INTEGRATION_WITH_CORE.md](integrations/INTEGRATION_WITH_CORE.md) | Core HTTP integration notes |
 | [ops/DEV_RUNTIME.md](ops/DEV_RUNTIME.md) | Local development runtime |
