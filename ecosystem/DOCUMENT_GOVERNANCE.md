@@ -34,6 +34,7 @@ Single source of truth rules for all KYROX documentation. Documentation lives **
 | Fair CRM product constitution / DoD | `projects/fair-crm/CONSTITUTION.md` |
 | Fair CRM feature delivery execution order / acceptance gates | `projects/fair-crm/DEVELOPMENT_STANDARD.md` |
 | Fair CRM feature applicability / REQUIRED-N/A rules | `projects/fair-crm/FEATURE_APPLICABILITY_STANDARD.md` |
+| Fair CRM CI / zero-new-regression / legacy quality-debt rules | `projects/fair-crm/QUALITY_GATE_STANDARD.md` |
 | Fair CRM product ADRs | `projects/fair-crm/decisions/DECISIONS.md` |
 | Fair CRM UI standard | `projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md` |
 | Fair CRM permission scope governance | `projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md` |
