@@ -1,57 +1,50 @@
 # KYROX Core — Project Status
 
-Living status for the Core platform. Ecosystem summary: [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md). Do not duplicate this matrix into standards or ADRs.
+Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md). Future work: [ROADMAP.md](ROADMAP.md).
 
 | Field | Value |
 |-------|-------|
-| Current version | v0.4.0 |
-| Alembic head | `20260701_0025` |
-| Repository status | Frozen — bug/security/performance fixes + CRM-driven reusable needs only |
-| Platform baseline | Completed |
-| Active ecosystem milestone | M4 (product delivery; Core frozen) |
+| Last verified | **2026-08-19** |
+| Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
+| Active ecosystem milestone | M4 — FAIR CRM v1 |
+| Migration head in `main` | `20260817_0059_repair_organization_admin_permissions` |
+| Main CI | Green at latest repository verification |
 
-## Capability matrix
+## Current capability state
 
 | Area | Status |
 |------|--------|
-| Foundation | Completed — v0.1.0 |
-| Identity | Completed — v0.2.0 |
-| Authentication | Completed |
-| Authorization | Completed — v0.2.1 Authorization Hardening |
-| Organization | Completed — v0.3.0 |
-| Membership | Completed — v0.3.0 |
-| Audit Query API | Completed |
-| Audit Event Write API | Completed |
-| Product Authorization Check API | Completed |
-| Settings Platform | Completed — v0.4.0 |
-| Background Jobs Platform | Completed — v0.4.0 |
-| Notifications Platform | Completed — v0.4.0 |
-| FAIR CRM permission seeds | Completed — migration `20260701_0025` |
-| File Storage | Planned |
-| Caching | Planned |
-| Observability | Planned |
-| DevOps | Planned |
+| Identity and authentication | Implemented |
+| Authorization | Implemented |
+| Organization and user management | Implemented |
+| Roles and permissions | Implemented and evolved through later migrations |
+| Audit | Implemented |
+| Settings | Implemented |
+| Background jobs | Implemented |
+| Notifications | Implemented |
+| Product authorization integration | Implemented |
+| FAIR CRM permission catalog support | Implemented, including quotation and cost-catalog permissions |
+| File storage | Planned |
+| Caching | Demand-driven candidate |
+| Observability | Demand-driven candidate |
+
+## Migration status
+
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260817_0059_repair_organization_admin_permissions` and includes later FAIR CRM product permissions, organization/user-role governance changes, permission consolidation/scope changes and cost-catalog permissions.
+
+The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 
 ## Integration contract
 
-Products integrate via HTTP only: [integrations/PRODUCT_INTEGRATION_GUIDE.md](integrations/PRODUCT_INTEGRATION_GUIDE.md).
+Products integrate with Core through public HTTP APIs. Product domain implementation stays in the product repository.
 
-As-built auth facts:
-
-- JWT access claims: `sub`, `email`, `sid`, `exp`, `iat`, `jti`
-- Organization scope: `X-Organization-Id` header (not embedded in JWT)
-- Security ADR: [../../ecosystem/decisions/0003-identity-security-strategy.md](../../ecosystem/decisions/0003-identity-security-strategy.md)
-
-## Roadmap
-
-Freeze policy and future Core work: [ROADMAP.md](ROADMAP.md).  
-Deferred items: [../../ecosystem/KNOWN_DEFERRED.md](../../ecosystem/KNOWN_DEFERRED.md).
+Canonical contract: [integrations/PRODUCT_INTEGRATION_GUIDE.md](integrations/PRODUCT_INTEGRATION_GUIDE.md).
 
 ## Update protocol
 
-When Core ships a release or meaningful capability change:
+When Core changes materially:
 
-1. Update this file’s version, alembic head, and capability matrix.
-2. Update [CHANGELOG.md](CHANGELOG.md).
-3. Refresh the Core summary section in [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md).
-4. Do not paste test counts or commit SHAs into permanent standards.
+1. Update this file with current capability truth and migration head when useful.
+2. Update [CHANGELOG.md](CHANGELOG.md) for delivered history.
+3. Refresh the summary in [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md).
+4. Keep exact test counts and commit SHAs out of permanent standards and roadmap documents.
