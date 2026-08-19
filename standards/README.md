@@ -12,6 +12,7 @@ Before reading a product-specific standard, check this index and read every shar
 
 ### Development / feature delivery
 
+- [Feature Delivery Standard](development/FEATURE_DELIVERY_STANDARD.md) — canonical design → ownership/security → backend → UI → test/runtime → deployment/DoD execution order.
 - [Feature Applicability Standard](development/FEATURE_APPLICABILITY_STANDARD.md) — canonical feature profiles, REQUIRED/N/A gates, tenant-isolation independence, UI/job/system applicability and review discipline.
 
 ### Quality
