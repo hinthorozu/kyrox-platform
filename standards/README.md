@@ -21,6 +21,7 @@ Before reading a product-specific standard, check this index and read every shar
 
 ### UI / authorization
 
+- [UI Foundation Standard](ui/UI_FOUNDATION_STANDARD.md) — one design system, shared primitives, tokens, responsive/visual QA, accessibility, dirty-form and loading-state foundations.
 - [CRUD & UI Authorization Standard](ui/CRUD_UI_AUTHORIZATION_STANDARD.md) — canonical CRUD permission semantics, UI visibility, navigation/route/action gating and backend enforcement.
 
 ### Backend
