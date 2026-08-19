@@ -1,6 +1,6 @@
 # KYROX Ecosystem Roadmap
 
-High-level milestone sequence. Live progress: [STATUS.md](STATUS.md). Product sprint detail: [fair-crm ROADMAP](../projects/fair-crm/ROADMAP.md) and [Core ROADMAP](../projects/kyrox-core/ROADMAP.md).
+High-level milestone and direction document. **Current truth belongs in [STATUS.md](STATUS.md); product work queues belong in project roadmaps.** Do not put exact test counts, migration heads, current commit SHAs or detailed sprint histories here.
 
 ## Milestones
 
@@ -8,56 +8,39 @@ High-level milestone sequence. Live progress: [STATUS.md](STATUS.md). Product sp
 |-----------|------|--------|----------|
 | **M1** | Foundation | Completed | [archive](../archive/milestones/M1_FOUNDATION.md) |
 | **M2** | Identity Platform | Completed | [archive](../archive/milestones/M2_IDENTITY.md) |
-| **M3** | Platform Services | Completed | [archive](../archive/../archive/milestones/M3_PLATFORM_SERVICES.md) |
+| **M3** | Platform Services | Completed | [archive](../archive/milestones/M3_PLATFORM_SERVICES.md) |
 | **M4** | FAIR CRM v1 | **Active** | [MILESTONE_M4](../projects/fair-crm/MILESTONE_M4.md) |
 
-## kyrox-core release history
+## M4 — FAIR CRM v1
 
-| Release | Scope |
-|---------|-------|
-| v0.1.0 | Foundation |
-| v0.2.0 | Identity Core |
-| v0.2.1 | Authorization Hardening |
-| v0.3.0 | Organization & Membership Platform |
-| v0.4.0 | Platform Services and product integration baseline |
+Goal: ship and harden the first KYROX product on the reusable Core platform.
 
-**Current:** v0.4.0 — platform baseline complete. kyrox-core is frozen except bug fixes, security fixes, performance fixes, and CRM-driven reusable platform needs.
+**Primary implementation repo:** `fair-crm`  
+**Product status:** [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PROJECT_STATUS.md)  
+**Product work queue:** [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.md)
 
-## M1 — Foundation (completed)
+M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated here. Core changes during M4 are limited to fixes and reusable platform capabilities required by real product needs.
 
-Establish repository strategy, ecosystem vision, decision workflow, and the kyrox-platform documentation hub. Define the three-repo model and Core vs product separation.
+## Core direction during M4
 
-## M2 — Identity Platform (completed)
+Core remains product-agnostic and is not a destination for FAIR CRM domain logic. Reusable needs discovered by products may be promoted to Core only after the ownership boundary is clear and the public integration contract remains intact.
 
-Identity and access foundations in kyrox-core: users, organizations, authentication, authorization, session/token strategy. Security baseline: [ADR-0003](decisions/0003-identity-security-strategy.md). Delivered across kyrox-core v0.2.0–v0.3.0.
+Core-specific future work: [projects/kyrox-core/ROADMAP.md](../projects/kyrox-core/ROADMAP.md).
 
-## M3 — Platform Services (completed)
+## After M4
 
-Shared platform services in kyrox-core: audit, settings, background jobs, notifications, product authorization check, FAIR CRM permission seeds. Delivered in kyrox-core v0.4.0 (Alembic head `20260701_0025`). File Storage remains planned.
+Indicative ecosystem direction, subject to explicit planning/ADR decisions:
 
-## M4 — FAIR CRM v1 (active)
+- production hardening based on real product operation,
+- promote proven reusable capabilities into Core when justified by more than product-specific semantics,
+- deliver deferred Core capabilities when actual product demand requires them,
+- add future KYROX products without duplicating shared standards or platform infrastructure.
 
-Ship the first KYROX product on Core identity and platform services.
-
-**Primary repo:** `fair-crm`  
-**Canonical product status:** [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PROJECT_STATUS.md)
-
-### Delivery snapshot (do not duplicate sprint tables)
-
-- Customer, Fair, Participation, Contacts, Activities foundations completed
-- Adapter management, linked fairs, Run v2 + JSON handoff completed
-- Import / Data Integration engine, merge, preview, Excel source adapter completed
-- Admin database backups MVP completed
-- Responsive UI / UniversalDataTable standard completed
-- **Next planned product sprint:** CSV Source Adapter (09.3), then customer emails / admin backup operations tracks
-
-### Planned after M4 (indicative)
-
-- Production hardening and feedback into Core
-- Core File Storage and other deferred platform capabilities when product demand requires them ([KNOWN_DEFERRED.md](KNOWN_DEFERRED.md))
+Deferred platform items: [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md).
 
 ## Related
 
 - [STATUS.md](STATUS.md)
 - [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md)
 - [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md)
+- [WORKFLOW.md](WORKFLOW.md)

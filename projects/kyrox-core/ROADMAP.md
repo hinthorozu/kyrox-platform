@@ -1,85 +1,52 @@
-﻿# KYROX Core Roadmap
+# KYROX Core Roadmap
 
-This roadmap describes KYROX Core as a reusable SaaS platform service. Core provides platform capabilities that products consume through public APIs. Product domain logic does not belong in this repository.
+KYROX Core is the reusable SaaS backend platform for KYROX products. This document contains **future direction and accepted planning only**. Current version, migration state, CI state and capability truth belong in [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
-## Current Status
+## Guiding rule
 
-| Area | Status |
-|------|--------|
-| Current release | v0.4.0 |
-| Platform baseline | Completed |
-| Repository mode | Frozen except bug fixes, security fixes, performance fixes, and CRM-driven reusable platform needs |
-| Alembic head | `20260701_0025` |
-| Test count | 307 passed, 1 skipped |
+Core remains product-agnostic. Product domain behavior stays in product repositories. Products integrate with Core through documented public HTTP APIs and contracts.
 
-## Guiding Rule
+During FAIR CRM M4, Core is frozen against speculative platform development. Allowed work is limited to:
 
-Design before implementation. Documentation and architectural decisions precede backend code. Core remains product-agnostic; product services integrate through public HTTP APIs and documented contracts.
+- bug fixes,
+- security fixes,
+- performance/reliability fixes,
+- reusable platform needs proven by a real product requirement.
 
-## Completed Platform Milestones
+A reusable-looking capability must have an explicit ownership decision before migration or implementation. Do not move FAIR CRM business semantics into Core merely to make code reusable.
 
-| Milestone | Status | Scope |
-|-----------|--------|-------|
-| Sprint 0.1 | Completed - v0.1.0 | Architecture and repository documentation |
-| Sprint 0.2 | Completed - v0.1.0 | Backend foundation, tooling, health checks |
-| Sprint 0.2.5 | Completed | Backend architecture standards |
-| Sprint 0.3 | Completed | Identity platform design |
-| Sprint 0.3.2 | Completed - v0.2.0 | Identity persistence |
-| Sprint 0.3.3 | Completed - v0.2.0 | Authentication core |
-| Sprint 0.3.4 | Completed - v0.2.0/v0.2.1 | Authorization core and hardening |
-| Sprint 0.3.5 | Completed - v0.3.0 | Organization and membership platform |
-| Sprint 0.4.0 | Completed - v0.4.0 | Platform services |
+## Existing platform baseline
 
-## Platform Services Baseline
+The existing Core baseline covers identity/authentication, organization/user/role governance, authorization, audit, settings, background jobs, notifications and product authorization integration. See [PROJECT_STATUS.md](PROJECT_STATUS.md) for current implementation truth.
 
-| Service | Status | Notes |
-|---------|--------|-------|
-| Audit Query API | Completed | Org-scoped audit log listing |
-| Audit Event Write API | Completed | Product integration API for append-only audit events |
-| Settings Platform | Completed | Org and system scoped settings |
-| Background Jobs Platform | Completed | Enqueue and status APIs |
-| Notifications Platform | Completed | Async notification dispatch via jobs |
-| Product Authorization Check API | Completed | Products check current-user permissions through Core |
-| FAIR CRM permission seeds | Completed | Core migration `20260701_0025` seeds customer permissions |
-| File Storage | Planned | Future platform capability |
+## Future platform candidates
 
-## Product Integration Baseline
+These are candidates, not automatically scheduled work:
 
-The original Sprint 1.0 FAIR CRM product delivery is active; Core integration APIs are available. The reusable Core pieces needed by the first product integration are available as public APIs and documented in [Product Integration Guide](integrations/PRODUCT_INTEGRATION_GUIDE.md).
+- file storage service,
+- webhooks / event-bus capabilities,
+- billing and subscription hooks,
+- advanced platform administration and impersonation policies,
+- caching where justified by measured need,
+- observability and operational hardening,
+- performance and scaling hardening.
 
-Current integration capabilities:
+A candidate becomes active work only through the KYROX planning/ADR flow or a documented reusable product need.
 
-- Login, refresh, and logout APIs
-- Organization and membership APIs
-- Product authorization check API: `POST /api/v1/organizations/{organization_id}/authorization/check`
-- Audit event write API: `POST /api/v1/organizations/{organization_id}/audit-events`
-- Audit query API
-- Settings APIs
-- Background jobs APIs
-- Notifications APIs
-- Product permission seed baseline for FAIR CRM customers in migration `20260701_0025`
+## Product-driven platform extraction
 
-Core does not contain FAIR CRM entities, CRM workflows, adapter logic, import pipeline logic, or product UI behavior.
+When FAIR CRM or a future product develops infrastructure that appears reusable:
 
-## Active Core Policy During FAIR CRM M4
+1. Separate generic lifecycle/infrastructure from product business meaning.
+2. Decide ownership: Core / product / provider-handler.
+3. Document the public contract and migration impact.
+4. Move only the generic capability; keep domain orchestration in the product.
+5. Verify the real product path through public Core APIs.
 
-kyrox-core is frozen except for:
+## Related
 
-- Bug fixes
-- Security fixes
-- Performance fixes
-- Reusable platform needs discovered during FAIR CRM delivery
-
-Reusable platform needs must remain product-agnostic. If a requested change contains CRM domain behavior, it belongs in `fair-crm`, not `kyrox-core`.
-
-## Future Platform Work
-
-Future work is not scheduled here unless accepted through KYROX planning/ADR flow:
-
-- File storage service
-- Webhooks and event bus for product notifications
-- Billing and subscription hooks at platform level
-- Advanced admin and impersonation policies
-- Performance and scaling hardening
-
-Updates to this roadmap should be reflected here and in ADRs when scope or priorities change.
+- [PROJECT_STATUS.md](PROJECT_STATUS.md)
+- [integrations/PRODUCT_INTEGRATION_GUIDE.md](integrations/PRODUCT_INTEGRATION_GUIDE.md)
+- [../../ecosystem/ROADMAP.md](../../ecosystem/ROADMAP.md)
+- [../../ecosystem/WORKFLOW.md](../../ecosystem/WORKFLOW.md)
+- [../../ecosystem/decisions/0002-core-product-separation.md](../../ecosystem/decisions/0002-core-product-separation.md)
