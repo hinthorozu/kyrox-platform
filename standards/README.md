@@ -10,13 +10,21 @@ Before reading a product-specific standard, check this index and read every shar
 
 ## Index
 
+### Development / feature delivery
+
+- [Feature Applicability Standard](development/FEATURE_APPLICABILITY_STANDARD.md) — canonical feature profiles, REQUIRED/N/A gates, tenant-isolation independence, UI/job/system applicability and review discipline.
+
+### Quality
+
+- [Quality Gate Standard](quality/QUALITY_GATE_STANDARD.md) — strict-green target, zero-new-regression semantics, monotonic legacy baseline, truthful completion reporting and CI/branch-protection boundaries.
+
 ### UI / authorization
 
 - [CRUD & UI Authorization Standard](ui/CRUD_UI_AUTHORIZATION_STANDARD.md) — canonical CRUD permission semantics, UI visibility, navigation/route/action gating and backend enforcement.
 
 ### Backend
 
-- [Backend Architecture Standards](backend/BACKEND_ARCHITECTURE_STANDARDS.md)
+- [Backend Architecture Standards](backend/BACKEND_ARCHITECTURE_STANDARDS.md) — shared layered backend architecture and dependency direction.
 
 ### Other shared areas
 
@@ -29,4 +37,4 @@ Before reading a product-specific standard, check this index and read every shar
 
 A new rule goes here when another current or future product would reasonably reuse the same behavior. If it is genuinely specific to one product, place it under `projects/<product>/` instead.
 
-One rule must have one canonical source. Do not create a second normative copy inside project docs or code repositories.
+One rule must have one canonical source. Product/project files are extensions: they may define exact paths, product permission slugs, domain constraints or explicit exceptions, but they must not restate the shared rule as a second authority.
