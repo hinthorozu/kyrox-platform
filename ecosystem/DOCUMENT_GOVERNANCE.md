@@ -8,92 +8,79 @@ Single source of truth rules for all KYROX human- and AI-readable knowledge.
 
 All human-readable standards, architecture, decisions, product rules, status, roadmap and operating instructions live in this repository. Application repositories (`kyrox-core`, `fair-crm`, future products) contain code, tests, migrations, CI and machine-readable contracts required by implementation or verification; they must not become parallel documentation systems.
 
-## Classification rule — where information belongs
-
-Use the narrowest correct canonical owner:
+## Classification rule
 
 | Information type | Location | Rule |
-|------------------|----------|------|
-| Reusable rule/behavior for more than one current or future product | `standards/` | Write once; products consume it |
-| Cross-repo strategy, workflow, ownership, ecosystem decisions | `ecosystem/` | Applies to the ecosystem as a whole |
-| Fair CRM-only product/domain/UI/ops behavior | `projects/fair-crm/` | May extend shared standards, not copy them |
-| KYROX Core-only architecture/API/implementation behavior | `projects/kyrox-core/` | May extend shared standards, not copy them |
-| Live cross-repo status | `ecosystem/STATUS.md` | Summary only |
-| Project live status | `projects/<name>/PROJECT_STATUS.md` | Exact project state |
-| Ecosystem roadmap | `ecosystem/ROADMAP.md` | Cross-project sequencing |
-| Product roadmap | `projects/<name>/ROADMAP.md` | Product-specific future work |
+|---|---|---|
+| Reusable rule/behavior | `standards/` | Write once; products consume it |
+| Cross-repo strategy/workflow/ownership | `ecosystem/` | Ecosystem-wide |
+| Fair CRM-only behavior | `projects/fair-crm/` | Extend shared standards; do not copy them |
+| Core-only behavior | `projects/kyrox-core/` | Extend shared standards; do not copy them |
+| Live ecosystem status | `ecosystem/STATUS.md` | Summary only |
+| Live project status | `projects/<name>/PROJECT_STATUS.md` | Current truth |
+| Future work | `ecosystem/ROADMAP.md` or `projects/<name>/ROADMAP.md` | Plans only |
 | Historical/superseded material | `archive/` | Never normative |
-| CI/runtime machine-readable contracts | Application repo when technically required | Not human documentation; no prose-rule duplication |
+| Machine-readable CI/runtime contracts | Application repo when technically required | Not human documentation |
 
-### Decision test
+Decision test: **Would another KYROX product reasonably use this same rule?** Yes → `standards/`; no → owning project; cross-repo → `ecosystem/`.
 
-Ask one question first:
+## Canonical routing
 
-**“Would another KYROX product reasonably use this same rule?”**
-
-- **Yes** → `standards/`.
-- **No, only this product** → `projects/<product>/`.
-- **It coordinates repositories/products** → `ecosystem/`.
-
-Example: CRUD permission semantics and permission-driven UI visibility are reusable, therefore canonical under `standards/ui/`. A Fair CRM-specific `customer.merge` business rule belongs under `projects/fair-crm/`.
-
-## Single source of truth (SSoT)
-
-| Topic | Canonical file |
-|-------|----------------|
+| Topic | Canonical source |
+|---|---|
 | Platform knowledge entry | `README.md` + `AGENTS.md` |
-| Document ownership & anti-duplication | `ecosystem/DOCUMENT_GOVERNANCE.md` |
+| Document ownership / anti-duplication | `ecosystem/DOCUMENT_GOVERNANCE.md` |
 | Shared standards index | `standards/README.md` |
-| Shared CRUD / permission-driven UI behavior | `standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md` |
-| Ecosystem live status | `ecosystem/STATUS.md` |
-| Ecosystem roadmap / milestones | `ecosystem/ROADMAP.md` |
-| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + [ADR-0001](decisions/0001-repository-strategy.md) |
-| Core vs product separation | [ADR-0002](decisions/0002-core-product-separation.md) |
-| Identity security (as-built) | [ADR-0003](decisions/0003-identity-security-strategy.md) |
-| Audit strategy | [ADR-0004](decisions/0004-audit-service-strategy.md) |
-| Role templates and permission governance | [ADR-0005](decisions/0005-role-template-and-permission-governance.md) |
-| Process / workflow | `ecosystem/WORKFLOW.md` |
-| Fair CRM live product status | `projects/fair-crm/PROJECT_STATUS.md` |
-| Fair CRM product constitution / DoD | `projects/fair-crm/CONSTITUTION.md` |
-| Fair CRM feature delivery execution order / acceptance gates | `projects/fair-crm/DEVELOPMENT_STANDARD.md` |
-| Fair CRM feature applicability / REQUIRED-N/A rules | `projects/fair-crm/FEATURE_APPLICABILITY_STANDARD.md` |
-| Fair CRM CI / zero-new-regression / legacy quality-debt rules | `projects/fair-crm/QUALITY_GATE_STANDARD.md` |
-| Fair CRM product ADRs | `projects/fair-crm/decisions/DECISIONS.md` |
-| Fair CRM UI implementation/design standard | `projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md` |
-| Fair CRM-specific permission scope governance | `projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md` |
+| Feature delivery / acceptance gates | `standards/development/FEATURE_DELIVERY_STANDARD.md` |
+| Feature applicability / REQUIRED-N/A | `standards/development/FEATURE_APPLICABILITY_STANDARD.md` |
+| Quality / strict-green / regression policy | `standards/quality/QUALITY_GATE_STANDARD.md` |
+| UI foundation / responsive / visual QA / a11y | `standards/ui/UI_FOUNDATION_STANDARD.md` |
+| CRUD / permission-driven UI behavior | `standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md` |
+| Backend layered architecture | `standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md` |
+| Ecosystem status | `ecosystem/STATUS.md` |
+| Ecosystem roadmap | `ecosystem/ROADMAP.md` |
+| Workflow | `ecosystem/WORKFLOW.md` |
+| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 |
+| Core vs product boundary | ecosystem ADR-0002 |
+| Fair CRM current state | `projects/fair-crm/PROJECT_STATUS.md` |
+| Fair CRM future work | `projects/fair-crm/ROADMAP.md` |
+| Fair CRM product invariants | `projects/fair-crm/CONSTITUTION.md` |
+| Fair CRM delivery extension | `projects/fair-crm/DEVELOPMENT_STANDARD.md` |
+| Fair CRM applicability extension | `projects/fair-crm/FEATURE_APPLICABILITY_STANDARD.md` |
+| Fair CRM quality extension | `projects/fair-crm/QUALITY_GATE_STANDARD.md` |
+| Fair CRM UI implementation | `projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md` |
+| Fair CRM permission scope | `projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md` |
 | Fair CRM import architecture | `projects/fair-crm/import/IMPORT_ARCHITECTURE.md` |
-| Core live status | `projects/kyrox-core/PROJECT_STATUS.md` |
-| Core product integration contract | `projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md` |
-| Backend layered architecture standard | [standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md](../standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md) |
+| Core current state | `projects/kyrox-core/PROJECT_STATUS.md` |
+| Core integration contract | `projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md` |
 
 ## Precedence and overlap
 
-1. **One topic has one normative source.** If two files define the same reusable rule, merge the rule into the shared standard and remove/reduce the duplicates to links and product-specific additions.
-2. Shared standards define reusable semantics. Project documents define product-specific implementation, domain detail and explicit exceptions.
-3. A project document must not silently redefine a shared rule. Any exception must be explicit, justified and link to the shared standard it overrides.
-4. Archive, chat history, generated notes and tool-specific local rules never override live canonical documents.
-5. If two live documents conflict and neither is an explicit exception, treat it as a documentation defect and resolve it before implementation.
+1. One topic has one normative source.
+2. Shared standards define reusable semantics; project documents add product-specific detail and explicit exceptions.
+3. A project exception must be explicit, justified and linked to the shared standard.
+4. Archive, chat history and tool-specific local rules never override live canonical documents.
+5. Conflicting live documents are a documentation defect and must be resolved before implementation.
 
 ## Hard rules
 
-1. **Same information must not be repeated** as a second authoritative copy. Use links instead of copied normative paragraphs.
-2. **Status information** (versions, current sprint, capability matrices, quality gates) lives only in status files.
-3. **Future plans** live in roadmap files.
-4. **Permanent reusable process/technical rules** live in `standards/` or, when cross-repo operational, `ecosystem/WORKFLOW.md`.
-5. **Repo/product-specific technical rules** live under `projects/<name>/` only when they are genuinely product-specific.
-6. **Fast-aging facts** belong in status files only.
-7. **Old documents** move to `archive/` with a historical banner when superseded.
-8. **Application repos must not reintroduce a parallel human-readable rule system.** Tool-specific files may exist only when technically unavoidable; they must contain no independent normative rules and should point to this platform entry point if a tool requires a local hook.
-9. Machine-readable CI/runtime contracts may remain in application repos, but their human meaning and governance must be documented canonically here.
+1. Do not repeat the same information as a second authoritative copy; link instead.
+2. Status = what is true now. Roadmap = what comes next. Changelog = what changed.
+3. Fast-aging facts such as versions, migration heads and transient test counts belong only in status when useful.
+4. Reusable technical/process rules live in `standards/`; cross-repo operational rules may live in `ecosystem/WORKFLOW.md`.
+5. Product-specific technical/domain rules live under `projects/<name>/` only when genuinely product-specific.
+6. Superseded material moves to `archive/` and is non-normative.
+7. Application repos must not reintroduce a parallel human-readable rule system.
+8. Machine-readable CI/runtime contracts may remain in application repos; their human meaning is documented here.
 
-## Writing status vs roadmap
+## Acceptance-flow preservation
 
-- Status = what is true **now**.
-- Roadmap = what comes **next**.
-- Changelog = what **changed**.
-- Standard = reusable binding behavior.
-- Project rule = binding behavior unique to one product.
+Documentation consolidation must never weaken the delivery gates. Applicable work still follows the canonical flow:
+
+**design/ownership → implementation → automated tests/build → permission/security checks → real UI render and responsive/visual QA when UI applies → runtime verification → strict-green acceptance → completion/status update.**
+
+A green build alone is not UI acceptance. Hidden UI is not backend authorization. A legacy baseline may not grow to disguise a new regression. An applicable red gate means the work is not DONE.
 
 ## Archive policy
 
-Place under `archive/` when a document is a completion report, one-off audit pack, superseded draft, completed milestone, or replaced product outline. Archived files must clearly state that they are historical and point to the live replacement when one exists.
+Archive completion reports, one-off audits, superseded drafts and replaced outlines under `archive/`. Archived files are historical and never override a live canonical source.
