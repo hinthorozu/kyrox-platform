@@ -53,6 +53,23 @@ It may shrink or become empty. It may not grow, swap old debt for new debt, hide
 
 Any new failure outside the previous baseline is a hard failure.
 
+### SaaS/security findings are not normal baseline debt
+
+A newly introduced finding that weakens a SaaS security boundary is always a hard failure and must not be baseline-admitted merely to restore green CI.
+
+Examples include:
+
+- cross-organization data access or resource-existence leakage,
+- missing organization scoping on an organization-owned query/mutation/job,
+- SYSTEM permission becoming assignable/effective for an organization role contrary to governance,
+- protected backend behavior relying only on hidden UI,
+- development bypass/fallback identity becoming production authority,
+- secrets/tokens/credentials exposed in committed config, logs or audit payloads,
+- product/Core boundary violations that bypass the approved public integration contract,
+- client-only entitlement/quota enforcement when the backend must enforce it.
+
+If such a defect demonstrably predates the current enforcement work, it may be tracked as explicit security debt only through an approved remediation decision; the current change must not worsen or reproduce it elsewhere, and the system must not be described as SaaS-safe in that area until remediated.
+
 ## 5. Full applicable checks still run
 
 A baseline does not justify skipping the complete applicable suite.
@@ -89,17 +106,42 @@ Not every feature runs every quality surface. Required checks are determined by 
 
 A check may be N/A because the feature does not touch that surface; it may not be N/A because the check is inconvenient or failing.
 
-## 9. Gate changes must test themselves
+SaaS-impact classification follows the same rule: affected organization/security/entitlement/usage/lifecycle/runtime dimensions require evidence; unaffected dimensions are N/A with a reason and must not trigger speculative infrastructure work.
+
+## 9. Green CI is not the whole acceptance contract
+
+Automated checks are necessary evidence, but they cannot claim to prove properties they do not exercise.
+
+For security/runtime-sensitive work:
+
+- organization isolation may require cross-organization API/runtime tests,
+- authorization-sensitive work may require real login/JWT → Core authorization → product API evidence,
+- UI work requires real render/runtime acceptance where defined by the product standard,
+- quota/idempotency behavior may require concurrent/retry tests,
+- production security configuration may require runtime/environment verification.
+
+Therefore:
+
+```text
+CI green
+!= automatically DONE
+```
+
+when an applicable production-shaped SaaS acceptance path remains unverified or failing.
+
+Canonical completion semantics are defined by the [Feature Delivery Standard](../development/FEATURE_DELIVERY_STANDARD.md) and the [SaaS Readiness Roadmap](../../ecosystem/SAAS_ROADMAP.md).
+
+## 10. Gate changes must test themselves
 
 Changes to CI workflow logic, validators, governance schemas, baseline metadata or quality scripts must trigger the checks necessary to validate those changes. A checker must not have a blind spot where editing the checker avoids running it.
 
 Exact paths are repository implementation details.
 
-## 10. Diagnostic evidence
+## 11. Diagnostic evidence
 
 Failed long-running checks should retain enough short-lived diagnostic evidence to understand the failure without guessing. Artifacts/logs must not contain secrets and do not alter pass/fail semantics.
 
-## 11. Branch protection boundary
+## 12. Branch protection boundary
 
 CI can detect a failure, but CI alone does not prevent a direct push to an unprotected branch. Hard merge enforcement requires repository rules/branch protection that require the canonical checks.
 
@@ -107,18 +149,22 @@ Do not claim “CI blocks merge/push” unless repository protection actually re
 
 A failed protected-branch/main run is a broken-main condition and must be corrected even if the push technically succeeded.
 
-## 12. Completion reporting
+## 13. Completion reporting
 
 Reports must describe the observed state precisely.
 
 Examples:
 
 ```text
-Strict PASS: all applicable checks green; known baseline = 0.
+Strict PASS: all applicable checks green; known baseline = 0; applicable SaaS/runtime acceptance complete.
 ```
 
 ```text
 Zero-new-regression PASS: 0 new failures; known legacy baseline remains; target = 0.
+```
+
+```text
+IMPLEMENTED, NOT ACCEPTED: automated checks green, but an applicable runtime/SaaS acceptance path is still unverified or failing.
 ```
 
 ```text
@@ -129,6 +175,6 @@ Never collapse these states into the same phrase.
 
 ## Golden quality rule
 
-**A baseline can preserve visibility of yesterday’s debt while preventing tomorrow’s regression; it can never legalize new debt.**
+**A baseline can preserve visibility of yesterday’s debt while preventing tomorrow’s regression; it can never legalize new debt, and green CI can never substitute for an applicable SaaS/security/runtime acceptance gate.**
 
 Product/repository extensions may define exact baseline files, workflow names and quality commands; they must not weaken these shared semantics.
