@@ -39,6 +39,7 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 | Backend layered architecture | `standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md` |
 | Ecosystem status | `ecosystem/STATUS.md` |
 | Ecosystem roadmap | `ecosystem/ROADMAP.md` |
+| Cross-repository SaaS readiness strategy / sequencing | `ecosystem/SAAS_ROADMAP.md` |
 | Workflow | `ecosystem/WORKFLOW.md` |
 | Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 |
 | Core vs product boundary | ecosystem ADR-0002 |
@@ -72,14 +73,15 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 6. Superseded material moves to `archive/` and is non-normative.
 7. Application repos must not reintroduce a parallel human-readable rule system.
 8. Machine-readable CI/runtime contracts may remain in application repos; their human meaning is documented here.
+9. `ecosystem/SAAS_ROADMAP.md` defines cross-repository SaaS strategy/priority, while binding per-feature delivery semantics remain in shared standards and concrete active tasks belong in the owning project roadmap.
 
 ## Acceptance-flow preservation
 
 Documentation consolidation must never weaken the delivery gates. Applicable work still follows the canonical flow:
 
-**design/ownership → implementation → automated tests/build → permission/security checks → real UI render and responsive/visual QA when UI applies → runtime verification → strict-green acceptance → completion/status update.**
+**design/ownership → SaaS-impact/scope classification → implementation → automated tests/build → permission/security/tenant-isolation checks → real UI render and responsive/visual QA when UI applies → production-shaped runtime verification → strict-green acceptance → completion/status update.**
 
-A green build alone is not UI acceptance. Hidden UI is not backend authorization. A legacy baseline may not grow to disguise a new regression. An applicable red gate means the work is not DONE.
+A green build alone is not UI acceptance or SaaS-safety acceptance. Hidden UI is not backend authorization. Tenant isolation is not implied by permission checks. A legacy baseline may not grow to disguise a new regression. An applicable red gate means the work is not DONE.
 
 ## Archive policy
 

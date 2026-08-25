@@ -13,10 +13,11 @@ Do not treat documentation, chat history, local conventions or tool-specific rul
 1. [ecosystem/DOCUMENT_GOVERNANCE.md](ecosystem/DOCUMENT_GOVERNANCE.md)
 2. [standards/README.md](standards/README.md)
 3. [ecosystem/WORKFLOW.md](ecosystem/WORKFLOW.md)
-4. Open the owning project entry:
+4. For every material product/platform delivery, read [ecosystem/SAAS_ROADMAP.md](ecosystem/SAAS_ROADMAP.md) and apply the SaaS-impact classification from the shared Feature Delivery / Applicability standards.
+5. Open the owning project entry:
    - Fair CRM → [projects/fair-crm/README.md](projects/fair-crm/README.md)
    - Core → [projects/kyrox-core/README.md](projects/kyrox-core/README.md)
-5. If the task changes current state or planned work, also read:
+6. If the task changes current state or planned work, also read:
    - [ecosystem/STATUS.md](ecosystem/STATUS.md)
    - [ecosystem/ROADMAP.md](ecosystem/ROADMAP.md)
 
@@ -29,6 +30,8 @@ Do not treat documentation, chat history, local conventions or tool-specific rul
 - **Historical material** → `archive/`; never use it as a live rule unless a canonical document explicitly says so.
 
 For CRUD, permission-driven UI visibility, route/action gating and backend authorization, read [standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md](standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md) before any product-specific UI document.
+
+For material feature/platform work, SaaS readiness is not a separate optional cleanup phase: classify organization isolation, permission scope, Core/product ownership, entitlement/usage/lifecycle/security/job/data-lifecycle impact before implementation and prove every affected dimension before DONE.
 
 ## Precedence
 
@@ -46,3 +49,4 @@ When documents appear to overlap:
 - One topic has one canonical source. Merge duplicate rules; use links for context instead of copied normative text.
 - Reusable rules go to `standards/`; product-only rules go to `projects/<name>/`.
 - Machine-readable contracts needed by CI/runtime may stay in code repositories, but they are not a second human documentation system.
+- Green tests/build/CI are necessary but do not override an unresolved applicable SaaS, tenant-isolation, authorization-scope or production-runtime acceptance gate.

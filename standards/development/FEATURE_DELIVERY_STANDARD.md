@@ -20,6 +20,8 @@ Before implementation:
 
 Applicability of each gate is governed by [FEATURE_APPLICABILITY_STANDARD.md](FEATURE_APPLICABILITY_STANDARD.md). A gate is REQUIRED or N/A with a reason; non-applicable work is not invented.
 
+Cross-repository SaaS sequencing and current platform/product ownership constraints are defined in [../../ecosystem/SAAS_ROADMAP.md](../../ecosystem/SAAS_ROADMAP.md). The roadmap does not replace this delivery standard; it determines strategic priority while this file defines binding delivery/acceptance semantics.
+
 # PART I — DESIGN CONTRACT
 
 ## Gate 0 — Delivery Contract
@@ -31,9 +33,11 @@ Feature/module and business purpose
 Owning repository/project
 Product-specific vs reusable platform capability
 Feature profile / applicability
+SaaS-impact classification
 Tenant/organization scope
 Permissions/actions and scope
 Role/template/system-admin effects
+Plan/entitlement/usage/account-lifecycle impact when applicable
 Data model and migration need
 API/integration boundaries
 Audit/side effects
@@ -45,7 +49,9 @@ Deployment dependencies/order
 
 A field may be N/A only with a valid architectural reason.
 
-**PASS:** material requirements are unambiguous; owner, scope, destructive semantics, user flow and acceptance path are explicit.
+The SaaS-impact classification considers, at minimum, organization-owned data, organization/system permission scope, Core/product/provider ownership, entitlement/plan behavior, usage/quota behavior, organization lifecycle, secrets/security, background jobs/audit, data export/retention/delete and scale/infrastructure dependency.
+
+**PASS:** material requirements are unambiguous; owner, scope, destructive semantics, user flow, SaaS-impact dimensions and acceptance path are explicit.
 
 ## Gate 1 — Ownership and platform boundary
 
@@ -56,6 +62,8 @@ Decide where the capability belongs before code.
 - Provider/site-specific execution stays behind the applicable adapter/handler boundary.
 - Core must not depend on product code.
 - Products consume Core through public contracts; no shared runtime modules, DB sessions or cross-repository foreign keys.
+- Existing Core capabilities such as identity, organization/membership, authorization, audit and generic jobs are reused rather than duplicated in a product.
+- During a Core freeze, future-looking platform candidates require a proven product need and the applicable planning/ADR decision before implementation.
 
 If ownership is unclear, stop and decide before implementation.
 
@@ -74,6 +82,24 @@ For every user-controlled action:
 Do not invent CRUD permissions for behavior that is not CRUD. Do not use vague umbrella permissions to avoid action design.
 
 UI semantics: [../ui/CRUD_UI_AUTHORIZATION_STANDARD.md](../ui/CRUD_UI_AUTHORIZATION_STANDARD.md).
+
+## SaaS safety overlay — mandatory for every material delivery
+
+The SaaS overlay is a review of affected architecture/security dimensions, not a demand to build all SaaS capabilities for every feature.
+
+Rules:
+
+1. **Organization is the account boundary.** `tenant isolation` is the security term; do not introduce a parallel Tenant account model without an accepted architecture change.
+2. **Tenant isolation is separate from permission.** Organization-owned data requires validated organization context and scoped access even when a user has the action permission.
+3. **Platform Super Admin follows the canonical bypass model.** Do not make organization-isolation tests fail merely because a real Super Admin is intentionally platform-wide; normal organization users and OrganizationAdmins must still fail cross-organization access.
+4. **Plan/entitlement is separate from RBAC.** A role permission says what a user may do; an entitlement says whether the organization/product package includes the capability. Do not substitute plan-name checks for backend authorization or entitlement enforcement.
+5. **Usage/quota enforcement is server authoritative when applicable.** Client-only counters/limits are not acceptance evidence; concurrency/retry semantics must be explicit.
+6. **Organization lifecycle changes are security changes.** Do not invent Owner roles, self-service suspend/delete or destructive account behavior contrary to current governance without an explicit decision/ADR.
+7. **Async/background execution preserves organization context.** A worker is not exempt from tenant isolation merely because user permissions are N/A at execution time.
+8. **Production security configuration is part of acceptance.** Development bypasses/fallback identities, secret exposure or unsafe credential handling cannot be hidden behind green tests.
+9. **No speculative scale/platform work.** Introduce caches, queues, event buses, extra services or generic platform capabilities only when the current requirement and ownership decision justify them.
+
+Every affected SaaS dimension needs test/runtime evidence appropriate to the property. An unaffected dimension is N/A with a concise architectural reason.
 
 # PART II — DATA, INTEGRATION AND BACKEND TRUTH
 
@@ -170,6 +196,8 @@ Missing permission normally means the action is not presented. Disabled state is
 
 A visible/allowed UI action that the same real user cannot execute because authorization is mismatched is **not accepted**.
 
+Where product plans/entitlements exist, permission denial and entitlement/plan denial remain distinct states; the UI must not present a package limitation as a role-permission failure or vice versa.
+
 Canonical rule: [../ui/CRUD_UI_AUTHORIZATION_STANDARD.md](../ui/CRUD_UI_AUTHORIZATION_STANDARD.md).
 
 ## Gate 11 — UI/design-system contract
@@ -196,6 +224,7 @@ Destructive semantics are explicit:
 - archive is not silently relabeled delete,
 - hard delete is not silently implemented as archive,
 - restore behavior matches the domain/permission contract,
+- organization/account suspension/deletion follows explicit platform permission/lifecycle policy,
 - confirmation uses shared product primitives,
 - critical actions remain usable at supported viewport sizes.
 
@@ -212,6 +241,10 @@ Test every applicable executable layer:
 - frontend behavior when applicable,
 - integration/runtime-sensitive behavior where static tests are insufficient.
 
+For every change touching organization-owned data or scoped execution, include cross-organization denial tests at the lowest reliable layer and at the API/runtime boundary where the risk cannot be proven statically. Direct resource IDs, bulk operations, exports/downloads and background-job/run identifiers must not bypass scope.
+
+For plan/entitlement/quota work, test backend enforcement, mixed permission/entitlement states, concurrent limit behavior and retry/idempotency where applicable.
+
 Quality semantics: [../quality/QUALITY_GATE_STANDARD.md](../quality/QUALITY_GATE_STANDARD.md).
 
 ## Gate 14 — Authorization acceptance
@@ -221,7 +254,9 @@ Protected user-facing work is not complete with mocks/dev bypass alone.
 At minimum, prove applicable combinations of:
 
 - privileged/system user behavior,
-- organization-admin behavior,
+- Platform Super Admin behavior according to the canonical bypass invariant,
+- organization-admin behavior in its own organization,
+- organization-admin or normal-user access to another organization is denied,
 - restricted/default/custom role behavior,
 - granted action succeeds,
 - ungranted action is denied,
@@ -239,6 +274,7 @@ When frontend is REQUIRED, verify applicable evidence:
 - real route render,
 - real API data,
 - permission-controlled navigation/routes/actions,
+- plan/entitlement visibility and denial semantics when applicable,
 - loading/empty/error/refresh behavior,
 - dirty-form behavior,
 - responsive/visual QA,
@@ -251,6 +287,8 @@ When frontend is REQUIRED, verify applicable evidence:
 Do not accept behavior against stale services/builds.
 
 Apply required migrations, restart/rebuild affected runtimes, verify environment/version/route, and make at least one real request/workflow through the changed path when runtime-sensitive.
+
+Security/runtime acceptance includes verifying that development-only bypass/fallback behavior is not acting as production authority in the accepted environment.
 
 ## Gate 17 — Deployment order
 
@@ -270,18 +308,20 @@ Skip non-applicable steps explicitly; do not silently assume a dependency alread
 A material feature is DONE only when every applicable gate is complete:
 
 - design/ownership/security decisions,
+- SaaS-impact classification with REQUIRED/N/A reasons,
 - data/migrations,
 - backend truth and authorization,
-- tenant isolation,
+- tenant isolation and cross-organization denial evidence when scoped,
 - API/integration contract,
 - audit/side effects,
+- entitlement/usage/account-lifecycle behavior when applicable,
 - frontend/UI and effective-permission visibility,
 - tests/quality gates,
-- real runtime authorization when applicable,
+- real runtime authorization/security behavior when applicable,
 - deployment/runtime synchronization,
 - canonical documentation/status/changelog updates.
 
-If an applicable gate is unresolved, report the work as **implemented but incomplete/not accepted**, not DONE.
+**Green CI is necessary but not sufficient.** If an applicable SaaS property remains unproven or the production-shaped protected path still fails, report the work as **implemented but incomplete/not accepted**, not DONE.
 
 ## Reviewer / AI hard-fail conditions
 
@@ -292,11 +332,20 @@ Stop/reject when material issues include:
 - production-shaped traffic uses hard-coded tenant context,
 - backend trusts unvalidated tenant identifiers,
 - product data access lacks tenant scoping,
+- cross-organization denial evidence is missing for changed organization-owned access,
 - protected route/action lacks backend authorization,
 - UI exposes protected capability without effective permission,
 - UI hiding is used as a substitute for backend security,
 - direct route bypasses UI authorization,
 - frontend authorization relies on role-name strings instead of effective permissions,
+- a plan name is used as the effective authorization mechanism instead of the approved entitlement/permission contracts,
+- quota enforcement exists only in the client or is concurrency-unsafe when the limit must be hard,
+- organization lifecycle behavior invents Owner/self-service destructive authority contrary to canonical governance,
+- product-specific business semantics are moved into Core without an explicit ownership decision,
+- a product duplicates Core-owned authorization/organization/audit/generic-job infrastructure,
+- organization-scoped background work executes without validated organization context or deliberate system scope,
+- a development bypass/fallback identity can become production authority,
+- secrets/tokens/credentials are exposed in logs, audit payloads or committed configuration,
 - shipped migration is rewritten rather than superseded by a new migration,
 - Core/product runtime or DB coupling violates repository boundaries,
 - ad-hoc UI duplicates an existing shared primitive,
@@ -308,14 +357,16 @@ Stop/reject when material issues include:
 
 # Golden delivery rule
 
-**Design the security and ownership contract first; implement backend truth second; render the same truth in the UI third; prove the real runtime path last.**
+**Design the security, ownership and SaaS-impact contract first; implement backend truth second; render the same truth in the UI third; prove the real runtime path last.**
 
 ```text
 Requirement
 = ownership/scope contract
+= SaaS-impact classification
 = permission/effective authorization
 = tenant data scope
 = backend guard
+= entitlement/usage constraint when applicable
 = frontend visibility (when applicable)
 = real runtime behavior
 ```

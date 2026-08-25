@@ -6,6 +6,8 @@ KYROX Core is the reusable SaaS backend platform for KYROX products. This docume
 
 Core remains product-agnostic. Product domain behavior stays in product repositories. Products integrate with Core through documented public HTTP APIs and contracts.
 
+The cross-repository [KYROX SaaS Readiness Roadmap](../../ecosystem/SAAS_ROADMAP.md) defines SaaS sequencing and ownership guardrails. It does not automatically activate Core candidates: billing/subscription, generic metering, observability or other reusable SaaS infrastructure still requires a proven product need and the applicable ownership/planning/ADR decision.
+
 During FAIR CRM M4, Core is frozen against speculative platform development. Allowed work is limited to:
 
 - bug fixes,
@@ -47,6 +49,7 @@ When FAIR CRM or a future product develops infrastructure that appears reusable:
 
 - [PROJECT_STATUS.md](PROJECT_STATUS.md)
 - [integrations/PRODUCT_INTEGRATION_GUIDE.md](integrations/PRODUCT_INTEGRATION_GUIDE.md)
+- [../../ecosystem/SAAS_ROADMAP.md](../../ecosystem/SAAS_ROADMAP.md)
 - [../../ecosystem/ROADMAP.md](../../ecosystem/ROADMAP.md)
 - [../../ecosystem/WORKFLOW.md](../../ecosystem/WORKFLOW.md)
 - [../../ecosystem/decisions/0002-core-product-separation.md](../../ecosystem/decisions/0002-core-product-separation.md)

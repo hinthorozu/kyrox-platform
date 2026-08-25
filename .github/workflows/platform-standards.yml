@@ -42,6 +42,7 @@ jobs:
               "ecosystem/DOCUMENT_GOVERNANCE.md",
               "ecosystem/STATUS.md",
               "ecosystem/ROADMAP.md",
+              "ecosystem/SAAS_ROADMAP.md",
               "ecosystem/WORKFLOW.md",
               "ecosystem/REPOSITORY_STRATEGY.md",
               "projects/fair-crm/README.md",
@@ -56,6 +57,9 @@ jobs:
               "projects/kyrox-core/PROJECT_STATUS.md",
               "projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md",
               "standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md",
+              "standards/development/FEATURE_DELIVERY_STANDARD.md",
+              "standards/development/FEATURE_APPLICABILITY_STANDARD.md",
+              "standards/quality/QUALITY_GATE_STANDARD.md",
           ]
 
           errors: list[str] = []
@@ -71,16 +75,54 @@ jobs:
           if governance_path.is_file():
               governance = governance_path.read_text(encoding="utf-8")
               ssot_paths = [
+                  "ecosystem/SAAS_ROADMAP.md",
                   "projects/fair-crm/DEVELOPMENT_STANDARD.md",
                   "projects/fair-crm/FEATURE_APPLICABILITY_STANDARD.md",
                   "projects/fair-crm/QUALITY_GATE_STANDARD.md",
                   "projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md",
                   "projects/fair-crm/frontend/FRONTEND_UI_MASTER_STANDARD.md",
                   "standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md",
+                  "standards/development/FEATURE_DELIVERY_STANDARD.md",
+                  "standards/development/FEATURE_APPLICABILITY_STANDARD.md",
+                  "standards/quality/QUALITY_GATE_STANDARD.md",
               ]
               for relative in ssot_paths:
                   if relative not in governance:
                       errors.append(f"canonical SSoT is not registered in DOCUMENT_GOVERNANCE.md: {relative}")
+
+          saas_roadmap_path = root / "ecosystem/SAAS_ROADMAP.md"
+          if saas_roadmap_path.is_file():
+              saas_roadmap = saas_roadmap_path.read_text(encoding="utf-8")
+              required_saas_terms = [
+                  "Tenant isolation",
+                  "Organization lifecycle",
+                  "Production security",
+                  "Plan and entitlement",
+                  "Usage metering",
+                  "Commercial SaaS launch gate",
+              ]
+              for term in required_saas_terms:
+                  if term not in saas_roadmap:
+                      errors.append(f"SAAS_ROADMAP.md missing required program area: {term}")
+
+          delivery_path = root / "standards/development/FEATURE_DELIVERY_STANDARD.md"
+          if delivery_path.is_file():
+              delivery = delivery_path.read_text(encoding="utf-8")
+              for marker in ("SaaS-impact classification", "Green CI is necessary but not sufficient"):
+                  if marker not in delivery:
+                      errors.append(f"Feature Delivery Standard missing SaaS acceptance marker: {marker}")
+
+          applicability_path = root / "standards/development/FEATURE_APPLICABILITY_STANDARD.md"
+          if applicability_path.is_file():
+              applicability = applicability_path.read_text(encoding="utf-8")
+              if "SaaS-impact classification" not in applicability:
+                  errors.append("Feature Applicability Standard missing SaaS-impact classification")
+
+          quality_path = root / "standards/quality/QUALITY_GATE_STANDARD.md"
+          if quality_path.is_file():
+              quality = quality_path.read_text(encoding="utf-8")
+              if "SaaS/security findings are not normal baseline debt" not in quality:
+                  errors.append("Quality Gate Standard missing SaaS/security baseline protection")
 
           # kyrox-platform is documentation-only. CI/tooling under .github is allowed,
           # but application source files must not be introduced into the live tree.
@@ -158,5 +200,5 @@ jobs:
 
           print(f"Platform Standards CI PASS: {len(required_files)} canonical files verified")
           print(f"Platform Standards CI PASS: {len(live_markdown)} live Markdown files checked")
-          print("Platform Standards CI PASS: SSoT registration, repository shape, conflict markers, and local links verified")
+          print("Platform Standards CI PASS: SSoT registration, SaaS governance markers, repository shape, conflict markers, and local links verified")
           PY

@@ -6,6 +6,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ## [Unreleased]
 
+### Added
+
+- **KYROX SaaS Readiness Roadmap** — canonical cross-repository priority/ownership/launch strategy covering tenant isolation, organization lifecycle, production security, entitlement/usage/billing decisions, data lifecycle, operational hardening and scale.
+- **SaaS-impact classification** — every material delivery now classifies affected organization/security/ownership/entitlement/usage/lifecycle/runtime dimensions before implementation.
+
+### Changed
+
+- Feature Delivery Standard now treats SaaS-safety evidence as part of Definition of Done; green CI alone is not acceptance when an applicable tenant/security/runtime property remains unproven.
+- Feature Applicability Standard now requires affected SaaS dimensions to be REQUIRED and unaffected dimensions to be explicitly N/A rather than inventing speculative infrastructure.
+- Quality Gate Standard now forbids normal baseline admission of new tenant-isolation/security regressions and distinguishes strict-green CI from production-shaped SaaS acceptance.
+- Ecosystem Workflow now includes SaaS-impact classification, cross-organization/runtime evidence and explicit Core/product ownership checks in the normal delivery sequence.
+
 ## [0.4.0] - 2026-07-01
 
 ### Completed (kyrox-core / M3)

@@ -21,6 +21,16 @@ Goal: ship and harden the first KYROX product on the reusable Core platform.
 
 M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated here. Core changes during M4 are limited to fixes and reusable platform capabilities required by real product needs.
 
+## Cross-cutting SaaS readiness program
+
+KYROX now maintains a canonical cross-repository SaaS readiness strategy in [SAAS_ROADMAP.md](SAAS_ROADMAP.md).
+
+The SaaS roadmap defines the priority order and guardrails for tenant isolation, organization lifecycle, production security, entitlement/usage/billing decisions, data lifecycle, operational hardening, scale and commercial launch acceptance.
+
+It does **not** replace product work queues. When a SaaS item becomes active implementation work, the concrete task is promoted into the owning project roadmap after ownership/scope decisions are explicit. Core work remains subject to the M4 freeze and may not be activated speculatively merely because it appears in the SaaS roadmap.
+
+Every material future delivery must also follow the SaaS-safety overlay in the shared Feature Delivery / Applicability / Quality standards. Green CI alone is not completion when an applicable SaaS security/runtime property remains unproven.
+
 ## Core direction during M4
 
 Core remains product-agnostic and is not a destination for FAIR CRM domain logic. Reusable needs discovered by products may be promoted to Core only after the ownership boundary is clear and the public integration contract remains intact.
@@ -40,6 +50,7 @@ Deferred platform items: [KNOWN_DEFERRED.md](KNOWN_DEFERRED.md).
 
 ## Related
 
+- [SAAS_ROADMAP.md](SAAS_ROADMAP.md)
 - [STATUS.md](STATUS.md)
 - [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md)
 - [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md)
