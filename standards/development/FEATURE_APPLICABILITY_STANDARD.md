@@ -78,6 +78,37 @@ runtime_verification
 deployment
 ```
 
+### 3.1 SaaS-impact classification
+
+Every material feature also performs a lightweight SaaS-impact review before implementation. This review does **not** create speculative work; it decides which existing delivery gates and architecture decisions are actually affected.
+
+Classify the following dimensions as **affected** or **N/A with reason**:
+
+```text
+organization-owned data / tenant isolation
+organization vs system permission scope
+Core vs product vs provider ownership
+plan / entitlement behavior
+usage / quota behavior
+organization/account lifecycle
+secrets / production security
+background jobs / audit / asynchronous execution
+data export / retention / deletion lifecycle
+scale / infrastructure dependency
+```
+
+Rules:
+
+- If organization-owned data is affected, `tenant_isolation` is REQUIRED.
+- If a new protected action is affected, permission scope and runtime authorization are REQUIRED according to the platform model.
+- If a Core/product ownership boundary is affected, ownership must be explicit before code.
+- If entitlement, quota or billing behavior is affected, do not invent a page-local/product-local package mechanism when the approved architecture requires a shared contract; unresolved ownership is a stop condition.
+- If organization lifecycle behavior is affected, current organization/Super-Admin governance remains binding until an explicit decision changes it.
+- If a background/internal path processes organization data, tenant isolation remains REQUIRED even when end-user permissions are N/A.
+- If none of these dimensions are affected, record N/A briefly and do not add fake SaaS infrastructure.
+
+Cross-repository sequencing and current ownership constraints are defined in [../../ecosystem/SAAS_ROADMAP.md](../../ecosystem/SAAS_ROADMAP.md).
+
 ## 4. Default applicability matrix
 
 Defaults guide the delivery contract; explicit requirements may override them with a reason.
@@ -176,7 +207,9 @@ At minimum, contract tooling should reject contradictions such as:
 6. user-triggered protected operation with runtime authorization marked N/A,
 7. frontend-required feature with visual QA silently omitted,
 8. N/A gate without a reason,
-9. executable behavior changed while all relevant tests are marked N/A without an approved exception.
+9. executable behavior changed while all relevant tests are marked N/A without an approved exception,
+10. organization-owned background/internal processing marked tenant isolation N/A merely because no end-user permission exists,
+11. a material change affecting plan/entitlement/quota/account-lifecycle semantics with no ownership/architecture decision where one is required.
 
 ## 12. CI enforcement maturity
 
@@ -187,7 +220,7 @@ Automation may be introduced in layers:
 3. **Code conformance** — static/tests verify properties that can be proven reliably.
 4. **Real runtime acceptance** — authorization/runtime-sensitive behavior is verified through the production-shaped integration path.
 
-Static checks must not claim to prove security properties they cannot reliably establish.
+Static checks must not claim to prove security or SaaS-isolation properties they cannot reliably establish.
 
 ## 13. Review rule
 
@@ -196,6 +229,8 @@ Reject both failure modes:
 - **missing required work** — for example, a scoped background job queries data without tenant isolation;
 - **invented non-required work** — for example, a scheduler-only service receives fake CRUD permissions and an empty admin page only to satisfy a checklist.
 
+A green test/build result cannot convert an unresolved applicable SaaS-impact dimension into N/A.
+
 ## Golden applicability rule
 
 **The standard is conditional, not optional.**
@@ -203,6 +238,7 @@ Reject both failure modes:
 ```text
 Requirement
   -> Feature Profile
+  -> SaaS-impact classification
   -> Applicability Matrix
   -> REQUIRED / N/A gates with reasons
   -> implementation
