@@ -8,6 +8,16 @@ FAIR CRM participates in the canonical cross-repository [KYROX SaaS Readiness Ro
 
 The SaaS roadmap is not a second FAIR CRM backlog. When a concrete SaaS item becomes active for FAIR CRM, promote that task into this file with approved scope/ownership before implementation.
 
+### P0.1 Tenant Isolation Certification — DONE
+
+P0.1 is complete. The detailed certification record and final adversarial matrix are preserved in [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md).
+
+The first hardening wave (TI-01 through TI-06 plus additional derived-reference findings) merged through FAIR CRM PR #82. TI-07 export/download/artifact ownership closed through FAIR CRM #83, TI-08 Platform Super Admin isolation closed through Core #11, and TI-09 final adversarial certification closed through FAIR CRM #84. The final TI-09 head passed Development Standard Gate #268 and Prod-Path E2E #140 before merge.
+
+P0.1 completion is a certification baseline, not an exemption: future organization-owned changes still require the applicable SaaS-impact and cross-organization regression evidence.
+
+The next canonical cross-repository SaaS phase is **P0.2 — Organization lifecycle contract and SaaS onboarding decisions**. It is not automatically active FAIR CRM implementation work; promote concrete product work here only after the required ownership/lifecycle decisions are approved.
+
 ## Active product-quality track
 
 ### Permission-controlled UI consistency
@@ -51,6 +61,7 @@ This is a product behavior change and requires backend lifecycle, handler capabi
 
 The following detailed documents are supporting backlog specifications. They are not separate sources of roadmap priority:
 
+- [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md) — completed certification record for the P0.1 SaaS gate.
 - [Email Communication Preferences](backlog/EMAIL_COMMUNICATION_PREFERENCES.md)
 - [Mail Send Operations Backlog](backlog/MAIL_SEND_OPERATIONS_BACKLOG.md)
 - [MailerSend Provider Remaining Work](backlog/PROVIDER_MAILERSEND_REMAINING.md)

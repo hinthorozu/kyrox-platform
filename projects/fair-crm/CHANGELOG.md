@@ -8,6 +8,15 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### SaaS P0.1 Tenant Isolation Certification — 2026-08-26
+
+- Completed TI-01 through TI-09 against the canonical `organization` tenant/account boundary; no parallel Tenant entity introduced.
+- Hardened scraper/background jobs, import/data-operation workers, mail/SMTP ownership, customer communication children, quote/template/participation/activity/todo derived references, export/download artifacts and managed quote logos.
+- Certified Platform Super Admin global scope through the Core DB-backed identity model; request body/query/header data cannot self-assert the bypass.
+- Final adversarial matrix adds mixed-organization bulk IDs, cross-organization source/target mutation, request-scope spoofing, missing organization context, direct contact/activity/cost-catalog foreign IDs and audit organization context.
+- Final FAIR CRM closure: PR #84; Development Standard Gate #268 and Prod-Path E2E #140 passed. Core Super Admin certification: Core PR #11 / Core CI #54.
+- Canonical evidence: [backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md)
+
 ### Bulk Email Wizard — Gönder + Operation Detail (step 4) — 2026-07-24
 
 - Wizard 4. adım gerçek gönderim: `POST /api/v1/operations/bulk-email/send` → Operation + BulkEmailHandler → mevcut batch/outbox/worker
@@ -182,7 +191,7 @@ Canon: [CONSTITUTION.md](CONSTITUTION.md) Activity Timeline; [todo/TODO_MODULE_D
 - Frontend **Admin → System → Database Backups** at `/admin/system/backups` with live progress polling
 - Permissions: `fair_crm.admin.backups.create`, `.read`, `.download`
 - Path traversal protection on download; files served from gitignored `backups/` only
-- ADR-018 + runtime DoD: migration, reset-dev, Swagger, live API, live UI
+- ADR-018 + runtime DoD: migration, reset-dev, Swagger verification, live API, live UI
 - Backend tests (185) PASS; frontend build PASS
 
 ## v0.9.2 — Database Backup / Restore Standard (dev utility)
