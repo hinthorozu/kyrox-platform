@@ -2,7 +2,7 @@
 
 > Location: `ecosystem/decisions/` under kyrox-platform.
 
-rchitecture Decision Records (ADR) Index
+Architecture Decision Records (ADR) Index
 
 Index of architecture and ecosystem decisions for KYROX. ADRs live in this directory and are referenced from roadmap, workflow, and implementation repos.
 
@@ -21,6 +21,7 @@ Index of architecture and ecosystem decisions for KYROX. ADRs live in this direc
 | [0003](0003-identity-security-strategy.md) | Identity security strategy | Accepted | 2026-07-01 |
 | [0004](0004-audit-service-strategy.md) | Audit service strategy | Accepted | 2026-07-01 |
 | [0005](0005-role-template-and-permission-governance.md) | Role template and permission governance | Accepted | 2026-08-14 |
+| [0006](0006-organization-lifecycle-and-onboarding.md) | Organization lifecycle and SaaS onboarding contract | Proposed | 2026-08-26 |
 
 ## Creating a new ADR
 
