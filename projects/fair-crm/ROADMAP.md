@@ -12,7 +12,7 @@ The SaaS roadmap is not a second FAIR CRM backlog. When a concrete SaaS item bec
 
 FAIR CRM is currently executing the P0.1 tenant-isolation certification required by the canonical SaaS roadmap. The detailed audit findings, work order, negative-test matrix and closure criteria are tracked in [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md).
 
-The active implementation order begins with scraper/background execution scope, then the shared background-job tenant contract, mail/SMTP ownership, child/derived relationship hardening, export/download ownership, Super Admin verification and the final adversarial certification suite.
+The first hardening wave (TI-01 through TI-06 plus additional derived-reference findings) is merged into FAIR CRM `main` through PR #82. The active closure order is now **TI-07 export/download ownership certification → TI-08 Platform Super Admin isolation contract → TI-09 final adversarial certification suite**. P0.1 remains IN PROGRESS until those gates are explicitly certified; green integration CI alone is not sufficient.
 
 ## Active product-quality track
 
