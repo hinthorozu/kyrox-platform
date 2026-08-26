@@ -8,7 +8,15 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
 | Implementation repos | `kyrox-core`, `fair-crm` |
-| Last ecosystem sync | **2026-08-19** |
+| Last ecosystem sync | **2026-08-26** |
+
+## SaaS readiness
+
+**P0.1 Tenant Isolation Certification is DONE.** FAIR CRM organization-owned paths are certified across direct/nested resource access, derived relationships, bulk mutations, background execution, mail/SMTP ownership, exports/downloads/artifacts and audit context. The canonical Platform Super Admin exception is separately certified in Core and production-shaped FAIR CRM integration evidence.
+
+Closure evidence is recorded in [projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md](../projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md). FAIR CRM PRs #83 and #84 close TI-07 and TI-09; Core PR #11 closes TI-08. The final FAIR CRM TI-09 head passed Development Standard Gate #268 and Prod-Path E2E #140 before merge. P0.1 completion does not waive the SaaS-impact gates for future changes; new organization-owned behavior must continue to ship with applicable cross-organization evidence.
+
+The next cross-repository SaaS-readiness phase is **P0.2 — Organization lifecycle contract and SaaS onboarding decisions**. It is a decision/architecture gate first: do not invent a new Tenant entity, Owner role, self-service organization suspension/deletion or duplicate Core organization/membership behavior without the required approval.
 
 ## KYROX Core
 
@@ -23,7 +31,7 @@ The migration history has advanced substantially beyond the old `20260701_0025` 
 Canonical detail: [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PROJECT_STATUS.md)  
 Current work queue: [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.md)
 
-FAIR CRM remains the active M4 product. Existing implementation includes the CRM foundations, data integration/import flows, operations/automation flows, mail delivery flows, quotation-related capabilities and a cost-catalog implementation. Product documentation is being reconciled with the current code because the previous status/roadmap snapshot had fallen behind implementation.
+FAIR CRM remains the active M4 product. Existing implementation includes the CRM foundations, data integration/import flows, operations/automation flows, mail delivery flows, quotation-related capabilities and a cost-catalog implementation. Its P0.1 tenant-isolation certification is complete; ongoing product work remains subject to the same SaaS-impact, authorization-scope and tenant-isolation delivery rules.
 
 The current documentation/quality focus is to keep Platform as the single human/AI knowledge source and to ensure permission-controlled UI surfaces consistently follow effective permissions and the shared CRUD/UI authorization standard.
 
