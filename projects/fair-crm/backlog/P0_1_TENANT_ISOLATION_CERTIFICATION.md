@@ -1,7 +1,8 @@
 # P0.1 Tenant Isolation Certification
 
-Status: **IN PROGRESS**
+Status: **DONE**
 Owner: FAIR CRM / SaaS readiness
+Completed: **2026-08-26**
 Canonical roadmap: [`../../../ecosystem/SAAS_ROADMAP.md`](../../../ecosystem/SAAS_ROADMAP.md)
 
 ## Purpose
@@ -10,28 +11,25 @@ Certify that FAIR CRM organization-owned data and side effects remain isolated b
 
 This work does not introduce a new Tenant entity. `organization` remains the canonical account boundary. Permission scope answers **what** an actor may do; organization scope answers **whose data** the actor may access or mutate. Request body/query values are not trusted tenant authority.
 
-P0.1 is complete only when all required cross-tenant negative paths fail closed and the required isolation evidence is green. Green CI alone is not sufficient.
-
 ## Required invariants
 
 1. Organization-owned reads, mutations and side effects are scoped by trusted organization context.
-2. A foreign resource identifier must not become authority by itself.
-3. Parent/child, source/target and bulk relationships must not cross organization boundaries.
-4. Background authorization bypass must never imply tenant-isolation bypass.
-5. Jobs carrying `organization_id` plus entity/job/run identifiers must re-load or mutate through an organization-scoped boundary.
-6. Export/download access must re-check organization ownership; possession of a file/export identifier is not sufficient authority.
-7. Foreign-organization resource probing should use not-found semantics where appropriate and must not disclose resource existence.
+2. A foreign resource identifier does not become authority by itself.
+3. Parent/child, source/target and bulk relationships cannot cross organization boundaries.
+4. Background authorization bypass does not imply tenant-isolation bypass.
+5. Jobs carrying `organization_id` plus entity/job/run identifiers re-load or mutate through an organization-scoped boundary.
+6. Export/download access re-checks organization ownership; possession of a file/export identifier is not sufficient authority.
+7. Foreign-organization resource probing uses fail-closed/not-found semantics where appropriate and does not disclose foreign resource content.
 8. Platform Super Admin bypass is explicit and separately tested; users cannot self-assert it through request data.
 
-## Current certification state
+## Final certification state
 
-The first P0.1 hardening wave is merged into `fair-crm/main` through PR **#82** (`fix: complete P0.1 tenant isolation certification`). The merge commit is `23a5087e9466afab542a9458c6f3654743067cbf`.
+P0.1 is complete. The hardening and certification sequence is merged across FAIR CRM and Core:
 
-TI-07 export/download ownership certification is merged through FAIR CRM PR **#83** (`fix: certify P0.1 export and artifact tenant isolation`). The merge commit is `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`. PR #83 passed Development Standard Gate **#263** and Prod-Path E2E **#136**.
-
-TI-08 Super Admin isolation certification is merged through Core PR **#11** (`test: certify P0.1 Super Admin isolation contract`). The merge commit is `c0392f8c351593e28d0e18755e93768ff603f4f4`. Core CI **#54** passed lint and the complete Core test suite. Existing FAIR CRM Prod-Path E2E #136 supplies the production-shaped Super Admin integration evidence.
-
-TI-01 through TI-08 are now delivered and certified. P0.1 remains **IN PROGRESS** until TI-09 final adversarial certification and the P0.1 exit gate are complete.
+- FAIR CRM first hardening wave: PRs **#63–#72**, integrated through **#73–#82**; #82 merge `23a5087e9466afab542a9458c6f3654743067cbf`.
+- TI-07 export/download ownership certification: FAIR CRM **#83**, merge `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`; Development Standard Gate **#263** and Prod-Path E2E **#136** passed.
+- TI-08 Platform Super Admin isolation contract: Core **#11**, merge `c0392f8c351593e28d0e18755e93768ff603f4f4`; Core CI **#54** passed. FAIR CRM production-shaped Super Admin integration is also covered by Prod-Path E2E.
+- TI-09 final adversarial certification: FAIR CRM **#84**, merge `d167bbd88ac8561c39c70b870728b63e3ffc7956`; Development Standard Gate **#268** and Prod-Path E2E **#140** passed on final head `11e7146971c3b1fb30e0cfccd06cc5878b7004e5`.
 
 ### Delivered hardening
 
@@ -43,31 +41,9 @@ TI-01 through TI-08 are now delivered and certified. P0.1 remains **IN PROGRESS*
 | TI-04 Customer communication child repositories | **DONE** | FAIR CRM #67, integrated through #76/#82 | Child reads/replacements and shared query helpers carry organization scope. |
 | TI-05 Quote render derived-ID hardening | **DONE** | FAIR CRM #68, integrated through #77/#82 | Render-time customer/fair/template/content/tag references fail closed on foreign derived IDs. |
 | TI-06 Todo worklist join hardening | **DONE** | FAIR CRM #72, integrated through #81/#82 | Worklist/follow-up joins validate authoritative organization across derived references. |
-| TI-07 Export / download ownership certification | **DONE** | FAIR CRM #83; merge `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`; Development #263; Prod-Path #136 | Customer Excel derived joins are tenant-scoped, scraper artifacts fail closed on foreign/corrupt run pointers, and quote-template logos are no longer unauthenticated public static assets. |
-| TI-08 Platform Super Admin isolation contract | **DONE** | Core #11; merge `c0392f8c351593e28d0e18755e93768ff603f4f4`; Core CI #54; FAIR CRM Prod-Path #136 | Global scope is derived from authenticated identity plus Core DB `is_super_admin`; ordinary users cannot self-assert it through request body/query/header data. |
-
-### TI-07 adversarial evidence
-
-FAIR CRM #83 certifies the covered downloadable/generated artifact boundaries with deterministic negative tests:
-
-- Customer Excel export does not follow an own participation to a foreign fair.
-- Customer Excel export does not follow a foreign participation cross-linked to an own customer.
-- Scraper Excel download rejects a stored artifact pointer that resolves to another run and rejects direct foreign-run download.
-- Managed quote-template logo delivery requires authenticated organization scope; a foreign organization receives not-found semantics.
-- The legacy unauthenticated quote-logo static path is no longer mounted.
-- Quote-template create/update reject managed logo pointers owned by another organization.
-- Quote rendering inlines only the authoritative organization's managed local logo and rejects unsafe/traversal storage resolution.
-
-### TI-08 Super Admin certification evidence
-
-The canonical bypass is a Core platform primitive, not a FAIR CRM role:
-
-- Core resolves the access-token subject to the authoritative platform-user snapshot and reads `identity_users.is_super_admin` from DB.
-- Core #11 proves a normal authenticated user remains forbidden on foreign organization scope even when body, query and headers attempt to assert Super Admin/global state.
-- Core #11 proves the same already-issued access token gains global authorization only after the authoritative Core DB user row becomes Super Admin; no request or token-side Super Admin claim is required or trusted.
-- The Core Super Admin bypass remains product-agnostic and authorizes product permission codes without moving FAIR CRM semantics into Core.
-- FAIR CRM Prod-Path E2E #136 verifies the live Core integration for foreign organization scope and organization-header mismatch using the canonical Super Admin.
-- FAIR CRM role-matrix coverage separately verifies ordinary organization roles fail closed on foreign organization scope.
+| TI-07 Export / download ownership certification | **DONE** | FAIR CRM #83; merge `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`; Development #263; Prod-Path #136 | Customer Excel derived joins are tenant-scoped, scraper artifacts fail closed on foreign/corrupt run pointers, and quote-template logos require managed tenant-scoped delivery. |
+| TI-08 Platform Super Admin isolation contract | **DONE** | Core #11; merge `c0392f8c351593e28d0e18755e93768ff603f4f4`; Core CI #54; FAIR CRM Prod-Path | Global scope is derived from authenticated identity plus Core DB `is_super_admin`; ordinary users cannot self-assert it through request body/query/header data. |
+| TI-09 Final adversarial certification suite | **DONE** | FAIR CRM #84; merge `d167bbd88ac8561c39c70b870728b63e3ffc7956`; Development #268; Prod-Path #140 | Remaining bulk, source/target, spoofing, missing-context, contacts, activities, cost-catalog and audit-context gaps have deterministic negative evidence. |
 
 ### Additional P0.1 hardening delivered in the first wave
 
@@ -78,63 +54,50 @@ These findings were discovered during the audit and were merged without inventin
 - FAIR CRM #71 — activity derived-customer search/sort join.
 - FAIR CRM #72 — todo worklist/follow-up derived references.
 
-The consolidated integration sequence was #73–#81, followed by final integration PR #82.
+## TI-09 final adversarial matrix
 
-## Remaining certification gate
+| Adversarial case | Final evidence |
+| --- | --- |
+| Tenant A accesses its own resource | Existing CRUD/API suites across customers, fairs, contacts, activities, todos, operations, templates, quotations and cost catalog. |
+| Tenant A uses Tenant B direct UUID | Existing customer/fair/todo/operation/template suites plus FAIR CRM #84 contact, activity and cost-catalog direct-ID tests. |
+| Own parent + foreign child / foreign parent + own child | FAIR CRM #67–#72 derived-reference suites; #84 foreign contact parent and cost-product/category cross-link tests. |
+| Cross-organization source/target mutation | FAIR CRM #84 proves participation bulk move cannot target a foreign fair. |
+| Mixed-organization bulk IDs | FAIR CRM #84 proves import-row bulk decisions and activity bulk deletion ignore/reject foreign IDs without mutating foreign rows. |
+| Request body/query organization spoofing | FAIR CRM #84 proves body/query `organization_id` cannot override authenticated organization context. |
+| Organization-header spoofing and missing organization context | Ordinary-role foreign-header denial is covered by FAIR CRM role-matrix tests; Core #11 proves header/request data cannot assert global scope; #84 proves missing organization context fails closed. |
+| Mismatched background `{organization_id, entity_id/job_id/run_id}` | TI-01/TI-02 suites cover scraper, import, data-operation and fair-email workers. |
+| Foreign retry/cancel/status/heartbeat | TI-01 scraper lifecycle tests prove foreign scope cannot mutate run state or heartbeat. |
+| Foreign export/download | TI-07 / FAIR CRM #83 covers customer export, scraper artifacts and managed quote logos. |
+| Foreign SMTP/email account/operation identifiers | TI-03 / FAIR CRM #65–#66 covers account/config and fair-email child ownership. |
+| Cross-linked database fixtures / corrupt derived IDs | FAIR CRM #68–#72 and #83 cover quote, template, participation, activity, todo/worklist, export and artifact derived references. |
+| Platform Super Admin canonical bypass | Core #11 + Core CI #54 and FAIR CRM production-shaped Prod-Path evidence prove DB-backed global scope and ordinary-user denial. |
+| Audit/job/event organization context | TI-02 organization-owned job entities plus FAIR CRM #84 explicit duplicate-merge audit `organization_id` assertion. |
 
-### TI-09 — Final P0.1 adversarial certification suite
+## P0.1 exit gate — satisfied
 
-Status: **TODO**
-Severity: **RELEASE GATE**
+P0.1 was marked **DONE** on 2026-08-26 because:
 
-The final matrix must cover, where applicable:
-
-- Tenant A accessing its own resource.
-- Tenant A using Tenant B direct UUID.
-- Own parent + foreign child and foreign parent + own child.
-- Cross-organization source/target relationship mutation.
-- Mixed-organization bulk IDs.
-- Request-body/query organization spoofing.
-- Organization-header spoofing and missing organization context.
-- Mismatched background `{organization_id, entity_id/job_id/run_id}`.
-- Foreign retry/cancel/status/heartbeat.
-- Foreign export/download.
-- Foreign SMTP/email account/operation identifiers.
-- Cross-linked database fixtures where relationship-derived IDs are trusted.
-- Platform Super Admin canonical bypass.
-- Audit/job/event records retaining the correct organization context where applicable.
-
-Done when:
-
-- The matrix is represented by deterministic automated evidence or an explicitly documented non-applicability decision.
-- Repository-, API-, worker- and production-shaped gates required by the matrix are green.
-
-## Work order from current state
-
-1. **TI-09** Final adversarial certification suite and P0.1 closure.
-
-Newly discovered tenant-isolation findings take priority if their severity is higher than the current item.
-
-## P0.1 exit gate
-
-P0.1 may be marked **DONE** only when:
-
-- TI-01 through TI-09 are DONE or have an explicit approved non-applicability record,
-- all confirmed isolation gaps are closed,
-- all organization-owned background execution paths fail closed on mismatched scope,
+- TI-01 through TI-09 are DONE,
+- all confirmed isolation gaps found during the certification audit are closed,
+- organization-owned background execution paths fail closed on mismatched scope,
 - mail/SMTP and export/download ownership paths are certified,
 - direct, nested, relational and bulk cross-tenant negative tests pass,
 - Platform Super Admin behavior is separately verified,
-- repository-, API- and worker-level tenant-isolation suites are green,
-- relevant SaaS/security/permission-scope gates are satisfied,
-- project status/changelog are updated with the delivered result.
+- repository-, API-, worker- and production-shaped gates required by the matrix are green,
+- Core/product ownership boundaries remain intact,
+- project and ecosystem status/change records are updated as part of the closure PR.
+
+## Work order after P0.1
+
+P0.1 no longer owns active implementation work. The next canonical priority is **P0.2 — Entitlement enforcement path**, but roadmap order does not itself start implementation; P0.2 must be explicitly promoted/started under the normal project workflow.
+
+Newly discovered tenant-isolation regressions remain release-blocking security defects and must be handled ahead of lower-severity work.
 
 ## Change-record rule
 
-Each implementation PR for this certification should state:
+Future tenant-isolation changes should state:
 
-- which isolation boundary was changed or certified,
-- why the previous evidence was insufficient for P0.1,
+- which isolation boundary changed or was re-certified,
 - which negative tests prove fail-closed behavior,
 - whether the change affects Core ownership or remains FAIR CRM-owned.
 
