@@ -8,6 +8,12 @@ FAIR CRM participates in the canonical cross-repository [KYROX SaaS Readiness Ro
 
 The SaaS roadmap is not a second FAIR CRM backlog. When a concrete SaaS item becomes active for FAIR CRM, promote that task into this file with approved scope/ownership before implementation.
 
+### P0.1 Tenant Isolation Certification — IN PROGRESS
+
+FAIR CRM is currently executing the P0.1 tenant-isolation certification required by the canonical SaaS roadmap. The detailed audit findings, work order, negative-test matrix and closure criteria are tracked in [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md).
+
+The active implementation order begins with scraper/background execution scope, then the shared background-job tenant contract, mail/SMTP ownership, child/derived relationship hardening, export/download ownership, Super Admin verification and the final adversarial certification suite.
+
 ## Active product-quality track
 
 ### Permission-controlled UI consistency
@@ -51,6 +57,7 @@ This is a product behavior change and requires backend lifecycle, handler capabi
 
 The following detailed documents are supporting backlog specifications. They are not separate sources of roadmap priority:
 
+- [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md) — active supporting tracker for the P0.1 SaaS gate.
 - [Email Communication Preferences](backlog/EMAIL_COMMUNICATION_PREFERENCES.md)
 - [Mail Send Operations Backlog](backlog/MAIL_SEND_OPERATIONS_BACKLOG.md)
 - [MailerSend Provider Remaining Work](backlog/PROVIDER_MAILERSEND_REMAINING.md)
