@@ -50,6 +50,8 @@ Core and FAIR CRM use separate persistence. Suspending or soft-deleting an organ
 
 Those effects require an explicit lifecycle contract and product orchestration; they cannot be inferred from Core database cascades.
 
+The [P0.2 lifecycle runtime audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md) verifies the current suspension execution split in detail: Core blocks new normal permission-protected work after suspension, while already queued/running FAIR CRM scraper, enrichment, import and outbound-mail work generally proceeds from previously established organization-scoped job context without re-checking Core organization lifecycle state. Import background execution explicitly trusts queue-time authorization, and email delivery checks product email-account activity rather than Core organization status. This is an OL-07 lifecycle-policy gap, not a P0.1 tenant-isolation regression.
+
 ## Proposed decision
 
 The following is the proposed P0.2 baseline. It is **not binding until this ADR becomes Accepted**.
@@ -193,7 +195,7 @@ These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be
 | OL-04 | Team/user onboarding | Direct user creation exists; invites removed | Choose secure direct activation or new generic invitation capability | **OPEN CHOICE** |
 | OL-05 | Self-service suspend/delete | SYSTEM scope | Keep execution Super Admin only; optional closure-request flow later | **PENDING ACCEPTANCE** |
 | OL-06 | Reactivation | Domain transition exists; API missing | Add Super Admin reactivation API before operational use | **PENDING ACCEPTANCE** |
-| OL-07 | Suspension job/provider behavior | No cross-repo lifecycle orchestration | Block new work; explicitly cancel/pause/drain existing work; disable side effects | **OPEN DETAIL** |
+| OL-07 | Suspension job/provider behavior | New protected starts are denied, but queued/running scraper, enrichment, import and mail work generally does not re-check Core lifecycle state; outbound delivery relies on product account activity | Block new work; explicitly cancel/pause/drain existing work; disable side effects | **OPEN DETAIL** |
 | OL-08 | Closure/export/retention/delete sequence | Not defined cross-repo | Staged offboarding before Core tombstone | **PENDING ACCEPTANCE** |
 | OL-09 | Retention/grace durations | Not defined | Business/legal decision required | **OPEN CHOICE** |
 | OL-10 | Backup restore implications | Not defined | Must be explicit before destructive closure | **OPEN CHOICE** |
@@ -256,6 +258,7 @@ If accepted, this ADR:
 
 ## Related
 
+- [P0.2 Organization Lifecycle Runtime Audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md)
 - [KYROX SaaS Readiness Roadmap](../SAAS_ROADMAP.md)
 - [ADR-0002: Core and product separation](0002-core-product-separation.md)
 - [ADR-0003: Identity security strategy](0003-identity-security-strategy.md)

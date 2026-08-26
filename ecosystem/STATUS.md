@@ -20,6 +20,8 @@ The next cross-repository SaaS-readiness phase is **P0.2 — Organization lifecy
 
 The P0.2 audit confirmed that Core now uses direct `identity_users.organization_id` ownership for normal users; legacy memberships and membership invitations were removed by migration `20260817_0057_remove_memberships`. Organization creation is currently Platform Super Admin only, organization suspend/delete are SYSTEM-scope, Core delete is a Core soft-delete, and the domain reactivation transition currently lacks a public organization API endpoint. Cross-repository FAIR CRM job/provider/data-retention behavior therefore requires an explicit lifecycle contract before implementation.
 
+The [P0.2 lifecycle runtime audit](P0_2_LIFECYCLE_RUNTIME_AUDIT.md) additionally confirms the OL-07 execution gap: normal permission-protected starts are blocked after suspension, but already queued/running FAIR CRM scraper, enrichment, import and mail work generally continues from previously established organization-scoped job context without re-checking authoritative Core organization status. Import background execution explicitly trusts queue-time authorization, and outbound delivery checks product email-account activity rather than Core organization lifecycle state. This remains a **lifecycle-policy gap, not a P0.1 tenant-isolation regression**; ADR-0006 stays Proposed and runtime lifecycle changes remain gated on acceptance.
+
 ## KYROX Core
 
 Canonical detail: [projects/kyrox-core/PROJECT_STATUS.md](../projects/kyrox-core/PROJECT_STATUS.md)
