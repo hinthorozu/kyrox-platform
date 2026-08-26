@@ -27,7 +27,9 @@ P0.1 is complete only when all required cross-tenant negative paths fail closed 
 
 The first P0.1 hardening wave is merged into `fair-crm/main` through PR **#82** (`fix: complete P0.1 tenant isolation certification`). The merge commit is `23a5087e9466afab542a9458c6f3654743067cbf`.
 
-PR #82 passed the combined FAIR CRM Development Standard Gate and Prod-Path E2E before merge. That merge is implementation evidence for the delivered hardening work below; it does **not** by itself close the remaining TI-07, TI-08 or TI-09 certification gates.
+TI-07 export/download ownership certification is merged through FAIR CRM PR **#83** (`fix: certify P0.1 export and artifact tenant isolation`). The merge commit is `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`. PR #83 passed Development Standard Gate **#263** and Prod-Path E2E **#136** after the tenant-isolation fixes and adversarial coverage below.
+
+These merges are implementation and gate evidence for the delivered work; they do **not** by themselves close the remaining TI-08 or TI-09 certification gates.
 
 ### Delivered hardening
 
@@ -39,8 +41,21 @@ PR #82 passed the combined FAIR CRM Development Standard Gate and Prod-Path E2E 
 | TI-04 Customer communication child repositories | **DONE** | FAIR CRM #67, integrated through #76/#82 | Child reads/replacements and shared query helpers carry organization scope. |
 | TI-05 Quote render derived-ID hardening | **DONE** | FAIR CRM #68, integrated through #77/#82 | Render-time customer/fair/template/content/tag references fail closed on foreign derived IDs. |
 | TI-06 Todo worklist join hardening | **DONE** | FAIR CRM #72, integrated through #81/#82 | Worklist/follow-up joins validate authoritative organization across derived references. |
+| TI-07 Export / download ownership certification | **DONE** | FAIR CRM #83; merge `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`; Development #263; Prod-Path #136 | Customer Excel derived joins are tenant-scoped, scraper artifacts fail closed on foreign/corrupt run pointers, and quote-template logos are no longer unauthenticated public static assets. |
 
-### Additional P0.1 hardening delivered in the same wave
+### TI-07 adversarial evidence
+
+FAIR CRM #83 certifies the covered downloadable/generated artifact boundaries with deterministic negative tests:
+
+- Customer Excel export does not follow an own participation to a foreign fair.
+- Customer Excel export does not follow a foreign participation cross-linked to an own customer.
+- Scraper Excel download rejects a stored artifact pointer that resolves to another run and rejects direct foreign-run download.
+- Managed quote-template logo delivery requires authenticated organization scope; a foreign organization receives not-found semantics.
+- The legacy unauthenticated quote-logo static path is no longer mounted.
+- Quote-template create/update reject managed logo pointers owned by another organization.
+- Quote rendering inlines only the authoritative organization's managed local logo and rejects unsafe/traversal storage resolution.
+
+### Additional P0.1 hardening delivered in the first wave
 
 These findings were discovered during the audit and were merged without inventing new TI numbers:
 
@@ -52,26 +67,6 @@ These findings were discovered during the audit and were merged without inventin
 The consolidated integration sequence was #73–#81, followed by final integration PR #82.
 
 ## Remaining certification gates
-
-### TI-07 — Export / download ownership certification
-
-Status: **TODO**
-Severity: **HIGH**
-
-Some export-related callsites were hardened incidentally during TI-04, and scraper user-facing export paths already validate a tenant-scoped parent. P0.1 still requires an explicit inventory and certification of **all** downloadable/generated artifacts.
-
-Required:
-
-- Inventory export/download endpoints across FAIR CRM.
-- Verify parent/resource ownership on every download path.
-- Verify generated-file/job ownership and storage-key derivation.
-- Verify file/export/job IDs never become tenant authority by themselves.
-- Add foreign export/file/job negative tests for every covered path.
-
-Done when:
-
-- Foreign exports/downloads fail closed across all covered modules.
-- Creation, job completion and download preserve the same organization context.
 
 ### TI-08 — Platform Super Admin isolation contract
 
@@ -121,9 +116,8 @@ Done when:
 
 ## Work order from current state
 
-1. **TI-07** Export / download ownership certification.
-2. **TI-08** Platform Super Admin isolation contract.
-3. **TI-09** Final adversarial certification suite and closure.
+1. **TI-08** Platform Super Admin isolation contract.
+2. **TI-09** Final adversarial certification suite and closure.
 
 Newly discovered tenant-isolation findings take priority if their severity is higher than the current item.
 
