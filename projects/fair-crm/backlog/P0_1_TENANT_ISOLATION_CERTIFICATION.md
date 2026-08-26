@@ -27,11 +27,11 @@ P0.1 is complete only when all required cross-tenant negative paths fail closed 
 
 The first P0.1 hardening wave is merged into `fair-crm/main` through PR **#82** (`fix: complete P0.1 tenant isolation certification`). The merge commit is `23a5087e9466afab542a9458c6f3654743067cbf`.
 
-TI-07 export/download ownership certification is merged through FAIR CRM PR **#83** (`fix: certify P0.1 export and artifact tenant isolation`). The merge commit is `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`. PR #83 passed Development Standard Gate **#263** and Prod-Path E2E **#136** after the tenant-isolation fixes and adversarial coverage below.
+TI-07 export/download ownership certification is merged through FAIR CRM PR **#83** (`fix: certify P0.1 export and artifact tenant isolation`). The merge commit is `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`. PR #83 passed Development Standard Gate **#263** and Prod-Path E2E **#136**.
 
-TI-08 Super Admin isolation certification is now in progress through Core PR **#11** (`test: certify P0.1 Super Admin isolation contract`). This is certification-only Core evidence; it does not change runtime authorization behavior.
+TI-08 Super Admin isolation certification is merged through Core PR **#11** (`test: certify P0.1 Super Admin isolation contract`). The merge commit is `c0392f8c351593e28d0e18755e93768ff603f4f4`. Core CI **#54** passed lint and the complete Core test suite. Existing FAIR CRM Prod-Path E2E #136 supplies the production-shaped Super Admin integration evidence.
 
-These changes are implementation and gate evidence for the delivered work; they do **not** by themselves close TI-08 until its Core evidence is green, nor do they close the remaining TI-09 certification gate.
+TI-01 through TI-08 are now delivered and certified. P0.1 remains **IN PROGRESS** until TI-09 final adversarial certification and the P0.1 exit gate are complete.
 
 ### Delivered hardening
 
@@ -44,6 +44,7 @@ These changes are implementation and gate evidence for the delivered work; they 
 | TI-05 Quote render derived-ID hardening | **DONE** | FAIR CRM #68, integrated through #77/#82 | Render-time customer/fair/template/content/tag references fail closed on foreign derived IDs. |
 | TI-06 Todo worklist join hardening | **DONE** | FAIR CRM #72, integrated through #81/#82 | Worklist/follow-up joins validate authoritative organization across derived references. |
 | TI-07 Export / download ownership certification | **DONE** | FAIR CRM #83; merge `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`; Development #263; Prod-Path #136 | Customer Excel derived joins are tenant-scoped, scraper artifacts fail closed on foreign/corrupt run pointers, and quote-template logos are no longer unauthenticated public static assets. |
+| TI-08 Platform Super Admin isolation contract | **DONE** | Core #11; merge `c0392f8c351593e28d0e18755e93768ff603f4f4`; Core CI #54; FAIR CRM Prod-Path #136 | Global scope is derived from authenticated identity plus Core DB `is_super_admin`; ordinary users cannot self-assert it through request body/query/header data. |
 
 ### TI-07 adversarial evidence
 
@@ -57,6 +58,17 @@ FAIR CRM #83 certifies the covered downloadable/generated artifact boundaries wi
 - Quote-template create/update reject managed logo pointers owned by another organization.
 - Quote rendering inlines only the authoritative organization's managed local logo and rejects unsafe/traversal storage resolution.
 
+### TI-08 Super Admin certification evidence
+
+The canonical bypass is a Core platform primitive, not a FAIR CRM role:
+
+- Core resolves the access-token subject to the authoritative platform-user snapshot and reads `identity_users.is_super_admin` from DB.
+- Core #11 proves a normal authenticated user remains forbidden on foreign organization scope even when body, query and headers attempt to assert Super Admin/global state.
+- Core #11 proves the same already-issued access token gains global authorization only after the authoritative Core DB user row becomes Super Admin; no request or token-side Super Admin claim is required or trusted.
+- The Core Super Admin bypass remains product-agnostic and authorizes product permission codes without moving FAIR CRM semantics into Core.
+- FAIR CRM Prod-Path E2E #136 verifies the live Core integration for foreign organization scope and organization-header mismatch using the canonical Super Admin.
+- FAIR CRM role-matrix coverage separately verifies ordinary organization roles fail closed on foreign organization scope.
+
 ### Additional P0.1 hardening delivered in the first wave
 
 These findings were discovered during the audit and were merged without inventing new TI numbers:
@@ -68,34 +80,7 @@ These findings were discovered during the audit and were merged without inventin
 
 The consolidated integration sequence was #73–#81, followed by final integration PR #82.
 
-## Remaining certification gates
-
-### TI-08 — Platform Super Admin isolation contract
-
-Status: **IN PROGRESS**
-Severity: **HIGH**
-
-The canonical Platform Super Admin global bypass is accepted architecture. It must be distinguished from ordinary tenant membership and permission checks and must not be user-assertable.
-
-Current evidence:
-
-- Core derives Super Admin authority from the authenticated token subject plus the DB-backed `identity_users.is_super_admin` snapshot; request data does not define the flag.
-- FAIR CRM Prod-Path E2E #136 passed the existing live checks where the canonical Super Admin authorizes a foreign organization and organization-header mismatch through Core.
-- FAIR CRM role-matrix tests reject foreign organization scope for ordinary organization roles.
-- Core PR #11 adds API-level certification that a normal authenticated user cannot self-assert global scope through body/query/header data, while the same already-issued access token gains global scope only after the authoritative Core DB user row becomes Super Admin.
-
-Required:
-
-- Verify the current Core Super Admin bypass integration used by FAIR CRM.
-- Test normal tenant actor, foreign tenant actor and Platform Super Admin separately.
-- Verify request body, query and header data cannot grant global scope.
-- Verify authorization bypass does not accidentally turn lower repository/job boundaries into unscoped tenant access for ordinary actors.
-
-Done when:
-
-- Core PR #11 evidence is green and merged.
-- Canonical bypass behavior is explicit and tested.
-- Ordinary users cannot self-assert or inherit global tenant scope.
+## Remaining certification gate
 
 ### TI-09 — Final P0.1 adversarial certification suite
 
@@ -126,8 +111,7 @@ Done when:
 
 ## Work order from current state
 
-1. **TI-08** Platform Super Admin isolation contract.
-2. **TI-09** Final adversarial certification suite and closure.
+1. **TI-09** Final adversarial certification suite and P0.1 closure.
 
 Newly discovered tenant-isolation findings take priority if their severity is higher than the current item.
 
