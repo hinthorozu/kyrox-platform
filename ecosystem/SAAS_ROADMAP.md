@@ -129,11 +129,15 @@ Affected dimensions are REQUIRED; unaffected dimensions are N/A with an architec
 
 ---
 
-## P0.1 — Tenant isolation certification and regression gate
+## P0.1 — Tenant isolation certification and regression gate — DONE 2026-08-26
 
 ### Goal
 
 Prove that organization boundaries hold across every current and future organization-owned FAIR CRM path.
+
+### Completion record
+
+FAIR CRM completed TI-01 through TI-09 on 2026-08-26. The final adversarial certification is FAIR CRM PR #84 with Development Standard Gate #268 and Prod-Path E2E #140 green; the canonical Platform Super Admin exception is separately certified by Core PR #11 / Core CI #54. Detailed evidence is retained in `projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md`.
 
 ### Coverage
 
@@ -168,6 +172,8 @@ Test list/detail/create/update/delete/archive/restore/execute/export/download pa
 - Request-body organization IDs are never treated as authorization context.
 - Background/internal jobs carry validated organization context or have an explicit system-wide design.
 - No unresolved cross-organization leak exists.
+
+**Exit status:** **SATISFIED**. P0.1 is completed history; P0.2 is the next canonical priority but becomes active only through explicit promotion into the owning project roadmap.
 
 ---
 
