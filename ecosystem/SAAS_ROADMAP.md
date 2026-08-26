@@ -58,7 +58,7 @@ Forbidden:
 
 ### 1.5 Existing platform services are reused, not duplicated
 
-Core already owns reusable identity, organization/membership, authorization, audit, settings, jobs and notifications capabilities. Product work must consume those public contracts where applicable instead of creating a second authorization, organization, audit or generic job platform inside a product.
+Core already owns reusable identity, organization/user assignment, authorization, audit, settings, jobs and notifications capabilities. Product work must consume those public contracts where applicable instead of creating a second authorization, organization, user-management, audit or generic job platform inside a product.
 
 Product-specific job handlers, workflow semantics and CRM actions remain product-owned.
 
@@ -181,30 +181,44 @@ Test list/detail/create/update/delete/archive/restore/execute/export/download pa
 
 ### Goal
 
-Define the commercial account lifecycle without duplicating Core organization/membership capabilities inside FAIR CRM.
+Define the commercial account lifecycle without duplicating Core organization, user-management or authorization capabilities inside FAIR CRM.
 
-### Existing baseline to reuse
+### Verified current baseline
 
-Core owns organization and membership APIs, including organization creation, membership listing, invitations and invitation acceptance.
+Core currently owns the canonical organization and user-management primitives, but the identity model is **not membership-based anymore**:
+
+- migration `20260817_0057_remove_memberships` replaced memberships with direct `identity_users.organization_id` ownership for normal users,
+- `identity_memberships` and `identity_membership_invites` were removed,
+- a normal user currently belongs to one organization; Platform Super Admin has no organization assignment,
+- `POST /organizations` is Platform Super Admin only,
+- direct organization user creation and role assignment exist,
+- the legacy `Owner` role was removed; `OrganizationAdmin` is the protected organization-level administrative role,
+- organization suspend/delete are SYSTEM-scope operations,
+- Core organization delete is a Core soft-delete and does not itself delete product data in FAIR CRM,
+- the organization domain supports reactivation but the current public organization API does not expose a reactivation endpoint.
+
+The proposed lifecycle contract and unresolved decision matrix are tracked in [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md). ADR-0006 remains **Proposed**; no P0.2 runtime implementation is authorized merely by this roadmap entry.
 
 ### Decisions required before implementation
 
 - Who may create a new organization in the commercial flow?
 - What role/capability does the first non-Super-Admin user receive?
-- Is a separate business “owner” concept needed, or is OrganizationAdmin sufficient?
-- Is ownership transfer required?
+- Does the current direct single-organization user model remain the M4 contract?
+- Is team onboarding based on secure direct account activation, or is a new generic Core invitation/activation capability required?
 - May an organization request its own suspension/closure?
 - Does actual suspend/delete remain Super-Admin-only, or is the current SYSTEM scope intentionally changed?
-- What is the export/retention/delete sequence when a customer leaves?
-- What happens to active sessions, jobs and provider credentials when an organization is suspended?
+- Is reversible suspension part of the product contract, and therefore must a reactivation API be added?
+- What happens to active jobs and outbound provider side effects when an organization is suspended?
+- What is the export/retention/anonymization/delete sequence when a customer leaves?
+- What are the backup ageing/restoration implications of organization closure?
 
 ### Hard rule
 
-Until these decisions are approved, do not invent self-service delete/suspend behavior, a new Owner role, or a second organization lifecycle inside FAIR CRM.
+Until these decisions are approved, do not reintroduce obsolete membership semantics, invent self-service delete/suspend behavior, add a new Owner role, or create a second organization lifecycle inside FAIR CRM.
 
 ### Exit criteria
 
-The full organization lifecycle is explicit, permission-scoped, auditable and backed by public Core contracts plus product orchestration where necessary.
+The full organization lifecycle is explicit, permission-scoped, auditable and backed by public Core contracts plus product orchestration where necessary. The supported first-user/team activation path, suspension/reactivation behavior, job/provider side effects and offboarding/retention sequence must be production-safe and verified.
 
 ---
 
@@ -338,8 +352,8 @@ Indicative flow after lifecycle decisions are approved:
 ```text
 organization/account entry
   -> organization profile
-  -> role/membership setup
-  -> invite team
+  -> first OrganizationAdmin / user activation
+  -> add team users through the approved activation or invitation mechanism
   -> connect mail/provider configuration
   -> add/import first customer
   -> run first approved workflow/automation
@@ -347,7 +361,8 @@ organization/account entry
 
 ### Rules
 
-- FAIR CRM orchestrates product UX; Core remains the source for identity/organization/membership/authorization.
+- FAIR CRM orchestrates product UX; Core remains the source for identity, organization, user assignment, roles and authorization.
+- Do not assume membership or invitation infrastructure exists; use only the P0.2-approved activation model.
 - Do not preload later-stage data merely because a later onboarding step may need it.
 - Permission errors, entitlement limits and temporary domain-state restrictions use distinct UI semantics.
 
@@ -494,7 +509,7 @@ A missing applicable launch condition is not hidden by green CI.
 | Capability | Canonical owner / decision rule |
 |---|---|
 | Identity/authentication | KYROX Core |
-| Organizations/memberships | KYROX Core |
+| Organizations and direct user organization assignment | KYROX Core |
 | RBAC/effective authorization | KYROX Core |
 | Permission scope/catalog lifecycle | Core governance; product permission semantics registered through Core |
 | Central audit platform | KYROX Core |
@@ -599,6 +614,7 @@ Do not copy this roadmap into `fair-crm` or `kyrox-core` code repositories.
 - [Identity Security Strategy — ADR-0003](decisions/0003-identity-security-strategy.md)
 - [Audit Service Strategy — ADR-0004](decisions/0004-audit-service-strategy.md)
 - [Role/Permission Governance — ADR-0005](decisions/0005-role-template-and-permission-governance.md)
+- [Organization Lifecycle / Onboarding — ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md)
 - [FAIR CRM Constitution](../projects/fair-crm/CONSTITUTION.md)
 - [FAIR CRM Permission Scope Governance](../projects/fair-crm/PERMISSION_SCOPE_GOVERNANCE.md)
 - [KYROX Core Product Integration Guide](../projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md)
