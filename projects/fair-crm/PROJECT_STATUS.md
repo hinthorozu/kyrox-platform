@@ -4,7 +4,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-08-19** |
+| Last verified | **2026-08-26** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
 | Migration head in `main` | `0076_import_analyze_matchable_fields_optional` |
@@ -15,6 +15,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 | Area | Status |
 |------|--------|
+| Tenant isolation / SaaS P0.1 | **Certified DONE (2026-08-26)** — TI-01 through TI-09 complete across API, repository, worker, export/download and Platform Super Admin boundaries |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -26,13 +27,21 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Responsive shared UI / table system | Implemented |
 | Permission-aware UI | Shared rule defined; full product-wide consistency audit remains active work |
 | Quotation-related capabilities | Present in current implementation; documentation reconciliation required |
-| Cost catalog | Current implementation includes cost-catalog schema and Core permission support; documentation/API/UI completeness is being reconciled before declaring the track fully complete |
+| Cost catalog | Current implementation includes cost-catalog schema and Core permission support; tenant isolation is certified, while broader documentation/API/UI completeness is still being reconciled |
 
 ## Current quality / documentation focus
 
 1. **Permission-controlled UI consistency** — navigation, routes, CRUD actions and non-CRUD actions must reflect effective permissions and the shared [CRUD & UI Authorization Standard](../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md). Backend authorization remains authoritative.
 2. **Implementation-to-documentation reconciliation** — quotation and cost-catalog work advanced beyond the old July documentation snapshot. Record what is actually implemented; do not recreate features from stale planning notes.
 3. **Status/roadmap discipline** — delivered truth stays here, future/active work stays in [ROADMAP.md](ROADMAP.md), detailed history stays in [CHANGELOG.md](CHANGELOG.md).
+
+## SaaS tenant-isolation certification
+
+P0.1 is complete. FAIR CRM now has deterministic fail-closed evidence for direct foreign resource IDs, nested/derived relationships, source/target mutations, mixed-tenant bulk identifiers, request-scope spoofing, organization-owned background jobs, retry/cancel/status/heartbeat, mail/SMTP ownership, export/download ownership and audit context. The canonical Platform Super Admin exception is separately certified in Core and through the FAIR CRM production-shaped integration path.
+
+`organization` remains the canonical tenant/account boundary. No parallel Tenant model was introduced, and FAIR CRM business semantics remain product-owned rather than moving into Core.
+
+The detailed evidence record is [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md).
 
 ## Current implementation notes
 
