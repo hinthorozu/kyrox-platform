@@ -29,7 +29,9 @@ The first P0.1 hardening wave is merged into `fair-crm/main` through PR **#82** 
 
 TI-07 export/download ownership certification is merged through FAIR CRM PR **#83** (`fix: certify P0.1 export and artifact tenant isolation`). The merge commit is `5fbd7ff703c1e3c8456213ccd5a7566e85025d24`. PR #83 passed Development Standard Gate **#263** and Prod-Path E2E **#136** after the tenant-isolation fixes and adversarial coverage below.
 
-These merges are implementation and gate evidence for the delivered work; they do **not** by themselves close the remaining TI-08 or TI-09 certification gates.
+TI-08 Super Admin isolation certification is now in progress through Core PR **#11** (`test: certify P0.1 Super Admin isolation contract`). This is certification-only Core evidence; it does not change runtime authorization behavior.
+
+These changes are implementation and gate evidence for the delivered work; they do **not** by themselves close TI-08 until its Core evidence is green, nor do they close the remaining TI-09 certification gate.
 
 ### Delivered hardening
 
@@ -70,10 +72,17 @@ The consolidated integration sequence was #73–#81, followed by final integrati
 
 ### TI-08 — Platform Super Admin isolation contract
 
-Status: **TODO**
+Status: **IN PROGRESS**
 Severity: **HIGH**
 
 The canonical Platform Super Admin global bypass is accepted architecture. It must be distinguished from ordinary tenant membership and permission checks and must not be user-assertable.
+
+Current evidence:
+
+- Core derives Super Admin authority from the authenticated token subject plus the DB-backed `identity_users.is_super_admin` snapshot; request data does not define the flag.
+- FAIR CRM Prod-Path E2E #136 passed the existing live checks where the canonical Super Admin authorizes a foreign organization and organization-header mismatch through Core.
+- FAIR CRM role-matrix tests reject foreign organization scope for ordinary organization roles.
+- Core PR #11 adds API-level certification that a normal authenticated user cannot self-assert global scope through body/query/header data, while the same already-issued access token gains global scope only after the authoritative Core DB user row becomes Super Admin.
 
 Required:
 
@@ -84,6 +93,7 @@ Required:
 
 Done when:
 
+- Core PR #11 evidence is green and merged.
 - Canonical bypass behavior is explicit and tested.
 - Ordinary users cannot self-assert or inherit global tenant scope.
 
