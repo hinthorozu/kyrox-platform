@@ -59,8 +59,9 @@ These areas currently show consistent organization scoping in their main reposit
 
 #### TI-01 — Scraper background tenant scope
 
-Status: **TODO**
+Status: **IN REVIEW**
 Severity: **HIGH / P0.1 blocker**
+Implementation: `fair-crm` PR **#63** (`fix(scraper): enforce tenant scope in background run state`)
 
 Problem:
 
@@ -71,6 +72,14 @@ Required:
 - Require organization scope for background run loads and mutations.
 - Ensure run-log access always derives from an organization-scoped parent run.
 - Add mismatched `{organization_id, run_id}` negative tests for worker execution and state transitions.
+
+Implemented in PR #63:
+
+- Organization-scoped run-history reads and updates.
+- Organization propagation through complete/fail/cancel/heartbeat transitions.
+- Organization-aware cooperative cancellation checks.
+- Worker-entry validation before scraper run-log or execution side effects.
+- Cross-tenant negative tests for repository/service mutation, heartbeat and fair/enrichment/adapter-test workers.
 
 Done when:
 
