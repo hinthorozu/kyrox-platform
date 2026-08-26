@@ -2,7 +2,7 @@
 
 Status: **IN PROGRESS**
 Owner: FAIR CRM / SaaS readiness
-Canonical roadmap: [`../../ecosystem/SAAS_ROADMAP.md`](../../ecosystem/SAAS_ROADMAP.md)
+Canonical roadmap: [`../../../ecosystem/SAAS_ROADMAP.md`](../../../ecosystem/SAAS_ROADMAP.md)
 
 ## Purpose
 
@@ -10,24 +10,7 @@ Certify that FAIR CRM organization-owned data and side effects remain isolated b
 
 This work does not introduce a new Tenant entity. `organization` remains the canonical account boundary. Permission scope answers **what** an actor may do; organization scope answers **whose data** the actor may access or mutate. Request body/query values are not trusted tenant authority.
 
-P0.1 is complete only when relevant cross-tenant negative paths fail closed and the required isolation tests are green. Green CI alone is not sufficient.
-
-## Audit scope
-
-The certification covers organization-owned paths in:
-
-- customers and customer child records,
-- contacts,
-- fairs,
-- quotations and cost catalog,
-- todos and worklists,
-- imports,
-- scraper,
-- operations,
-- mail / SMTP,
-- exports and downloads,
-- background jobs, retries, cancellation and status transitions,
-- Platform Super Admin global-bypass behavior.
+P0.1 is complete only when all required cross-tenant negative paths fail closed and the required isolation evidence is green. Green CI alone is not sufficient.
 
 ## Required invariants
 
@@ -40,193 +23,81 @@ The certification covers organization-owned paths in:
 7. Foreign-organization resource probing should use not-found semantics where appropriate and must not disclose resource existence.
 8. Platform Super Admin bypass is explicit and separately tested; users cannot self-assert it through request data.
 
-## Current audit summary
+## Current certification state
 
-### Strong certification candidates
+The first P0.1 hardening wave is merged into `fair-crm/main` through PR **#82** (`fix: complete P0.1 tenant isolation certification`). The merge commit is `23a5087e9466afab542a9458c6f3654743067cbf`.
 
-These areas currently show consistent organization scoping in their main repository paths, subject to the negative tests listed below:
+PR #82 passed the combined FAIR CRM Development Standard Gate and Prod-Path E2E before merge. That merge is implementation evidence for the delivered hardening work below; it does **not** by itself close the remaining TI-07, TI-08 or TI-09 certification gates.
 
-- Cost catalog CRUD and category/product relationships.
-- Participation/activity main repository paths and bulk participation movement.
-- Import batch/row/job repository boundaries and organization-carrying job commands.
-- Operations aggregate/run/item repository chain.
-- Customer main aggregate CRUD.
-- Todo main aggregate/step/state repositories.
-- Quote main CRUD.
-- Scraper user-facing run detail/log/export paths that validate the parent run first.
+### Delivered hardening
 
-### Gaps / hardening work
+| Item | Status | Evidence | Result |
+| --- | --- | --- | --- |
+| TI-01 Scraper background tenant scope | **DONE** | FAIR CRM #63, integrated through #73/#82 | Worker/run state, cancellation and transition paths preserve organization scope. |
+| TI-02 Background-job tenant contract | **DONE** | FAIR CRM #64, integrated through #73/#82 | Import, data-operation and fair-email worker mismatch tests prove fail-closed outer job boundaries. |
+| TI-03 Mail / SMTP ownership chain | **DONE** | FAIR CRM #65 and #66, integrated through #74/#75/#82 | Email-account/provider config and fair-email batch/outbox mutations are organization-scoped. |
+| TI-04 Customer communication child repositories | **DONE** | FAIR CRM #67, integrated through #76/#82 | Child reads/replacements and shared query helpers carry organization scope. |
+| TI-05 Quote render derived-ID hardening | **DONE** | FAIR CRM #68, integrated through #77/#82 | Render-time customer/fair/template/content/tag references fail closed on foreign derived IDs. |
+| TI-06 Todo worklist join hardening | **DONE** | FAIR CRM #72, integrated through #81/#82 | Worklist/follow-up joins validate authoritative organization across derived references. |
 
-#### TI-01 — Scraper background tenant scope
+### Additional P0.1 hardening delivered in the same wave
 
-Status: **IN REVIEW**
-Severity: **HIGH / P0.1 blocker**
-Implementation: `fair-crm` PR **#63** (`fix(scraper): enforce tenant scope in background run state`)
+These findings were discovered during the audit and were merged without inventing new TI numbers:
 
-Problem:
+- FAIR CRM #69 — template-management derived references.
+- FAIR CRM #70 — participation derived-parent joins and shared participation existence correlation.
+- FAIR CRM #71 — activity derived-customer search/sort join.
+- FAIR CRM #72 — todo worklist/follow-up derived references.
 
-Some scraper run-history/state-transition paths can fall back to `run_id`-only repository access. The background command carries organization context, but complete/fail/cancel/heartbeat-style transitions must preserve that scope through the repository mutation boundary.
+The consolidated integration sequence was #73–#81, followed by final integration PR #82.
 
-Required:
+## Remaining certification gates
 
-- Require organization scope for background run loads and mutations.
-- Ensure run-log access always derives from an organization-scoped parent run.
-- Add mismatched `{organization_id, run_id}` negative tests for worker execution and state transitions.
-
-Implemented in PR #63:
-
-- Organization-scoped run-history reads and updates.
-- Organization propagation through complete/fail/cancel/heartbeat transitions.
-- Organization-aware cooperative cancellation checks.
-- Worker-entry validation before scraper run-log or execution side effects.
-- Cross-tenant negative tests for repository/service mutation, heartbeat and fair/enrichment/adapter-test workers.
-
-Done when:
-
-- Foreign run IDs cannot be read or mutated by a worker for another organization.
-- Repository and worker tests prove fail-closed behavior.
-- Existing scraper API/runtime tests remain green.
-
-#### TI-02 — Background-job tenant contract
+### TI-07 — Export / download ownership certification
 
 Status: **TODO**
 Severity: **HIGH**
 
-Problem:
-
-A job payload carrying `organization_id` is not sufficient if downstream services or repositories later mutate by entity/job/run ID alone.
-
-Required:
-
-- Audit imports, scraper, operations and mail background consumers.
-- Re-load/mutate organization-owned resources using organization-scoped repository boundaries.
-- Add mismatched organization/entity/job tests for retry, cancel, status and execution paths.
-
-Done when:
-
-- Internal/AllowAll authorization adapters cannot cross tenant boundaries.
-- Every organization-owned job fails closed on mismatched scope.
-
-#### TI-03 — Mail / SMTP ownership chain
-
-Status: **TODO**
-Severity: **HIGH**
-
-Problem:
-
-Mail send/test/retry flows and SMTP/provider credentials combine sensitive configuration with side effects. Permission checks alone do not establish tenant ownership.
-
-Required:
-
-- Audit email/SMTP account list/detail/create/update/delete boundaries.
-- Audit credential/provider lookups.
-- Audit test-mail, send, retry and background-send paths.
-- Prove foreign SMTP/email-account/mail-operation IDs cannot be used across organizations.
-
-Done when:
-
-- Account, credential, operation and background-send paths are organization-scoped.
-- Cross-tenant negative tests are green.
-
-#### TI-04 — Customer communication child repositories
-
-Status: **TODO**
-Severity: **MEDIUM/HIGH**
-
-Problem:
-
-Some customer communication child reads/replacements rely on an already validated `customer_id` and do not independently carry explicit organization scope at the child repository boundary.
-
-Required:
-
-- Scope child reads/replacements by organization plus parent customer identity, or enforce equivalent fail-closed ownership at the repository boundary.
-- Add own-parent/foreign-child and foreign-parent/own-child tests where applicable.
-
-Done when:
-
-- Child access cannot cross organization boundaries even if the repository is invoked from another use case.
-
-#### TI-05 — Quote render derived-ID hardening
-
-Status: **TODO**
-Severity: **MEDIUM**
-
-Problem:
-
-Quote CRUD is scoped, but render-time related records can be loaded through previously derived primary keys without repeating organization ownership checks.
-
-Required:
-
-- Harden organization-owned related lookups used during rendering.
-- Add cross-linked/corrupt fixture tests such as Org A quote referencing an Org B customer/fair/template resource.
-
-Done when:
-
-- Render output cannot consume foreign organization data even under inconsistent relationship data.
-
-#### TI-06 — Todo worklist join hardening
-
-Status: **TODO**
-Severity: **MEDIUM**
-
-Problem:
-
-The worklist begins from organization-scoped data, while some joined organization-owned tables rely on ID relationships without explicit organization predicates on every joined resource.
-
-Required:
-
-- Review worklist joins and add organization predicates where appropriate.
-- Add cross-linked fixture tests.
-
-Done when:
-
-- Corrupt/mismatched relationships cannot expose another organization's Todo/Customer/outcome data.
-
-#### TI-07 — Export / download ownership certification
-
-Status: **TODO**
-Severity: **HIGH**
-
-Problem:
-
-Every downloadable artifact must preserve organization ownership through creation, job completion and download. File/export IDs, paths or tokens must not become tenant authority by themselves.
+Some export-related callsites were hardened incidentally during TI-04, and scraper user-facing export paths already validate a tenant-scoped parent. P0.1 still requires an explicit inventory and certification of **all** downloadable/generated artifacts.
 
 Required:
 
 - Inventory export/download endpoints across FAIR CRM.
-- Verify parent/resource ownership on download.
+- Verify parent/resource ownership on every download path.
 - Verify generated-file/job ownership and storage-key derivation.
-- Add foreign export/file/job negative tests.
+- Verify file/export/job IDs never become tenant authority by themselves.
+- Add foreign export/file/job negative tests for every covered path.
 
 Done when:
 
 - Foreign exports/downloads fail closed across all covered modules.
+- Creation, job completion and download preserve the same organization context.
 
-#### TI-08 — Platform Super Admin isolation contract
+### TI-08 — Platform Super Admin isolation contract
 
 Status: **TODO**
 Severity: **HIGH**
 
-Problem:
-
-Canonical global bypass must be distinguished from ordinary tenant membership/permission checks and must not be user-assertable.
+The canonical Platform Super Admin global bypass is accepted architecture. It must be distinguished from ordinary tenant membership and permission checks and must not be user-assertable.
 
 Required:
 
 - Verify the current Core Super Admin bypass integration used by FAIR CRM.
 - Test normal tenant actor, foreign tenant actor and Platform Super Admin separately.
-- Verify request body/query/header data cannot grant global scope.
+- Verify request body, query and header data cannot grant global scope.
+- Verify authorization bypass does not accidentally turn lower repository/job boundaries into unscoped tenant access for ordinary actors.
 
 Done when:
 
-- Canonical bypass behavior is explicit, tested and does not weaken normal tenant isolation.
+- Canonical bypass behavior is explicit and tested.
+- Ordinary users cannot self-assert or inherit global tenant scope.
 
-#### TI-09 — Final P0.1 adversarial certification suite
+### TI-09 — Final P0.1 adversarial certification suite
 
 Status: **TODO**
 Severity: **RELEASE GATE**
 
-Required matrix includes:
+The final matrix must cover, where applicable:
 
 - Tenant A accessing its own resource.
 - Tenant A using Tenant B direct UUID.
@@ -241,26 +112,26 @@ Required matrix includes:
 - Foreign SMTP/email account/operation identifiers.
 - Cross-linked database fixtures where relationship-derived IDs are trusted.
 - Platform Super Admin canonical bypass.
-- Verification that audit/job/event records retain the correct organization context where applicable.
+- Audit/job/event records retaining the correct organization context where applicable.
 
-## Work order
+Done when:
 
-Execute P0.1 in this order unless a newly discovered higher-severity gap changes priority:
+- The matrix is represented by deterministic automated evidence or an explicitly documented non-applicability decision.
+- Repository-, API-, worker- and production-shaped gates required by the matrix are green.
 
-1. **TI-01** Scraper background tenant scope.
-2. **TI-02** Generic background-job tenant contract.
-3. **TI-03** Mail / SMTP ownership chain.
-4. **TI-04** Customer communication child repositories.
-5. **TI-05** Quote render derived-ID hardening.
-6. **TI-06** Todo worklist join hardening.
-7. **TI-07** Export / download certification.
-8. **TI-08** Platform Super Admin isolation contract.
-9. **TI-09** Full adversarial certification suite and closure.
+## Work order from current state
+
+1. **TI-07** Export / download ownership certification.
+2. **TI-08** Platform Super Admin isolation contract.
+3. **TI-09** Final adversarial certification suite and closure.
+
+Newly discovered tenant-isolation findings take priority if their severity is higher than the current item.
 
 ## P0.1 exit gate
 
-P0.1 may be marked DONE only when:
+P0.1 may be marked **DONE** only when:
 
+- TI-01 through TI-09 are DONE or have an explicit approved non-applicability record,
 - all confirmed isolation gaps are closed,
 - all organization-owned background execution paths fail closed on mismatched scope,
 - mail/SMTP and export/download ownership paths are certified,
@@ -272,11 +143,11 @@ P0.1 may be marked DONE only when:
 
 ## Change-record rule
 
-Each implementation PR for this certification should reference the relevant `TI-xx` item and state:
+Each implementation PR for this certification should state:
 
-- which isolation boundary was changed,
-- why the old behavior was insufficient for P0.1,
-- which negative tests prove the new fail-closed behavior,
+- which isolation boundary was changed or certified,
+- why the previous evidence was insufficient for P0.1,
+- which negative tests prove fail-closed behavior,
 - whether the change affects Core ownership or remains FAIR CRM-owned.
 
 Do not move FAIR CRM business semantics into `kyrox-core`; reuse the existing Core organization/auth/RBAC/audit/jobs primitives.
