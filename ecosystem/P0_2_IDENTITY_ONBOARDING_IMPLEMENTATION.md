@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-04 — Core identity notifications / production email`  
+**Current resume point:** `CORE-05 — Public signup + atomic bootstrap`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -92,12 +92,11 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 ### Core notifications
 
 - [x] Core has generic notifications, jobs and settings modules.
-- [x] Notification model already supports recipient, subject/body, template key, idempotency and job linkage.
+- [x] Notification model supports recipient, subject/body, template key, idempotency and job linkage.
 - [x] Core has an email notification channel abstraction.
-- [x] Current Core email channel implementation is a log stub only.
-- [ ] A real production Core identity email adapter/provider is configured.
-- [ ] Notifications support platform-scoped recipients that have no `organization_id` (required for Super Admin credential flows).
-- [ ] Identity templates exist for activation/reset/password-changed messages.
+- [x] Core preserves the redacted log email adapter for development/test and has a configurable Core-owned SMTP production adapter delivered by Core PR #15.
+- [x] Notifications and their internal dispatch jobs support platform-scoped recipients with no `organization_id` while preserving organization-scoped behavior.
+- [x] Generic identity templates exist for activation, password reset and password-changed/security messages.
 
 ### FAIR CRM auth/product baseline
 
@@ -253,7 +252,7 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **Evidence:** Core PR #13 final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809`; Core CI #60 / run `33097948707` SUCCESS with `348 passed`; merged to Core `main` as `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`. Migration `20260827_0063` has direct upgrade/downgrade schema tests proving the action-token table contains only hashed token material and no raw-token column. The workflow's `Run lint` step reported success but explicitly skipped Ruff because Ruff is not installed, so lint execution is not claimed as separate evidence.
 
-**DONE:** raw token compromise from Core persistence/logging is prevented by the implemented contract, reissue supersedes older live same-purpose tokens, and replay/purpose/expiry checks are deterministic.
+**DONE:** raw token compromise from Core action-token persistence/logging is prevented by the implemented contract, reissue supersedes older live same-purpose tokens, and replay/purpose/expiry checks are deterministic.
 
 ### Phase CORE-03 — Session / credential invalidation primitive — DONE 2026-08-27
 
@@ -269,19 +268,21 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **DONE:** Core now has deterministic server-side user-wide session/refresh invalidation and stale access tokens fail immediately when their server-side session is revoked, deleted or does not belong to the JWT subject. Reset/change endpoint integration remains explicitly owned by CORE-07/CORE-08 and is not falsely marked delivered here.
 
-### Phase CORE-04 — Core identity notifications / production email
+### Phase CORE-04 — Core identity notifications / production email — DONE 2026-08-27
 
-- [ ] Extend notification ownership/scope so platform identity recipients without an organization can be notified safely.
-- [ ] Preserve organization-scoped notification behavior.
-- [ ] Add a real email adapter/provider implementation for Core notifications.
-- [ ] Add identity activation template.
-- [ ] Add password-reset template.
-- [ ] Add password-changed/security-notice template if sent.
-- [ ] Keep secret/provider configuration in Core/platform infrastructure, not FAIR CRM tenant SMTP configuration.
-- [ ] Add idempotency tests.
-- [ ] Add redaction/logging tests.
+- [x] Extend notification ownership/scope so platform identity recipients without an organization can be notified safely.
+- [x] Preserve organization-scoped notification behavior.
+- [x] Add a real email adapter/provider implementation for Core notifications.
+- [x] Add identity activation template.
+- [x] Add password-reset template.
+- [x] Add password-changed/security-notice template if sent.
+- [x] Keep secret/provider configuration in Core/platform infrastructure, not FAIR CRM tenant SMTP configuration.
+- [x] Add idempotency tests.
+- [x] Add redaction/logging tests.
 
-**DONE when:** Core can deliver production identity email independently of FAIR CRM product email accounts.
+**Evidence:** Core PR #15 final head `271124290858e0447af5ac90adc58436ccadf5a4`; Core CI #64 / run `33109701064` SUCCESS; merged to Core `main` as `09617df8a17aa2ac744b5b1a9692d6418bbf0899`. Migration `20260827_0064_platform_identity_notifications` makes notification/job `organization_id` nullable for explicit platform scope and adds dedicated partial unique idempotency constraints for platform-scoped notifications and jobs. Core now has configurable SMTP delivery with separate `CORE_EMAIL_*` / `CORE_SMTP_*` environment configuration, while the existing log adapter remains the default development/test provider. Tests cover platform-scoped enqueue/idempotent replay, identity template contracts, SMTP dispatch, generic provider-failure mapping, recipient/credential/action-token log redaction and direct migration upgrade/downgrade behavior. The workflow's `Run lint` step reported success; separate Ruff execution is not claimed because the workflow only executes Ruff when available.
+
+**DONE:** Core can deliver identity/security email independently of FAIR CRM tenant/product email accounts and can represent/queue platform identity recipients without inventing an organization. CORE-04 does not yet wire token-bearing activation/reset flows; CORE-05/06/07 must preserve the workstream-wide rule that raw activation/reset token material is not persisted or logged when those flows are connected.
 
 ### Phase CORE-05 — Public signup + atomic bootstrap
 
@@ -465,6 +466,7 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] CORE-01 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #12 merge.
 - [x] CORE-02 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #13 merge.
 - [x] CORE-03 implementation evidence is synchronized into this tracker after Core PR #14 merge; reset/change integration remains explicitly unchecked in CORE-07/08.
+- [x] CORE-04 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #15 merge; token-bearing activation/reset integration remains deferred to the owning later phases.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -478,8 +480,8 @@ The implementation order is intentionally dependency-first:
 2. **CORE-01** PasswordPolicy. ✅
 3. **CORE-02** one-time identity action tokens. ✅
 4. **CORE-03** user-wide session/credential invalidation. ✅
-5. **CORE-04** Core production identity notifications/email. ← NEXT
-6. **CORE-05** atomic public signup/bootstrap.
+5. **CORE-04** Core production identity notifications/email. ✅
+6. **CORE-05** atomic public signup/bootstrap. ← NEXT
 7. **CORE-06** activation.
 8. **CORE-07** forgot/reset password.
 9. **CORE-08** authenticated password change.
@@ -498,7 +500,8 @@ The implementation order is intentionally dependency-first:
 - [x] CORE-01 PasswordPolicy delivered through Core PR #12; CI #57 / run `33093204127` SUCCESS; merge `323cfa750a0c731bd15de11dfbd19e83858dc1f7`.
 - [x] CORE-02 one-time identity action tokens delivered through Core PR #13; final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809`; CI #60 / run `33097948707` SUCCESS with 348 tests passed; merge `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`.
 - [x] CORE-03 user-wide session/credential invalidation delivered through Core PR #14; final head `1b2dff1c5613405273ebe673210d522977e8d0c5`; CI #63 / run `33102833407` SUCCESS with 352 tests passed; merge `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4`.
-- [ ] **NEXT RUNTIME PHASE: CORE-04 — Core identity notifications / production email.**
+- [x] CORE-04 Core identity notifications / production email delivered through Core PR #15; final head `271124290858e0447af5ac90adc58436ccadf5a4`; CI #64 / run `33109701064` SUCCESS; merge `09617df8a17aa2ac744b5b1a9692d6418bbf0899`; migration head `20260827_0064_platform_identity_notifications`.
+- [ ] **NEXT RUNTIME PHASE: CORE-05 — Public signup + atomic bootstrap.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 

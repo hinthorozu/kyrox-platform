@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-04 Core-owned production identity-email capability; delivered through Core PR #15
+- Platform-scoped identity notifications and corresponding internal dispatch jobs without requiring a fabricated organization
+- Core-owned configurable SMTP adapter plus stable activation, password-reset and password-changed identity templates
+- Alembic `20260827_0064` for explicit platform notification/job scope and dedicated platform idempotency constraints
+- CORE-04 tests covering platform scope, idempotent replay, migration upgrade/downgrade, SMTP dispatch and secret/recipient/log redaction
 - P0.2 CORE-03 reusable user-wide session/refresh credential invalidation primitive; delivered through Core PR #14
 - User-scoped active-session and active-refresh-token repository queries plus idempotent `RevokeAllUserSessionsUseCase`
 - Access-token session enforcement tests covering revoked/deleted sessions and JWT `sid`/`sub` ownership mismatch
@@ -21,6 +26,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Core identity/security email delivery can now use separate Core SMTP credentials and does not depend on FAIR CRM tenant/product mail-provider configuration; the log adapter remains the development/test default
+- Notification and job persistence now support explicit platform scope where required by Core identity delivery while preserving existing organization-scoped behavior
+- SMTP dispatch maps provider failures to generic errors and delivery logs omit message bodies/action URLs/tokens, SMTP credentials and full recipient addresses
 - Protected access-token validation now requires JWT `sid` to resolve to an active server-side session owned by JWT `sub`; revoked/deleted/mismatched sessions fail closed with 401 instead of leaving stale access tokens valid until natural expiry
 - User-wide credential invalidation revokes live refresh tokens with `SESSION_REVOKED` and active sessions while preserving other users; CORE-07/CORE-08 remain responsible for invoking the primitive from reset/change endpoints
 - Existing manual organization-user create/update password-setting paths now use the shared Core password policy while preserving Platform Super Admin manual user creation
