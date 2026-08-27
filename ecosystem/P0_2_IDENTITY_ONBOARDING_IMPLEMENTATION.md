@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-01 — PasswordPolicy`  
+**Current resume point:** `CORE-02 — One-time identity action tokens`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -77,7 +77,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 - [x] Legacy Owner role has been removed.
 - [x] Existing manual user management can create a user and assign an organization role.
 - [x] Existing manual user management allows an administrator-provided password.
-- [x] Existing manual user password validation at the API boundary is currently only `min_length=1`; there is no shared production password policy.
+- [x] Before CORE-01, manual user password validation at the API boundary was only `min_length=1`; CORE-01 replaced that with the shared Core PasswordPolicy.
 
 ### Activation / password recovery baseline
 
@@ -87,7 +87,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 - [ ] Reset-password endpoint exists.
 - [ ] Authenticated self-service change-password endpoint exists.
 - [ ] One-time identity security token persistence exists.
-- [ ] Central reusable password policy exists.
+- [x] Central reusable password policy exists — delivered by Core PR #12 on 2026-08-27.
 
 ### Core notifications
 
@@ -223,18 +223,20 @@ Public forgot-password responses must not reveal whether the email exists.
 
 ## 5. Core implementation checklist
 
-### Phase CORE-01 — Password policy
+### Phase CORE-01 — Password policy — DONE 2026-08-27
 
-- [ ] Add one reusable Core `PasswordPolicy` primitive.
-- [ ] Apply it to public activation.
-- [ ] Apply it to password reset.
-- [ ] Apply it to authenticated password change.
-- [ ] Apply it to existing manual user create/update so all password-setting paths have one policy.
-- [ ] Decide and document production minimum length; initial design target is 12 characters with no forced composition gimmicks.
-- [ ] Preserve maximum input limits and denial/error contract.
-- [ ] Unit tests cover valid, too-short, too-long and Unicode/edge input.
+- [x] Add one reusable Core `PasswordPolicy` primitive.
+- [x] Apply it to existing manual user create/update so current password-setting paths use one policy.
+- [x] Set the production minimum to 12 characters with no forced composition gimmicks.
+- [x] Set and enforce the production maximum at 255 characters.
+- [x] Keep Argon2id focused on hashing/verification rather than embedding password rules in infrastructure.
+- [x] Return a safe 422 denial/error contract without echoing the submitted password.
+- [x] Unit tests cover valid, too-short, too-long, Unicode and non-echoed-error cases.
+- [x] Future activation, reset and authenticated change-password phases retain explicit `Enforce PasswordPolicy` checklist items below; no nonexistent endpoint is falsely marked delivered by CORE-01.
 
-**DONE when:** no password-setting path bypasses the shared policy and Core CI is green.
+**Evidence:** Core PR #12 final head `15db64cba636b340ee0841e25137d2bbea2dbd93`; CI #57 / run `33093204127` SUCCESS; merged to Core `main` as `323cfa750a0c731bd15de11dfbd19e83858dc1f7`.
+
+**DONE:** shared policy exists, current manual password-setting paths use it, tests are green, and later password-setting endpoints are required to reuse it.
 
 ### Phase CORE-02 — One-time identity action tokens
 
@@ -455,7 +457,8 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] `projects/kyrox-core/ROADMAP.md` promotes the approved generic identity work as active product-driven Core work.
 - [x] `projects/fair-crm/ROADMAP.md` promotes the bridge/UI portion as active FAIR CRM work.
 - [x] Platform planning/governance PR #12 merged as `c0b9d543437a95343032929364c331a1504fc9b0` after Platform Standards CI #35 / run `33091623466` succeeded on final head `20ac02c263071f06753298c657c165c2bdabb73f`.
-- [ ] Project status/changelog documents are updated as each implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
+- [x] CORE-01 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #12 merge.
+- [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
 ---
@@ -465,8 +468,8 @@ Public forgot-password responses must not reveal whether the email exists.
 The implementation order is intentionally dependency-first:
 
 1. **Platform planning/governance record** — this tracker + ADR/roadmap/status synchronization.
-2. **CORE-01** PasswordPolicy.
-3. **CORE-02** one-time identity action tokens.
+2. **CORE-01** PasswordPolicy. ✅
+3. **CORE-02** one-time identity action tokens. ← NEXT
 4. **CORE-03** user-wide session/credential invalidation.
 5. **CORE-04** Core production identity notifications/email.
 6. **CORE-05** atomic public signup/bootstrap.
@@ -485,7 +488,8 @@ The implementation order is intentionally dependency-first:
 - [x] User approved the identity/onboarding implementation direction.
 - [x] Implementation tracker and synchronized roadmap/ADR/status documentation merged through Platform PR #12.
 - [x] Platform Standards CI #35 / run `33091623466` succeeded on PR #12 final head.
-- [ ] **NEXT RUNTIME PHASE: CORE-01 — PasswordPolicy.**
+- [x] CORE-01 PasswordPolicy delivered through Core PR #12; CI #57 / run `33093204127` SUCCESS; merge `323cfa750a0c731bd15de11dfbd19e83858dc1f7`.
+- [ ] **NEXT RUNTIME PHASE: CORE-02 — One-time identity action tokens.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 
