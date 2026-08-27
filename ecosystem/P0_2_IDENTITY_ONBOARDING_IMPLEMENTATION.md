@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-02 — One-time identity action tokens`  
+**Current resume point:** `CORE-03 — Session / credential invalidation`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -82,11 +82,11 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 ### Activation / password recovery baseline
 
 - [ ] Public organization signup exists.
-- [ ] Account activation/set-password token capability exists.
+- [x] Account activation/set-password token capability exists at the generic Core token-primitive layer — delivered by Core PR #13; public activation API remains CORE-06.
 - [ ] Forgot-password endpoint exists.
 - [ ] Reset-password endpoint exists.
 - [ ] Authenticated self-service change-password endpoint exists.
-- [ ] One-time identity security token persistence exists.
+- [x] One-time identity security token persistence exists — delivered by Core PR #13 on 2026-08-27.
 - [x] Central reusable password policy exists — delivered by Core PR #12 on 2026-08-27.
 
 ### Core notifications
@@ -238,20 +238,22 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **DONE:** shared policy exists, current manual password-setting paths use it, tests are green, and later password-setting endpoints are required to reuse it.
 
-### Phase CORE-02 — One-time identity action tokens
+### Phase CORE-02 — One-time identity action tokens — DONE 2026-08-27
 
-- [ ] Add identity action-token domain model.
-- [ ] Add migration/table for hashed one-time tokens.
-- [ ] Support purposes at minimum `account_activation` and `password_reset`.
-- [ ] Generate cryptographically random raw tokens.
-- [ ] Persist only token hashes.
-- [ ] Add expiry.
-- [ ] Add `consumed_at` / one-use semantics.
-- [ ] Invalidate or supersede older live token for the same user/purpose when reissued.
-- [ ] Never expose raw token in logs/audit.
-- [ ] Add deterministic repository/use-case tests for expiry, replay and purpose mismatch.
+- [x] Add identity action-token domain model.
+- [x] Add migration/table for hashed one-time tokens.
+- [x] Support purposes at minimum `account_activation` and `password_reset`.
+- [x] Generate cryptographically random raw tokens.
+- [x] Persist only token hashes.
+- [x] Add expiry.
+- [x] Add `consumed_at` / one-use semantics.
+- [x] Invalidate or supersede older live token for the same user/purpose when reissued.
+- [x] Never expose raw token in logs/audit.
+- [x] Add deterministic repository/use-case tests for expiry, replay and purpose mismatch.
 
-**DONE when:** raw token compromise cannot occur from Core persistence/logging and replay is rejected.
+**Evidence:** Core PR #13 final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809`; Core CI #60 / run `33097948707` SUCCESS with `348 passed`; merged to Core `main` as `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`. Migration `20260827_0063` has direct upgrade/downgrade schema tests proving the action-token table contains only hashed token material and no raw-token column. The workflow's `Run lint` step reported success but explicitly skipped Ruff because Ruff is not installed, so lint execution is not claimed as separate evidence.
+
+**DONE:** raw token compromise from Core persistence/logging is prevented by the implemented contract, reissue supersedes older live same-purpose tokens, and replay/purpose/expiry checks are deterministic.
 
 ### Phase CORE-03 — Session / credential invalidation
 
@@ -458,6 +460,7 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] `projects/fair-crm/ROADMAP.md` promotes the bridge/UI portion as active FAIR CRM work.
 - [x] Platform planning/governance PR #12 merged as `c0b9d543437a95343032929364c331a1504fc9b0` after Platform Standards CI #35 / run `33091623466` succeeded on final head `20ac02c263071f06753298c657c165c2bdabb73f`.
 - [x] CORE-01 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #12 merge.
+- [x] CORE-02 implementation evidence is synchronized into this tracker after Core PR #13 merge; remaining project-status/changelog synchronization stays part of the ongoing per-phase documentation discipline.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -469,8 +472,8 @@ The implementation order is intentionally dependency-first:
 
 1. **Platform planning/governance record** — this tracker + ADR/roadmap/status synchronization.
 2. **CORE-01** PasswordPolicy. ✅
-3. **CORE-02** one-time identity action tokens. ← NEXT
-4. **CORE-03** user-wide session/credential invalidation.
+3. **CORE-02** one-time identity action tokens. ✅
+4. **CORE-03** user-wide session/credential invalidation. ← NEXT
 5. **CORE-04** Core production identity notifications/email.
 6. **CORE-05** atomic public signup/bootstrap.
 7. **CORE-06** activation.
@@ -489,7 +492,8 @@ The implementation order is intentionally dependency-first:
 - [x] Implementation tracker and synchronized roadmap/ADR/status documentation merged through Platform PR #12.
 - [x] Platform Standards CI #35 / run `33091623466` succeeded on PR #12 final head.
 - [x] CORE-01 PasswordPolicy delivered through Core PR #12; CI #57 / run `33093204127` SUCCESS; merge `323cfa750a0c731bd15de11dfbd19e83858dc1f7`.
-- [ ] **NEXT RUNTIME PHASE: CORE-02 — One-time identity action tokens.**
+- [x] CORE-02 one-time identity action tokens delivered through Core PR #13; final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809`; CI #60 / run `33097948707` SUCCESS with 348 tests passed; merge `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`.
+- [ ] **NEXT RUNTIME PHASE: CORE-03 — Session / credential invalidation.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 
