@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-03 reusable user-wide session/refresh credential invalidation primitive; delivered through Core PR #14
+- User-scoped active-session and active-refresh-token repository queries plus idempotent `RevokeAllUserSessionsUseCase`
+- Access-token session enforcement tests covering revoked/deleted sessions and JWT `sid`/`sub` ownership mismatch
 - P0.2 CORE-02 generic one-time identity action-token primitive for `account_activation` and `password_reset`; delivered through Core PR #13
 - Hash-only `identity_action_tokens` persistence with expiry, consumed/invalidation timestamps, same-user/purpose supersession and migration `20260827_0063`
 - Atomic conditional token consumption plus deterministic expiry, replay, wrong-purpose, unknown-token, redaction, persistence and migration tests
@@ -18,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Protected access-token validation now requires JWT `sid` to resolve to an active server-side session owned by JWT `sub`; revoked/deleted/mismatched sessions fail closed with 401 instead of leaving stale access tokens valid until natural expiry
+- User-wide credential invalidation revokes live refresh tokens with `SESSION_REVOKED` and active sessions while preserving other users; CORE-07/CORE-08 remain responsible for invoking the primitive from reset/change endpoints
 - Existing manual organization-user create/update password-setting paths now use the shared Core password policy while preserving Platform Super Admin manual user creation
 - Argon2id remains responsible for hashing/verification only; password policy is an application-level Core primitive reusable by later activation/reset/change-password flows
 - Identity action-token issuance returns raw opaque token material only to the immediate caller while Core persistence stores only SHA-256 hashes; reissue supersedes older live same-purpose tokens
