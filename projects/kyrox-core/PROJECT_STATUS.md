@@ -8,13 +8,13 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
 | Migration head in `main` | `20260827_0063_identity_action_tokens` |
-| Main CI | Core CI #60 green on P0.2 CORE-02 final head before merge |
+| Main CI | Core CI #63 green on P0.2 CORE-03 final head before merge |
 
 ## Current capability state
 
 | Area | Status |
 |------|--------|
-| Identity and authentication | Implemented baseline; shared 12–255 character `PasswordPolicy` governs existing password-setting paths and generic one-time identity action tokens now support activation/reset workflows |
+| Identity and authentication | Implemented baseline; shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation and server-side access-token session enforcement are delivered |
 | Authorization | Implemented |
 | Organization and user management | Implemented; normal users currently have direct single-organization ownership via `identity_users.organization_id` |
 | Membership / invitation model | Removed by migration `20260817_0057_remove_memberships`; not a current Core capability |
@@ -22,7 +22,7 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Audit | Implemented |
 | Settings | Implemented |
 | Background jobs | Implemented |
-| Notifications | Implemented |
+| Notifications | Implemented baseline; production identity-email delivery remains active P0.2 work |
 | Product authorization integration | Implemented |
 | FAIR CRM permission catalog support | Implemented, including quotation, cost-catalog and mail-send-operation permissions |
 | File storage | Planned |
@@ -39,18 +39,22 @@ CORE-01 delivered one reusable 12–255 character password policy, kept Argon2id
 
 **CORE-02 — One-time identity action tokens is delivered.** Core PR #13 merged to `main` as `f1f88e7f12a7d38d3f917d05840c8562f6f0287a` after CI #60 / run `33097948707` succeeded on final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809` with 348 tests passing.
 
-CORE-02 delivered:
+CORE-02 delivered hash-only, expiring, single-use `account_activation` / `password_reset` action tokens, same-user/purpose supersession, atomic conditional consumption and migration `20260827_0063_identity_action_tokens` with direct schema evidence.
 
-- generic `account_activation` and `password_reset` token purposes,
-- cryptographically random opaque raw-token generation using the existing Core token helper,
-- SHA-256 hash-only persistence; the `identity_action_tokens` schema has no raw-token field,
-- expiry and `consumed_at` one-use semantics,
-- supersession of older live tokens for the same user/purpose,
-- atomic conditional DB consumption so concurrent replay cannot produce two successful consumes,
-- deterministic expiry, replay, wrong-purpose, unknown-token, log-redaction and SQLAlchemy persistence tests,
-- migration `20260827_0063_identity_action_tokens` with direct upgrade/downgrade schema tests.
+**CORE-03 — Session / credential invalidation is delivered.** Core PR #14 merged to `main` as `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4` after CI #63 / run `33102833407` succeeded on final head `1b2dff1c5613405273ebe673210d522977e8d0c5` with 352 tests passing.
 
-The next runtime phase is **CORE-03 — session / credential invalidation**. Public signup, activation-completion, forgot/reset and authenticated change-password endpoints still belong to later phases; CORE-02 is their generic token primitive only.
+CORE-03 delivered:
+
+- user-scoped active-session and active-refresh-token repository queries,
+- reusable `RevokeAllUserSessionsUseCase` with target-user scoping and idempotent behavior,
+- `SESSION_REVOKED` refresh-token invalidation and active-session revocation without affecting other users,
+- cleanup of inconsistent state where a live refresh token remains attached to an already-revoked session,
+- protected access-token fail-closed validation requiring JWT `sid` to resolve to an active server-side session owned by JWT `sub`,
+- tests proving revoked/deleted sessions and `sid`/`sub` ownership mismatch return 401.
+
+No schema migration was required by CORE-03; the migration head therefore remains `20260827_0063_identity_action_tokens`. Password reset and authenticated password change do not exist yet and must invoke the CORE-03 primitive in CORE-07/CORE-08 with endpoint-level stale-credential tests.
+
+The next runtime phase is **CORE-04 — Core identity notifications / production email**. Public signup, activation-completion, forgot/reset and authenticated change-password endpoints still belong to later phases.
 
 ## Organization lifecycle baseline
 
@@ -69,7 +73,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0063_identity_action_tokens`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions and the new hashed one-time identity action-token persistence primitive.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0063_identity_action_tokens`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions and hashed one-time identity action-token persistence. CORE-03 changed runtime session/credential behavior without schema changes.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 
