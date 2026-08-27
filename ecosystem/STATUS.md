@@ -20,7 +20,7 @@ The active cross-repository SaaS-readiness phase is **P0.2 — Organization life
 
 The approved workstream keeps `Organization` as the account boundary, keeps the direct single-organization user model, uses the existing `OrganizationAdmin` role for the first normal admin, preserves existing Platform Super Admin organization/user creation, and adds controlled public commercial signup plus Core-owned activation/set-password, password reset/change, one-time identity action tokens, shared password policy, session/credential invalidation and production identity-email capability. FAIR CRM remains a thin consumer of public Core identity APIs and will own the bridge/UI only.
 
-The canonical implementation/resume checklist is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). **CORE-01 — PasswordPolicy is delivered** through Core PR #12; Core CI #57 / run `33093204127` succeeded on final head `15db64cba636b340ee0841e25137d2bbea2dbd93`, and the PR merged to Core `main` as `323cfa750a0c731bd15de11dfbd19e83858dc1f7`. The next runtime phase is **CORE-02 — one-time identity action tokens**.
+The canonical implementation/resume checklist is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). **CORE-01 — PasswordPolicy is delivered** through Core PR #12; Core CI #57 / run `33093204127` succeeded on final head `15db64cba636b340ee0841e25137d2bbea2dbd93`, and the PR merged to Core `main` as `323cfa750a0c731bd15de11dfbd19e83858dc1f7`. **CORE-02 — one-time identity action tokens is also delivered** through Core PR #13; Core CI #60 / run `33097948707` succeeded on final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809` with 348 tests passing, and the PR merged to Core `main` as `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`. The next runtime phase is **CORE-03 — session / credential invalidation**.
 
 The P0.2 lifecycle audit also confirmed that Core now uses direct `identity_users.organization_id` ownership for normal users; legacy memberships and membership invitations were removed by migration `20260817_0057_remove_memberships`. Organization suspend/delete remain SYSTEM-scope, Core delete remains a Core soft-delete, and the domain reactivation transition currently lacks a public organization API endpoint.
 
@@ -33,9 +33,9 @@ Active planning: [projects/kyrox-core/ROADMAP.md](../projects/kyrox-core/ROADMAP
 
 Core remains the reusable, product-agnostic SaaS backend. Identity, authentication, authorization, organization/user/role governance and shared platform services are implemented in Core. Products consume Core through public HTTP contracts; product domain logic does not belong in Core.
 
-The P0.2 identity/onboarding primitives are an approved, product-driven Core workstream. CORE-01 established the shared 12–255 character password policy and wired current manual password-setting paths to it without removing Super Admin manual user creation. **CORE-02 one-time action-token persistence and replay/expiry semantics is next.**
+The P0.2 identity/onboarding primitives are an approved, product-driven Core workstream. CORE-01 established the shared 12–255 character password policy and wired current manual password-setting paths to it without removing Super Admin manual user creation. CORE-02 added generic hash-only, expiring, single-use identity action tokens with account-activation/password-reset purposes, supersession and deterministic replay/purpose/expiry protection. **CORE-03 user-wide session/credential invalidation is next.**
 
-The migration history has advanced substantially beyond the old `20260701_0025` documentation baseline and currently reaches `20260821_0062_fair_crm_mail_send_operations_permissions`. Current-state details belong in the Core project status, not in permanent standards or roadmap documents.
+The Core migration head is now `20260827_0063_identity_action_tokens`; current-state details belong in the Core project status, not in permanent standards or roadmap documents.
 
 ## FAIR CRM
 
