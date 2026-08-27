@@ -2,6 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
+**Current resume point:** `CORE-01 — PasswordPolicy`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -448,11 +449,12 @@ Public forgot-password responses must not reveal whether the email exists.
 
 - [x] Implementation direction explicitly approved on 2026-08-27.
 - [x] Canonical cross-repository tracker created in `kyrox-platform`.
-- [ ] ADR-0006 records OL-01/02/03/04 onboarding sub-decisions as approved for implementation while remaining lifecycle decisions stay open.
-- [ ] `ecosystem/SAAS_ROADMAP.md` marks this onboarding/credential workstream active and removes stale wording that password reset/email verification are merely deferred candidates.
-- [ ] `ecosystem/STATUS.md` points to this tracker and records current phase.
-- [ ] `projects/kyrox-core/ROADMAP.md` promotes the approved generic identity work as active product-driven Core work.
-- [ ] `projects/fair-crm/ROADMAP.md` promotes the bridge/UI portion as active FAIR CRM work.
+- [x] ADR-0006 records OL-01/02/03/04 onboarding sub-decisions as approved for implementation while remaining lifecycle decisions stay open.
+- [x] `ecosystem/SAAS_ROADMAP.md` marks this onboarding/credential workstream active and removes stale wording that password reset/email verification are merely deferred candidates.
+- [x] `ecosystem/STATUS.md` points to this tracker and records current phase.
+- [x] `projects/kyrox-core/ROADMAP.md` promotes the approved generic identity work as active product-driven Core work.
+- [x] `projects/fair-crm/ROADMAP.md` promotes the bridge/UI portion as active FAIR CRM work.
+- [x] Platform planning/governance PR #12 merged as `c0b9d543437a95343032929364c331a1504fc9b0` after Platform Standards CI #35 / run `33091623466` succeeded on final head `20ac02c263071f06753298c657c165c2bdabb73f`.
 - [ ] Project status/changelog documents are updated as each implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -481,8 +483,8 @@ The implementation order is intentionally dependency-first:
 
 - [x] Architecture/runtime audit completed.
 - [x] User approved the identity/onboarding implementation direction.
-- [x] Implementation tracker drafted.
-- [ ] Platform documentation PR merged.
+- [x] Implementation tracker and synchronized roadmap/ADR/status documentation merged through Platform PR #12.
+- [x] Platform Standards CI #35 / run `33091623466` succeeded on PR #12 final head.
 - [ ] **NEXT RUNTIME PHASE: CORE-01 — PasswordPolicy.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
