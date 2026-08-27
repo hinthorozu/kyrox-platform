@@ -51,7 +51,11 @@ Binding compatibility constraints:
 - do not place FAIR CRM product business semantics in Core,
 - do not claim runtime delivery until implementation/test/CI evidence actually merges.
 
-Execution begins with **CORE-01 — PasswordPolicy** and follows the phase order in the canonical tracker.
+Execution status:
+
+- **CORE-01 — PasswordPolicy: DONE 2026-08-27.** Core PR #12 merged after green final-head Core CI. Current password-setting paths use the shared 12–255 character policy while existing Super Admin/manual provisioning remains available.
+- **CORE-02 — One-time identity action tokens: NEXT.** Add hashed, expiring, single-use activation/reset token primitives with supersession and replay protection.
+- Later phases follow the order in the canonical tracker; do not skip dependencies or mark them delivered early.
 
 ## Future platform candidates
 
