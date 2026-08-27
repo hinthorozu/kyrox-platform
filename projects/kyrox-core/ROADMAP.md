@@ -53,8 +53,11 @@ Binding compatibility constraints:
 
 Execution status:
 
-- **CORE-01 — PasswordPolicy: DONE 2026-08-27.** Core PR #12 merged after green final-head Core CI. Current password-setting paths use the shared 12–255 character policy while existing Super Admin/manual provisioning remains available.
-- **CORE-02 — One-time identity action tokens: NEXT.** Add hashed, expiring, single-use activation/reset token primitives with supersession and replay protection.
+- **CORE-01 — PasswordPolicy: DONE 2026-08-27.** Shared 12–255 character password policy is used by current password-setting paths while existing Super Admin/manual provisioning remains available.
+- **CORE-02 — One-time identity action tokens: DONE 2026-08-27.** Hash-only, expiring, single-use activation/reset token primitives with supersession and replay protection are delivered.
+- **CORE-03 — Session / credential invalidation: DONE 2026-08-27.** Reusable user-wide session/refresh revocation and server-side access-token session enforcement are delivered; reset/change integration remains owned by CORE-07/CORE-08.
+- **CORE-04 — Core identity notifications / production email: DONE 2026-08-27.** Platform-scoped identity notifications, Core-owned SMTP delivery, identity templates, platform idempotency and redacted delivery logging are delivered independently of FAIR CRM tenant mail configuration.
+- **CORE-05 — Public signup + atomic bootstrap: NEXT.** Add controlled public organization signup and atomic first-user `OrganizationAdmin` bootstrap using the delivered CORE-01 through CORE-04 primitives.
 - Later phases follow the order in the canonical tracker; do not skip dependencies or mark them delivered early.
 
 ## Future platform candidates
