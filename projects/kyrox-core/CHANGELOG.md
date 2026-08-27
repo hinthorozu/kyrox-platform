@@ -8,8 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-01 shared Core `PasswordPolicy` with 12–255 character bounds and no forced composition requirement; delivered through Core PR #12
+- Password-policy and manual user-management regression tests covering boundary, Unicode and safe non-echoed error behavior
 - Alembic `20260701_0025` — seed FAIR CRM customer permissions (`fair_crm.customers.create`, `.read`, `.update`, `.archive`) in Core RBAC tables
 - Migration tests for FAIR CRM permission seed
+
+### Changed
+
+- Existing manual organization-user create/update password-setting paths now use the shared Core password policy while preserving Platform Super Admin manual user creation
+- Argon2id remains responsible for hashing/verification only; password policy is an application-level Core primitive reusable by later activation/reset/change-password flows
 
 ## [0.4.0] — 2026-07-01
 
