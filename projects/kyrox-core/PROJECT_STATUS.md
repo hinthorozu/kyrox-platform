@@ -7,14 +7,14 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Last verified | **2026-08-27** |
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
-| Migration head in `main` | `20260821_0062_fair_crm_mail_send_operations_permissions` |
-| Main CI | Core CI #57 green on P0.2 CORE-01 final head before merge |
+| Migration head in `main` | `20260827_0063_identity_action_tokens` |
+| Main CI | Core CI #60 green on P0.2 CORE-02 final head before merge |
 
 ## Current capability state
 
 | Area | Status |
 |------|--------|
-| Identity and authentication | Implemented; shared 12–255 character `PasswordPolicy` now governs existing password-setting paths |
+| Identity and authentication | Implemented baseline; shared 12–255 character `PasswordPolicy` governs existing password-setting paths and generic one-time identity action tokens now support activation/reset workflows |
 | Authorization | Implemented |
 | Organization and user management | Implemented; normal users currently have direct single-organization ownership via `identity_users.organization_id` |
 | Membership / invitation model | Removed by migration `20260817_0057_remove_memberships`; not a current Core capability |
@@ -35,17 +35,22 @@ The approved identity/onboarding implementation workstream is tracked in [P0.2 I
 
 **CORE-01 — PasswordPolicy is delivered.** Core PR #12 merged to `main` as `323cfa750a0c731bd15de11dfbd19e83858dc1f7` after CI #57 / run `33093204127` succeeded on final head `15db64cba636b340ee0841e25137d2bbea2dbd93`.
 
-Delivered behavior:
+CORE-01 delivered one reusable 12–255 character password policy, kept Argon2id focused on hashing/verification, wired existing manual user create/update to the shared policy, returned safe non-secret validation failures, and preserved existing login plus Platform Super Admin manual user creation.
 
-- one reusable Core `PasswordPolicy` owns password length validation,
-- production bounds are 12–255 characters,
-- no forced upper/lower/digit/symbol composition rule was introduced,
-- Argon2id remains the hashing/verification primitive rather than owning password policy,
-- existing manual user create/update now use the shared policy,
-- policy failures return a safe 422 contract without echoing the submitted password,
-- existing login and existing Platform Super Admin manual user creation remain supported.
+**CORE-02 — One-time identity action tokens is delivered.** Core PR #13 merged to `main` as `f1f88e7f12a7d38d3f917d05840c8562f6f0287a` after CI #60 / run `33097948707` succeeded on final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809` with 348 tests passing.
 
-The next runtime phase is **CORE-02 — one-time identity action tokens**. Activation/reset/change-password endpoints do not exist yet; their later phases explicitly require reuse of the same PasswordPolicy.
+CORE-02 delivered:
+
+- generic `account_activation` and `password_reset` token purposes,
+- cryptographically random opaque raw-token generation using the existing Core token helper,
+- SHA-256 hash-only persistence; the `identity_action_tokens` schema has no raw-token field,
+- expiry and `consumed_at` one-use semantics,
+- supersession of older live tokens for the same user/purpose,
+- atomic conditional DB consumption so concurrent replay cannot produce two successful consumes,
+- deterministic expiry, replay, wrong-purpose, unknown-token, log-redaction and SQLAlchemy persistence tests,
+- migration `20260827_0063_identity_action_tokens` with direct upgrade/downgrade schema tests.
+
+The next runtime phase is **CORE-03 — session / credential invalidation**. Public signup, activation-completion, forgot/reset and authenticated change-password endpoints still belong to later phases; CORE-02 is their generic token primitive only.
 
 ## Organization lifecycle baseline
 
@@ -64,7 +69,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260821_0062_fair_crm_mail_send_operations_permissions`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation and later FAIR CRM permission additions.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0063_identity_action_tokens`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions and the new hashed one-time identity action-token persistence primitive.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 
