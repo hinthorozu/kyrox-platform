@@ -7,8 +7,8 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Last verified | **2026-08-27** |
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
-| Migration head in `main` | `20260827_0063_identity_action_tokens` |
-| Main CI | Core CI #63 green on P0.2 CORE-03 final head before merge |
+| Migration head in `main` | `20260827_0064_platform_identity_notifications` |
+| Main CI | Core CI #64 green on P0.2 CORE-04 final head before merge |
 
 ## Current capability state
 
@@ -21,8 +21,8 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Roles and permissions | Implemented and evolved through later migrations |
 | Audit | Implemented |
 | Settings | Implemented |
-| Background jobs | Implemented |
-| Notifications | Implemented baseline; production identity-email delivery remains active P0.2 work |
+| Background jobs | Implemented; internal jobs support platform scope where required by Core identity notifications while existing organization-scoped behavior remains available |
+| Notifications | Implemented baseline plus Core-owned production SMTP identity-email capability, platform-scoped recipients/jobs, identity templates, deterministic platform idempotency and redacted delivery logging |
 | Product authorization integration | Implemented |
 | FAIR CRM permission catalog support | Implemented, including quotation, cost-catalog and mail-send-operation permissions |
 | File storage | Planned |
@@ -52,9 +52,23 @@ CORE-03 delivered:
 - protected access-token fail-closed validation requiring JWT `sid` to resolve to an active server-side session owned by JWT `sub`,
 - tests proving revoked/deleted sessions and `sid`/`sub` ownership mismatch return 401.
 
-No schema migration was required by CORE-03; the migration head therefore remains `20260827_0063_identity_action_tokens`. Password reset and authenticated password change do not exist yet and must invoke the CORE-03 primitive in CORE-07/CORE-08 with endpoint-level stale-credential tests.
+Password reset and authenticated password change do not exist yet and must invoke the CORE-03 primitive in CORE-07/CORE-08 with endpoint-level stale-credential tests.
 
-The next runtime phase is **CORE-04 — Core identity notifications / production email**. Public signup, activation-completion, forgot/reset and authenticated change-password endpoints still belong to later phases.
+**CORE-04 — Core identity notifications / production email is delivered.** Core PR #15 merged to `main` as `09617df8a17aa2ac744b5b1a9692d6418bbf0899` after CI #64 / run `33109701064` succeeded on final head `271124290858e0447af5ac90adc58436ccadf5a4`.
+
+CORE-04 delivered:
+
+- platform-scoped notifications for identity recipients without requiring a fabricated organization,
+- corresponding platform-scoped internal dispatch jobs while preserving organization-scoped notification/job behavior,
+- separate Core-owned SMTP provider configuration rather than FAIR CRM tenant/product mail credentials,
+- stable generic activation, password-reset and password-changed identity templates,
+- migration `20260827_0064_platform_identity_notifications`, which makes platform notification/job scope explicit and adds dedicated platform idempotency constraints,
+- tests for platform scope, idempotent replay, migration upgrade/downgrade and SMTP delivery/redaction,
+- provider-error and logging behavior that does not expose message bodies, action URLs/tokens, SMTP credentials or full recipient addresses.
+
+The workflow's lint step reported success; separate Ruff execution is not claimed because the workflow only runs Ruff when it is installed. Production SMTP delivery requires deployment environment configuration for the Core-owned provider credentials; no FAIR CRM tenant mail account is required.
+
+The next runtime phase is **CORE-05 — Public signup + atomic bootstrap**. Activation-completion, forgot/reset and authenticated change-password endpoints still belong to later phases.
 
 ## Organization lifecycle baseline
 
@@ -73,7 +87,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0063_identity_action_tokens`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions and hashed one-time identity action-token persistence. CORE-03 changed runtime session/credential behavior without schema changes.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 
