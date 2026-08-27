@@ -5,10 +5,10 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Field | Value |
 |-------|-------|
 | Active milestone | **M4 — FAIR CRM v1** |
-| Core policy | Frozen for speculative product work; bug/security/performance fixes and reusable product-driven platform needs are allowed |
+| Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
 | Implementation repos | `kyrox-core`, `fair-crm` |
-| Last ecosystem sync | **2026-08-26** |
+| Last ecosystem sync | **2026-08-27** |
 
 ## SaaS readiness
 
@@ -16,17 +16,24 @@ Single source of truth for **cross-repository current state**. Detailed product/
 
 Closure evidence is recorded in [projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md](../projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md). FAIR CRM PRs #83 and #84 close TI-07 and TI-09; Core PR #11 closes TI-08. The final FAIR CRM TI-09 head passed Development Standard Gate #268 and Prod-Path E2E #140 before merge. P0.1 completion does not waive the SaaS-impact gates for future changes; new organization-owned behavior must continue to ship with applicable cross-organization evidence.
 
-The next cross-repository SaaS-readiness phase is **P0.2 — Organization lifecycle contract and SaaS onboarding decisions**. P0.2 is currently a **decision/architecture gate, not runtime implementation**. [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) is Proposed and records the verified current Core model plus unresolved lifecycle/onboarding choices. No new Tenant entity, Owner role, self-service destructive organization authority, membership model or invitation flow is approved by that proposal.
+The active cross-repository SaaS-readiness phase is **P0.2 — Organization lifecycle contract and SaaS onboarding**. [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) remains Proposed overall because suspension/closure/retention/backup decisions are still open, but the identity/onboarding subset OL-01 through OL-04 was explicitly approved for implementation on **2026-08-27**.
 
-The P0.2 audit confirmed that Core now uses direct `identity_users.organization_id` ownership for normal users; legacy memberships and membership invitations were removed by migration `20260817_0057_remove_memberships`. Organization creation is currently Platform Super Admin only, organization suspend/delete are SYSTEM-scope, Core delete is a Core soft-delete, and the domain reactivation transition currently lacks a public organization API endpoint. Cross-repository FAIR CRM job/provider/data-retention behavior therefore requires an explicit lifecycle contract before implementation.
+The approved workstream keeps `Organization` as the account boundary, keeps the direct single-organization user model, uses the existing `OrganizationAdmin` role for the first normal admin, preserves existing Platform Super Admin organization/user creation, and adds controlled public commercial signup plus Core-owned activation/set-password, password reset/change, one-time identity action tokens, shared password policy, session/credential invalidation and production identity-email capability. FAIR CRM remains a thin consumer of public Core identity APIs and will own the bridge/UI only.
 
-The [P0.2 lifecycle runtime audit](P0_2_LIFECYCLE_RUNTIME_AUDIT.md) additionally confirms the OL-07 execution gap: normal permission-protected starts are blocked after suspension, but already queued/running FAIR CRM scraper, enrichment, import and mail work generally continues from previously established organization-scoped job context without re-checking authoritative Core organization status. Import background execution explicitly trusts queue-time authorization, and outbound delivery checks product email-account activity rather than Core organization lifecycle state. This remains a **lifecycle-policy gap, not a P0.1 tenant-isolation regression**; ADR-0006 stays Proposed and runtime lifecycle changes remain gated on acceptance.
+The canonical implementation/resume checklist is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). The first runtime phase after the Platform documentation gate is **CORE-01 — PasswordPolicy**. No Core/FAIR CRM runtime item in that tracker is considered delivered until its implementation PR and required CI evidence actually merge.
+
+The P0.2 lifecycle audit also confirmed that Core now uses direct `identity_users.organization_id` ownership for normal users; legacy memberships and membership invitations were removed by migration `20260817_0057_remove_memberships`. Organization suspend/delete remain SYSTEM-scope, Core delete remains a Core soft-delete, and the domain reactivation transition currently lacks a public organization API endpoint.
+
+The [P0.2 lifecycle runtime audit](P0_2_LIFECYCLE_RUNTIME_AUDIT.md) confirms the still-open OL-07 execution gap: normal permission-protected starts are blocked after suspension, but already queued/running FAIR CRM scraper, enrichment, import and mail work generally continues from previously established organization-scoped job context without re-checking authoritative Core organization status. Import background execution explicitly trusts queue-time authorization, and outbound delivery checks product email-account activity rather than Core organization lifecycle state. This remains a **lifecycle-policy gap, not a P0.1 tenant-isolation regression**; onboarding approval does not authorize suspension/closure runtime changes.
 
 ## KYROX Core
 
-Canonical detail: [projects/kyrox-core/PROJECT_STATUS.md](../projects/kyrox-core/PROJECT_STATUS.md)
+Canonical detail: [projects/kyrox-core/PROJECT_STATUS.md](../projects/kyrox-core/PROJECT_STATUS.md)  
+Active planning: [projects/kyrox-core/ROADMAP.md](../projects/kyrox-core/ROADMAP.md)
 
 Core remains the reusable, product-agnostic SaaS backend. Identity, authentication, authorization, organization/user/role governance and shared platform services are implemented in Core. Products consume Core through public HTTP contracts; product domain logic does not belong in Core.
+
+The P0.2 identity/onboarding primitives are now an approved, product-driven Core workstream rather than speculative platform development. Runtime implementation has not started yet; the next implementation item is the shared password-policy foundation.
 
 The migration history has advanced substantially beyond the old `20260701_0025` documentation baseline and currently reaches `20260821_0062_fair_crm_mail_send_operations_permissions`. Current-state details belong in the Core project status, not in permanent standards or roadmap documents.
 
@@ -36,6 +43,8 @@ Canonical detail: [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PRO
 Current work queue: [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.md)
 
 FAIR CRM remains the active M4 product. Existing implementation includes the CRM foundations, data integration/import flows, operations/automation flows, mail delivery flows, quotation-related capabilities and a cost-catalog implementation. Its P0.1 tenant-isolation certification is complete; ongoing product work remains subject to the same SaaS-impact, authorization-scope and tenant-isolation delivery rules.
+
+The FAIR CRM portion of the approved P0.2 workstream is the thin Core auth bridge plus signup/activation/forgot/reset/change-password UI and preservation of the existing Super Admin manual user-management flow. It starts after the dependent Core contracts are implemented and certified.
 
 The current documentation/quality focus is to keep Platform as the single human/AI knowledge source and to ensure permission-controlled UI surfaces consistently follow effective permissions and the shared CRUD/UI authorization standard.
 
