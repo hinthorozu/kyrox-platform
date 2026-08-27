@@ -21,6 +21,38 @@ A reusable-looking capability must have an explicit ownership decision before mi
 
 The existing Core baseline covers identity/authentication, organization/user/role governance, authorization, audit, settings, background jobs, notifications and product authorization integration. See [PROJECT_STATUS.md](PROJECT_STATUS.md) for current implementation truth.
 
+## Active product-driven platform work
+
+### P0.2 Identity / SaaS onboarding foundation — ACTIVE 2026-08-27
+
+The ecosystem approved the reusable identity/onboarding subset of ADR-0006 as a real FAIR CRM commercial requirement. This work is therefore allowed under the M4 Core freeze and is not speculative platform expansion.
+
+Canonical tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
+
+Core owns the generic runtime primitives:
+
+- shared production password policy across every password-setting path,
+- hashed, expiring, single-use identity action tokens,
+- user-wide session/credential invalidation after password reset/change,
+- production Core identity email/notification capability,
+- controlled public organization signup,
+- atomic first-user bootstrap using the existing `OrganizationAdmin` role,
+- account activation/set-password,
+- forgot/reset password,
+- authenticated self-service password change,
+- security/audit evidence without raw credentials/tokens.
+
+Binding compatibility constraints:
+
+- keep existing Platform Super Admin `POST /organizations`,
+- keep existing Super Admin/manual user creation and admin-supplied password mode,
+- do not add an Owner role,
+- do not restore removed membership/invitation semantics,
+- do not place FAIR CRM product business semantics in Core,
+- do not claim runtime delivery until implementation/test/CI evidence actually merges.
+
+Execution begins with **CORE-01 — PasswordPolicy** and follows the phase order in the canonical tracker.
+
 ## Future platform candidates
 
 These are candidates, not automatically scheduled work:
@@ -49,7 +81,9 @@ When FAIR CRM or a future product develops infrastructure that appears reusable:
 
 - [PROJECT_STATUS.md](PROJECT_STATUS.md)
 - [integrations/PRODUCT_INTEGRATION_GUIDE.md](integrations/PRODUCT_INTEGRATION_GUIDE.md)
+- [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 - [../../ecosystem/SAAS_ROADMAP.md](../../ecosystem/SAAS_ROADMAP.md)
 - [../../ecosystem/ROADMAP.md](../../ecosystem/ROADMAP.md)
 - [../../ecosystem/WORKFLOW.md](../../ecosystem/WORKFLOW.md)
 - [../../ecosystem/decisions/0002-core-product-separation.md](../../ecosystem/decisions/0002-core-product-separation.md)
+- [../../ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md](../../ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md)

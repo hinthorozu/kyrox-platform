@@ -1,6 +1,6 @@
 # ADR-0006: Organization lifecycle and SaaS onboarding contract
 
-- **Status:** Proposed
+- **Status:** Proposed — onboarding/credential sub-decisions approved for implementation 2026-08-27
 - **Date:** 2026-08-26
 - **Deciders:** KYROX ecosystem maintainers
 - **Roadmap gate:** P0.2 — Organization lifecycle contract and SaaS onboarding decisions
@@ -9,7 +9,9 @@
 
 P0.1 tenant-isolation certification is complete. The next SaaS-readiness gate is to define how a commercial KYROX account is created, administered, suspended, reactivated and eventually closed without duplicating Core capabilities or leaking lifecycle semantics across repositories.
 
-The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then proposes the lifecycle contract that must be accepted before implementation work begins.
+The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27; suspension, closure, retention and backup decisions remain open, so the ADR as a whole remains Proposed.
+
+The canonical implementation checklist for the approved onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
 
 ## Verified current implementation
 
@@ -35,8 +37,12 @@ The current implementation has evolved beyond older membership-oriented document
 ### Current onboarding capability
 
 - Core user management can create a user directly inside an organization and assign an available role.
-- There is currently no membership invitation/acceptance workflow after migration 0057.
-- Therefore older documentation must not claim that invitation APIs already exist.
+- Existing manual user creation requires an administrator-supplied password and currently applies only a minimal API boundary length check rather than one shared production password policy.
+- Core user persistence allows `password_hash = NULL`, and inactive users already exist as a supported user state.
+- Core authentication currently exposes login, refresh and logout, but no public signup, account activation/set-password, forgot/reset-password or authenticated self-service change-password flow.
+- Core no longer has membership invitation/acceptance after migration 0057.
+- Core notifications/jobs/settings infrastructure exists, but the current email channel is a log stub rather than a production identity-email sender.
+- Existing logout revokes one supplied refresh token/session; user-wide credential/session invalidation is not yet exposed as a generic primitive.
 
 ### Cross-repository lifecycle reality
 
@@ -52,11 +58,11 @@ Those effects require an explicit lifecycle contract and product orchestration; 
 
 The [P0.2 lifecycle runtime audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md) verifies the current suspension execution split in detail: Core blocks new normal permission-protected work after suspension, while already queued/running FAIR CRM scraper, enrichment, import and outbound-mail work generally proceeds from previously established organization-scoped job context without re-checking Core organization lifecycle state. Import background execution explicitly trusts queue-time authorization, and email delivery checks product email-account activity rather than Core organization status. This is an OL-07 lifecycle-policy gap, not a P0.1 tenant-isolation regression.
 
-## Proposed decision
+## Decision state
 
-The following is the proposed P0.2 baseline. It is **not binding until this ADR becomes Accepted**.
+The onboarding/credential subset below is approved for implementation. Other lifecycle sections remain proposals until separately accepted.
 
-### 1. Keep Organization as the only account boundary
+### 1. Keep Organization as the only account boundary — APPROVED
 
 Retain the current ADR-0003 model:
 
@@ -68,72 +74,83 @@ Tenant = infrastructure terminology only
 
 No new Tenant table/entity is created.
 
-### 2. Keep the direct single-organization user model for current M4
+### 2. Keep the direct single-organization user model for current M4 — APPROVED
 
-Use the current `identity_users.organization_id` model as the baseline for M4 rather than reintroducing memberships speculatively.
+Use the current `identity_users.organization_id` model as the baseline for M4 rather than reintroducing memberships.
 
-A future requirement for one normal user to participate in multiple organizations would require a separate accepted architecture change. It must not be smuggled into P0.2 as an implementation detail.
+A future requirement for one normal user to participate in multiple organizations requires a separate accepted architecture change. It must not be smuggled into P0.2 as an implementation detail.
 
-This decision, if accepted, supersedes membership-specific wording in ADR-0005 and older roadmap text where it describes implementation rather than a generic concept.
+This decision supersedes membership-specific wording in ADR-0005 and older roadmap text where it describes implementation rather than a generic concept.
 
-### 3. Do not create an Owner role
+### 3. Do not create an Owner role — APPROVED
 
-The first normal administrative user of an organization should use the existing `OrganizationAdmin` role. Platform-wide authority remains `is_super_admin` only.
+The first normal administrative user of an organization uses the existing `OrganizationAdmin` role. Platform-wide authority remains `is_super_admin` only.
 
 No `Owner` role, role-name bypass or hidden ownership permission model is introduced.
 
-### 4. Keep organization creation controlled by Platform Super Admin for M4
+### 4. Add public commercial signup without removing Platform Super Admin organization creation — APPROVED
 
-For the current M4 baseline, organization creation remains a Platform Super Admin operation.
+The existing Platform Super Admin `POST /organizations` flow remains supported. Public commercial signup is an **additional** controlled onboarding path owned by Core identity/account lifecycle primitives and consumed by FAIR CRM through a thin public API bridge.
 
-Self-service public organization creation may be added only after an explicit commercial signup requirement defines:
+Public signup must define and implement:
 
-- identity verification / account activation,
-- abuse and duplicate-account controls,
-- initial OrganizationAdmin creation,
-- entitlement/billing interaction if applicable,
-- rollback when onboarding is abandoned.
+- a non-operational pre-activation organization state such as `PENDING_ACTIVATION`, or an equivalent explicit state contract,
+- first inactive normal user creation with no administrator-generated final password,
+- `OrganizationAdmin` assignment,
+- secure one-time account activation/set-password,
+- duplicate/abuse controls,
+- atomic rollback so failed bootstrap cannot leave a partially provisioned active organization,
+- audit evidence without raw tokens/passwords,
+- product bridge/UI integration without duplicating Core identity behavior.
 
-### 5. Define the first-user bootstrap explicitly
+This approval changes the earlier proposal that organization creation remain Super Admin-only for all M4 flows. Super Admin organization creation remains available; self-service public signup is added alongside it.
 
-Creating an organization and creating its first normal user are separate operations today. P0.2 implementation should provide one production-safe orchestration that results in:
+### 5. Define the first-user bootstrap explicitly — APPROVED
+
+Public signup must provide one production-safe Core orchestration that results in:
 
 ```text
-organization created
-  -> first normal user created/activated
+organization created in pre-activation state
+  -> first normal user created inactive with password_hash = NULL
   -> OrganizationAdmin assigned
+  -> one-time activation credential issued
+  -> user sets own password
+  -> user + organization activate
   -> user can authenticate
   -> user can reach FAIR CRM first-run flow
 ```
 
-The implementation must not assign OrganizationAdmin to Platform Super Admin and must not rely on direct SQL.
+The bootstrap must be transactional/atomic and must not assign OrganizationAdmin to Platform Super Admin or rely on direct SQL.
 
-### 6. Invitation/account-activation mechanism is an explicit product decision
+### 6. Use generic Core account activation, not restored membership invitations — APPROVED
 
-Core no longer has membership invitations. P0.2 must therefore choose one supported onboarding mechanism instead of assuming invitations exist.
+Core will implement a generic identity account activation/set-password mechanism that fits the current direct single-organization user model. It is not a restored membership invitation model.
 
-Candidate choices:
+The same generic identity/security foundation will support:
 
-1. **Direct administrative user creation** — simplest existing capability, but requires a secure initial-password/activation process suitable for commercial use.
-2. **Reintroduce a generic Core invitation/activation capability** — only if FAIR CRM has a real product requirement; it must fit the current direct single-organization user model rather than restoring obsolete membership semantics by default.
+- public signup first-user activation,
+- optional future Super Admin "send setup link" user creation alongside the existing manual-password create mode,
+- forgot/reset password,
+- authenticated password change,
+- user-wide session/credential invalidation after credential changes.
 
-No invitation implementation begins until this choice is accepted.
+Existing Super Admin manual user creation remains supported. The setup-link mode is additive and must not remove the current admin-supplied password path.
 
-### 7. Keep destructive organization authority SYSTEM-scoped
+### 7. Keep destructive organization authority SYSTEM-scoped — PROPOSED
 
-Actual organization suspension and deletion remain Platform Super Admin operations.
+Actual organization suspension and deletion remain proposed as Platform Super Admin operations.
 
 An organization-facing product may later provide a **request closure** workflow, but the request itself does not gain authority to execute system-scope suspend/delete.
 
 OrganizationAdmin may continue to update safe organization profile fields where permitted; this does not imply destructive account authority.
 
-### 8. Add an explicit reactivation system action before relying on suspension operationally
+### 8. Add an explicit reactivation system action before relying on suspension operationally — PROPOSED
 
 Suspension is incomplete as an operational lifecycle if there is no supported reactivation path.
 
 Before commercial suspension is considered complete, Core should expose a Platform Super Admin reactivation action using the existing domain transition, with audit and lifecycle tests.
 
-### 9. Suspension must have cross-repository product semantics
+### 9. Suspension must have cross-repository product semantics — OPEN DETAIL
 
 Core suspension already causes normal permission checks to fail because authorization requires an active organization. P0.2 must additionally define product-side behavior.
 
@@ -150,7 +167,7 @@ Proposed semantics:
 
 Exact job drain/cancel semantics must be specified per product capability; no generic Core job assumption may silently overwrite FAIR CRM behavior.
 
-### 10. Organization deletion is the final step of an offboarding workflow, not the first step
+### 10. Organization deletion is the final step of an offboarding workflow, not the first step — PROPOSED
 
 Core's current delete is only a Core soft-delete. It must not be treated as complete customer data deletion.
 
@@ -171,7 +188,7 @@ closure approved
 
 Cross-repository product cleanup is orchestrated through public product/Core contracts. Core must not directly manipulate FAIR CRM tables.
 
-### 11. Retention and legal-data policy remain decision blockers
+### 11. Retention and legal-data policy remain decision blockers — OPEN
 
 P0.2 does not invent retention durations. Before destructive closure implementation, the maintainers must approve at least:
 
@@ -185,14 +202,14 @@ P0.2 does not invent retention durations. Before destructive closure implementat
 
 These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be guessed from technical convenience.
 
-## Required P0.2 decisions before implementation
+## Required P0.2 decisions
 
-| ID | Decision | Current baseline | Proposed direction | Status |
+| ID | Decision | Current baseline | Approved / proposed direction | Status |
 | --- | --- | --- | --- | --- |
-| OL-01 | Who creates organizations? | Super Admin only | Keep Super Admin only for M4 | **PENDING ACCEPTANCE** |
-| OL-02 | First normal admin role | OrganizationAdmin exists; Owner removed | Use OrganizationAdmin; no Owner | **PENDING ACCEPTANCE** |
-| OL-03 | User ↔ organization model | Direct single `organization_id`; memberships removed | Keep single-org model for M4 | **PENDING ACCEPTANCE** |
-| OL-04 | Team/user onboarding | Direct user creation exists; invites removed | Choose secure direct activation or new generic invitation capability | **OPEN CHOICE** |
+| OL-01 | Who creates organizations? | Existing endpoint Super Admin only | Keep Super Admin flow and add controlled public commercial signup | **APPROVED 2026-08-27** |
+| OL-02 | First normal admin role | OrganizationAdmin exists; Owner removed | Use OrganizationAdmin; no Owner | **APPROVED 2026-08-27** |
+| OL-03 | User ↔ organization model | Direct single `organization_id`; memberships removed | Keep single-org model for M4 | **APPROVED 2026-08-27** |
+| OL-04 | Team/user onboarding | Direct manual user create exists; activation/reset absent | Generic Core activation/set-password + reset/change; keep manual Super Admin create | **APPROVED 2026-08-27** |
 | OL-05 | Self-service suspend/delete | SYSTEM scope | Keep execution Super Admin only; optional closure-request flow later | **PENDING ACCEPTANCE** |
 | OL-06 | Reactivation | Domain transition exists; API missing | Add Super Admin reactivation API before operational use | **PENDING ACCEPTANCE** |
 | OL-07 | Suspension job/provider behavior | New protected starts are denied, but queued/running scraper, enrichment, import and mail work generally does not re-check Core lifecycle state; outbound delivery relies on product account activity | Block new work; explicitly cancel/pause/drain existing work; disable side effects | **OPEN DETAIL** |
@@ -200,55 +217,62 @@ These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be
 | OL-09 | Retention/grace durations | Not defined | Business/legal decision required | **OPEN CHOICE** |
 | OL-10 | Backup restore implications | Not defined | Must be explicit before destructive closure | **OPEN CHOICE** |
 
-## Acceptance / implementation gate
+## Implementation gate
 
-No P0.2 runtime implementation should begin from this ADR until the relevant decisions above are accepted.
+The approved OL-01 through OL-04 onboarding/credential subset is authorized for implementation and tracked in [P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
 
-Once accepted, implementation must be split by canonical ownership:
+Runtime work for OL-05 through OL-10 remains gated until the relevant decisions are accepted. Approval of the onboarding subset must not be misread as acceptance of suspension, closure, retention or backup semantics.
+
+Implementation ownership remains:
 
 ### Core-owned
 
-- organization lifecycle API primitives,
-- user/OrganizationAdmin bootstrap primitives where generic,
-- generic account activation/invitation capability only if explicitly chosen,
-- system-scope authorization enforcement,
-- lifecycle audit records,
-- reactivation primitive.
+- canonical password policy,
+- hashed one-time identity action tokens,
+- public organization signup/bootstrap primitive,
+- first-user `OrganizationAdmin` bootstrap,
+- account activation/set-password,
+- forgot/reset/change password,
+- user-wide session/credential invalidation,
+- generic identity notification/email capability,
+- identity/security audit records,
+- existing Super Admin manual user/organization flows preserved.
 
 ### FAIR CRM-owned
 
-- product onboarding UX/orchestration,
-- product job suspension/drain behavior,
-- provider credential/product side-effect behavior,
-- FAIR CRM export and product data lifecycle actions,
-- first-value onboarding steps.
+- thin auth bridge endpoints/client extensions to public Core APIs,
+- signup/activation/forgot/reset/change-password UX,
+- existing Super Admin user-management UX compatibility plus optional setup-link mode,
+- product first-value onboarding after authentication,
+- product lifecycle behavior for still-open suspension/closure decisions.
 
 ### Platform-owned
 
-- lifecycle policy/ADR,
-- cross-repository sequencing,
+- lifecycle/onboarding policy and ADR,
+- cross-repository sequencing/checklists,
 - retention/security governance,
 - acceptance evidence and status synchronization.
 
 ## P0.2 exit criteria
 
-P0.2 is complete only when:
+P0.2 as a whole is complete only when:
 
-- every OL decision required for the chosen commercial flow is Accepted or explicitly N/A,
+- every OL decision required for the chosen commercial lifecycle is Accepted or explicitly N/A,
 - implementation matches the direct/current identity model or a separately accepted replacement,
-- first organization + first OrganizationAdmin can be provisioned without direct SQL,
-- the supported activation/invitation flow is production-safe,
+- public signup and first OrganizationAdmin provisioning are production-safe and atomic,
+- supported activation/password recovery/change flows are production-safe,
+- existing Super Admin manual organization/user creation remains functional,
 - suspension blocks normal access and has deterministic product job/provider semantics,
 - reactivation is supported if suspension is reversible,
 - closure/export/retention/delete behavior is explicit,
 - Core and FAIR CRM boundaries are preserved,
-- lifecycle transitions and destructive actions are auditable,
+- lifecycle and identity-security transitions are auditable without leaking secrets,
 - applicable Core/FAIR CRM/production-shaped gates are green,
 - canonical roadmap/status/changelog are synchronized.
 
 ## Relationship to existing ADRs
 
-If accepted, this ADR:
+This ADR's approved onboarding subset:
 
 - extends ADR-0003 Organization-as-account semantics,
 - keeps ADR-0003 Platform Super Admin invariant intact,
@@ -256,8 +280,11 @@ If accepted, this ADR:
 - supersedes membership-specific implementation wording in ADR-0005 because Core migration 0057 removed memberships,
 - does not authorize a new Owner role or self-service destructive organization action.
 
+The ADR remains Proposed overall until the remaining lifecycle decisions are resolved.
+
 ## Related
 
+- [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 - [P0.2 Organization Lifecycle Runtime Audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md)
 - [KYROX SaaS Readiness Roadmap](../SAAS_ROADMAP.md)
 - [ADR-0002: Core and product separation](0002-core-product-separation.md)

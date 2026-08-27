@@ -16,7 +16,28 @@ The first hardening wave (TI-01 through TI-06 plus additional derived-reference 
 
 P0.1 completion is a certification baseline, not an exemption: future organization-owned changes still require the applicable SaaS-impact and cross-organization regression evidence.
 
-The next canonical cross-repository SaaS phase is **P0.2 — Organization lifecycle contract and SaaS onboarding decisions**. It is not automatically active FAIR CRM implementation work; promote concrete product work here only after the required ownership/lifecycle decisions are approved.
+### P0.2 Identity / SaaS onboarding bridge + UI — ACTIVE, CORE-DEPENDENT
+
+The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns the identity runtime; FAIR CRM owns only the product transport bridge and user-facing screens.
+
+Canonical implementation tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
+
+FAIR CRM scope, after the dependent Core APIs are implemented/certified:
+
+- extend the existing Core auth client with signup, activation, forgot/reset and authenticated change-password calls,
+- expose thin `/api/v1/auth/*` bridge routes using the existing login/refresh/logout transport pattern,
+- add `/signup`, `/activate`, `/forgot-password`, `/reset-password` public screens,
+- add authenticated account/security password-change UI,
+- add login links for account creation and password recovery,
+- preserve the existing Super Admin `/admin/system/users` manual user-creation flow,
+- preserve admin-supplied manual passwords,
+- optionally add a second "send setup link" user-creation mode only after the Core setup-token contract exists,
+- keep password hashing, activation/reset tokens, identity email and credential authority out of FAIR CRM,
+- verify the real flow with the permanent ABC ↔ XYZ tenant-isolation system gate plus applicable Development Standard and Prod-Path E2E gates.
+
+The FAIR CRM portion must not start by inventing temporary product-local signup/password infrastructure while Core dependencies are unfinished.
+
+The remaining P0.2 suspension/closure/retention decisions are still gated and are not activated by this onboarding workstream.
 
 ## Active product-quality track
 
