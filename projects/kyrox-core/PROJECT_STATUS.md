@@ -4,19 +4,19 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-08-27** |
+| Last verified | **2026-08-28** |
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
 | Migration head in `main` | `20260827_0064_platform_identity_notifications` |
-| Main CI | Core CI #64 green on P0.2 CORE-04 final head before merge |
+| Main CI | Core CI #70 green on P0.2 CORE-05 final head before merge |
 
 ## Current capability state
 
 | Area | Status |
 |------|--------|
-| Identity and authentication | Implemented baseline; shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation and server-side access-token session enforcement are delivered |
-| Authorization | Implemented |
-| Organization and user management | Implemented; normal users currently have direct single-organization ownership via `identity_users.organization_id` |
+| Identity and authentication | Implemented baseline plus shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation, server-side access-token session enforcement and controlled public signup/atomic first-user bootstrap |
+| Authorization | Implemented; normal organization permission checks require an `active` organization, so `pending_activation` organizations are non-operational |
+| Organization and user management | Implemented; normal users use direct single-organization ownership via `identity_users.organization_id`; public signup can create a `pending_activation` organization and inactive first `OrganizationAdmin` while existing Platform Super Admin organization/user creation remains available |
 | Membership / invitation model | Removed by migration `20260817_0057_remove_memberships`; not a current Core capability |
 | Roles and permissions | Implemented and evolved through later migrations |
 | Audit | Implemented |
@@ -68,17 +68,34 @@ CORE-04 delivered:
 
 The workflow's lint step reported success; separate Ruff execution is not claimed because the workflow only runs Ruff when it is installed. Production SMTP delivery requires deployment environment configuration for the Core-owned provider credentials; no FAIR CRM tenant mail account is required.
 
-The next runtime phase is **CORE-05 — Public signup + atomic bootstrap**. Activation-completion, forgot/reset and authenticated change-password endpoints still belong to later phases.
+**CORE-05 — Public signup + atomic bootstrap is delivered.** Core PR #16 merged to `main` as `8e406c9e286f494026edfe460ab7ca4156c2fe4d` after CI #70 / run `33119509255` succeeded on final head `052a2ac16c906bf854ea79917550fae04b44a2d1` with 363 tests passing.
+
+CORE-05 delivered:
+
+- public `POST /api/v1/auth/signup` with normalized organization name/slug handling and safe duplicate email/slug conflicts,
+- explicit `pending_activation` organization state, which existing normal authorization does not treat as operational,
+- one-request transaction/bootstrap creating a pending organization, inactive first user with `password_hash = NULL`, existing protected `OrganizationAdmin` assignment, activation action token, platform identity notification and dispatch job,
+- first-user invariants preserving direct organization ownership and `is_super_admin = false` with no Owner role or restored membership model,
+- hash-only activation-token persistence with a safe token UUID reference in notification/job persistence; the raw token/action URL is reconstructed only in memory at delivery time from a dedicated Core secret,
+- rollback tests proving a late bootstrap failure leaves no organization, user, role assignment or action token behind,
+- API evidence proving raw activation token material is absent from persisted notification/job payloads, response and captured logs,
+- compatibility preservation for existing Platform Super Admin organization creation, manual user creation and existing login behavior.
+
+CORE-05 required no schema migration because organization status is string-backed; the migration head therefore remains `20260827_0064_platform_identity_notifications`. The workflow's `Run lint` step reported success but explicitly skipped Ruff because Ruff is not installed, so no separate Ruff lint execution is claimed.
+
+The next runtime phase is **CORE-06 — Activation**. Activation completion, forgot/reset and authenticated change-password remain separate later-phase work; CORE-05 does not mark them delivered.
 
 ## Organization lifecycle baseline
 
 Current Core organization lifecycle behavior relevant to SaaS P0.2:
 
-- organization creation is Platform Super Admin only,
+- existing operator-driven organization creation remains Platform Super Admin only and creates an `ACTIVE` organization,
+- public signup creates a separate explicit `PENDING_ACTIVATION` organization and inactive first user until CORE-06 activation completes,
 - normal users are assigned directly to one organization and receive database-backed roles,
-- the legacy `Owner` role is removed; `OrganizationAdmin` is the protected organization administrative role,
+- the first public-signup user receives the existing protected `OrganizationAdmin` role and is not a Super Admin,
+- the legacy `Owner` role is removed; `OrganizationAdmin` remains the protected organization administrative role,
 - organization suspend/delete are SYSTEM-scope and are not assignable to organization roles,
-- normal authorization requires an active organization,
+- normal authorization requires an active organization; `PENDING_ACTIVATION`, `SUSPENDED` and `ARCHIVED` organizations are non-operational for normal permission-protected paths,
 - Core organization delete is a soft-delete (`deleted_at`), not cross-product data deletion,
 - the domain supports reactivation, but a public organization reactivation endpoint is not currently exposed,
 - cross-repository product job/provider/data-retention effects are not implied by Core organization state changes.
@@ -87,7 +104,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 

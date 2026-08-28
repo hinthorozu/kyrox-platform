@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-05 public commercial signup and atomic first-account bootstrap; delivered through Core PR #16
+- Public `POST /api/v1/auth/signup` contract creating a `PENDING_ACTIVATION` organization and inactive first user with no password hash
+- Atomic first-user `OrganizationAdmin` assignment, activation-token issuance and activation-notification enqueue on one request database transaction
+- Reconstructable hash-only activation-token delivery mode that persists only token hashes/token UUID references while materializing raw token/action URL only in memory during dispatch
+- CORE-05 tests covering pending bootstrap invariants, protected OrganizationAdmin assignment, duplicate conflicts, SQLAlchemy rollback, hash-only token materialization, raw-token non-persistence/log redaction and pre-activation login rejection
 - P0.2 CORE-04 Core-owned production identity-email capability; delivered through Core PR #15
 - Platform-scoped identity notifications and corresponding internal dispatch jobs without requiring a fabricated organization
 - Core-owned configurable SMTP adapter plus stable activation, password-reset and password-changed identity templates
@@ -26,6 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Normal public account provisioning now starts organizations in explicit non-operational `PENDING_ACTIVATION` state; existing normal authorization continues to require `ACTIVE`
+- Existing Platform Super Admin organization creation and manual user/password provisioning remain available and are not repurposed by public signup
+- The protected historical `organization_admin` role slug is accepted by the RoleSlug compatibility boundary while other invalid underscore slugs remain rejected
+- Identity action-token materialization normalizes persisted SQLite naive UTC datetimes before expiry comparison, preserving deterministic behavior across SQLite tests and timezone-aware runtime clocks
 - Core identity/security email delivery can now use separate Core SMTP credentials and does not depend on FAIR CRM tenant/product mail-provider configuration; the log adapter remains the development/test default
 - Notification and job persistence now support explicit platform scope where required by Core identity delivery while preserving existing organization-scoped behavior
 - SMTP dispatch maps provider failures to generic errors and delivery logs omit message bodies/action URLs/tokens, SMTP credentials and full recipient addresses

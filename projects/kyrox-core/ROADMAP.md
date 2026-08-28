@@ -57,7 +57,8 @@ Execution status:
 - **CORE-02 — One-time identity action tokens: DONE 2026-08-27.** Hash-only, expiring, single-use activation/reset token primitives with supersession and replay protection are delivered.
 - **CORE-03 — Session / credential invalidation: DONE 2026-08-27.** Reusable user-wide session/refresh revocation and server-side access-token session enforcement are delivered; reset/change integration remains owned by CORE-07/CORE-08.
 - **CORE-04 — Core identity notifications / production email: DONE 2026-08-27.** Platform-scoped identity notifications, Core-owned SMTP delivery, identity templates, platform idempotency and redacted delivery logging are delivered independently of FAIR CRM tenant mail configuration.
-- **CORE-05 — Public signup + atomic bootstrap: NEXT.** Add controlled public organization signup and atomic first-user `OrganizationAdmin` bootstrap using the delivered CORE-01 through CORE-04 primitives.
+- **CORE-05 — Public signup + atomic bootstrap: DONE 2026-08-28.** Controlled public signup now creates a non-operational pending organization, inactive first user with no password hash, existing protected `OrganizationAdmin` assignment, hash-only activation token and platform identity notification atomically while preserving existing operator provisioning.
+- **CORE-06 — Activation: NEXT.** Complete the single-use activation/set-password transaction using the delivered password policy, action-token and pending-bootstrap primitives.
 - Later phases follow the order in the canonical tracker; do not skip dependencies or mark them delivered early.
 
 ## Future platform candidates
