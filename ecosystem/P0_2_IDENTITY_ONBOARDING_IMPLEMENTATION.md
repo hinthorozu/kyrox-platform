@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-05 — Public signup + atomic bootstrap`  
+**Current resume point:** `CORE-06 — Activation`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -72,7 +72,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 - [x] Existing `POST /organizations` is Platform Super Admin-only.
 - [x] Existing organization creation currently creates only the organization, not its first user.
 - [x] Existing organization creation starts organizations as `ACTIVE`.
-- [x] Existing organization status values are `ACTIVE`, `SUSPENDED`, `ARCHIVED`.
+- [x] Core organization status now includes `PENDING_ACTIVATION` alongside `ACTIVE`, `SUSPENDED`, `ARCHIVED` — delivered by Core PR #16.
 - [x] `OrganizationAdmin` exists as a protected, assignable organization-scoped role.
 - [x] Legacy Owner role has been removed.
 - [x] Existing manual user management can create a user and assign an organization role.
@@ -81,7 +81,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 
 ### Activation / password recovery baseline
 
-- [ ] Public organization signup exists.
+- [x] Public organization signup exists — delivered by Core PR #16; FAIR CRM bridge/UI remains later work.
 - [x] Account activation/set-password token capability exists at the generic Core token-primitive layer — delivered by Core PR #13; public activation API remains CORE-06.
 - [ ] Forgot-password endpoint exists.
 - [ ] Reset-password endpoint exists.
@@ -209,7 +209,7 @@ Final endpoint names may be adjusted only if Core's existing API conventions req
 | Login | `POST /api/v1/auth/login` | Public | EXISTING |
 | Refresh | `POST /api/v1/auth/refresh` | Refresh token | EXISTING |
 | Logout | `POST /api/v1/auth/logout` | Refresh token | EXISTING |
-| Public signup | `POST /api/v1/auth/signup` | Public | TODO |
+| Public signup | `POST /api/v1/auth/signup` | Public | DELIVERED CORE-05 |
 | Complete activation | `POST /api/v1/auth/activation/complete` | One-time token | TODO |
 | Forgot password | `POST /api/v1/auth/password/forgot` | Public | TODO |
 | Reset password | `POST /api/v1/auth/password/reset` | One-time token | TODO |
@@ -284,21 +284,23 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **DONE:** Core can deliver identity/security email independently of FAIR CRM tenant/product email accounts and can represent/queue platform identity recipients without inventing an organization. CORE-04 does not yet wire token-bearing activation/reset flows; CORE-05/06/07 must preserve the workstream-wide rule that raw activation/reset token material is not persisted or logged when those flows are connected.
 
-### Phase CORE-05 — Public signup + atomic bootstrap
+### Phase CORE-05 — Public signup + atomic bootstrap — DONE 2026-08-28
 
-- [ ] Add `PENDING_ACTIVATION` organization status or an equivalent explicit non-operational pre-activation state.
-- [ ] Ensure normal authorization does not treat pre-activation organizations as active.
-- [ ] Add public signup request/response contract.
-- [ ] Validate/normalize organization name and generated/selected slug with existing Core policies.
-- [ ] Reject/handle duplicate email and duplicate organization/slug safely.
-- [ ] Create organization + first user + OrganizationAdmin assignment + activation token in one transaction/UoW.
-- [ ] First user starts inactive with no password hash.
-- [ ] First user is not a Super Admin.
-- [ ] Existing Super Admin `POST /organizations` remains unchanged/available.
-- [ ] Existing manual user create remains unchanged/available except shared password-policy hardening.
-- [ ] Tests prove rollback leaves no orphan active organization/user/role assignment when any bootstrap step fails.
+- [x] Add `PENDING_ACTIVATION` organization status or an equivalent explicit non-operational pre-activation state.
+- [x] Ensure normal authorization does not treat pre-activation organizations as active.
+- [x] Add public signup request/response contract.
+- [x] Validate/normalize organization name and generated/selected slug with existing Core policies.
+- [x] Reject/handle duplicate email and duplicate organization/slug safely.
+- [x] Create organization + first user + OrganizationAdmin assignment + activation token in one transaction/UoW.
+- [x] First user starts inactive with no password hash.
+- [x] First user is not a Super Admin.
+- [x] Existing Super Admin `POST /organizations` remains unchanged/available.
+- [x] Existing manual user create remains unchanged/available except shared password-policy hardening.
+- [x] Tests prove rollback leaves no orphan active organization/user/role assignment when any bootstrap step fails.
 
-**DONE when:** a new commercial account can be provisioned without direct SQL and no partial account survives a failed signup transaction.
+**Evidence:** Core PR #16 final head `052a2ac16c906bf854ea79917550fae04b44a2d1`; Core CI #70 / run `33119509255` SUCCESS with `363 passed`; merged to Core `main` as `8e406c9e286f494026edfe460ab7ca4156c2fe4d`. No schema migration was required; migration head remains `20260827_0064_platform_identity_notifications`. The public `POST /api/v1/auth/signup` path creates the pending organization, inactive/passwordless/non-Super-Admin first user, protected `OrganizationAdmin` assignment, activation action token, platform notification and dispatch job on the same request database session. A forced late notification failure plus request rollback leaves no orphan organization/user/role/token. Activation notification/job persistence contains only the safe action-token UUID reference; the raw activation token and token-bearing action URL are derived/materialized only in memory during dispatch and are absent from persisted notification/job payloads, API response and captured logs. Existing Platform Super Admin organization create and manual user/password provisioning remain separate compatible paths. The workflow's `Run lint` step reported success but explicitly skipped Ruff because Ruff is not installed, so separate Ruff execution is not claimed.
+
+**DONE:** a new commercial account can be provisioned through Core without direct SQL, remains non-operational until activation, receives exactly the existing protected first-admin role at bootstrap, and no partial signup state survives a failed bootstrap transaction.
 
 ### Phase CORE-06 — Activation
 
@@ -467,6 +469,7 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] CORE-02 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #13 merge.
 - [x] CORE-03 implementation evidence is synchronized into this tracker after Core PR #14 merge; reset/change integration remains explicitly unchecked in CORE-07/08.
 - [x] CORE-04 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #15 merge; token-bearing activation/reset integration remains deferred to the owning later phases.
+- [x] CORE-05 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #16 merge; activation completion remains explicitly owned by CORE-06.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -481,8 +484,8 @@ The implementation order is intentionally dependency-first:
 3. **CORE-02** one-time identity action tokens. ✅
 4. **CORE-03** user-wide session/credential invalidation. ✅
 5. **CORE-04** Core production identity notifications/email. ✅
-6. **CORE-05** atomic public signup/bootstrap. ← NEXT
-7. **CORE-06** activation.
+6. **CORE-05** atomic public signup/bootstrap. ✅
+7. **CORE-06** activation. ← NEXT
 8. **CORE-07** forgot/reset password.
 9. **CORE-08** authenticated password change.
 10. **CORE-09** adversarial/security certification and final Core CI.
@@ -501,7 +504,8 @@ The implementation order is intentionally dependency-first:
 - [x] CORE-02 one-time identity action tokens delivered through Core PR #13; final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809`; CI #60 / run `33097948707` SUCCESS with 348 tests passed; merge `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`.
 - [x] CORE-03 user-wide session/credential invalidation delivered through Core PR #14; final head `1b2dff1c5613405273ebe673210d522977e8d0c5`; CI #63 / run `33102833407` SUCCESS with 352 tests passed; merge `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4`.
 - [x] CORE-04 Core identity notifications / production email delivered through Core PR #15; final head `271124290858e0447af5ac90adc58436ccadf5a4`; CI #64 / run `33109701064` SUCCESS; merge `09617df8a17aa2ac744b5b1a9692d6418bbf0899`; migration head `20260827_0064_platform_identity_notifications`.
-- [ ] **NEXT RUNTIME PHASE: CORE-05 — Public signup + atomic bootstrap.**
+- [x] CORE-05 public signup + atomic bootstrap delivered through Core PR #16; final head `052a2ac16c906bf854ea79917550fae04b44a2d1`; CI #70 / run `33119509255` SUCCESS with 363 tests passed; merge `8e406c9e286f494026edfe460ab7ca4156c2fe4d`; migration head remains `20260827_0064_platform_identity_notifications`.
+- [ ] **NEXT RUNTIME PHASE: CORE-06 — Activation.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 
