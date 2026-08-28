@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-06 — Activation`  
+**Current resume point:** `CORE-07 — Forgot/reset password`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -82,7 +82,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 ### Activation / password recovery baseline
 
 - [x] Public organization signup exists — delivered by Core PR #16; FAIR CRM bridge/UI remains later work.
-- [x] Account activation/set-password token capability exists at the generic Core token-primitive layer — delivered by Core PR #13; public activation API remains CORE-06.
+- [x] Account activation/set-password API exists — delivered by Core PR #17 as `POST /api/v1/auth/activation/complete` using the generic one-time token primitive from CORE-02.
 - [ ] Forgot-password endpoint exists.
 - [ ] Reset-password endpoint exists.
 - [ ] Authenticated self-service change-password endpoint exists.
@@ -210,7 +210,7 @@ Final endpoint names may be adjusted only if Core's existing API conventions req
 | Refresh | `POST /api/v1/auth/refresh` | Refresh token | EXISTING |
 | Logout | `POST /api/v1/auth/logout` | Refresh token | EXISTING |
 | Public signup | `POST /api/v1/auth/signup` | Public | DELIVERED CORE-05 |
-| Complete activation | `POST /api/v1/auth/activation/complete` | One-time token | TODO |
+| Complete activation | `POST /api/v1/auth/activation/complete` | One-time token | DELIVERED CORE-06 |
 | Forgot password | `POST /api/v1/auth/password/forgot` | Public | TODO |
 | Reset password | `POST /api/v1/auth/password/reset` | One-time token | TODO |
 | Change password | `POST /api/v1/auth/password/change` | Access token + current password | TODO |
@@ -302,19 +302,21 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **DONE:** a new commercial account can be provisioned through Core without direct SQL, remains non-operational until activation, receives exactly the existing protected first-admin role at bootstrap, and no partial signup state survives a failed bootstrap transaction.
 
-### Phase CORE-06 — Activation
+### Phase CORE-06 — Activation — DONE 2026-08-28
 
-- [ ] Add activation completion use case/API.
-- [ ] Validate token hash, expiry, purpose, consumed state and target user.
-- [ ] Enforce PasswordPolicy.
-- [ ] Set Argon2id password hash.
-- [ ] Activate user.
-- [ ] Activate organization in the same transaction where required.
-- [ ] Consume token atomically.
-- [ ] Emit audit evidence without secrets.
-- [ ] Reject expired/replayed/wrong-purpose tokens.
+- [x] Add activation completion use case/API.
+- [x] Validate token hash, expiry, purpose, consumed state and target user.
+- [x] Enforce PasswordPolicy.
+- [x] Set Argon2id password hash.
+- [x] Activate user.
+- [x] Activate organization in the same transaction where required.
+- [x] Consume token atomically.
+- [x] Emit audit evidence without secrets.
+- [x] Reject expired/replayed/wrong-purpose tokens.
 
-**DONE when:** activation is single-use, atomic and a newly activated OrganizationAdmin can authenticate normally.
+**Evidence:** Core PR #17 final head `f4649d86863eccbfaf531d29353cfa2048041cdc`; Core CI #71 / run `33198567633` SUCCESS with `368 passed`; merged to Core `main` as `66dfdc373724509450e9ee2aed45f876b2935d1a`. No schema migration was required; migration head remains `20260827_0064_platform_identity_notifications`. `POST /api/v1/auth/activation/complete` applies the shared `PasswordPolicy` before token consumption, atomically consumes an `account_activation` token, requires the expected inactive/passwordless/non-Super-Admin user and `pending_activation` organization state, sets the Argon2id password hash, activates user and organization in the same request `DbSession`, and writes secret-safe `identity.activation.complete` audit evidence. Tests cover success, weak-password non-consumption, replay, expiry, wrong-purpose tokens, audit-failure rollback, absence of raw token/password from persisted audit/response/captured logs, and successful login with the newly set password. Activation returns the user to login and does not issue an implicit session. The workflow's `Run lint` step reported success but explicitly printed `ruff not installed, skipping`, so separate Ruff lint execution is not claimed.
+
+**DONE:** activation is single-use and atomic, weak-password attempts do not consume a valid activation token, and a newly activated OrganizationAdmin can authenticate normally with the password set through Core.
 
 ### Phase CORE-07 — Forgot/reset password
 
@@ -469,7 +471,8 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] CORE-02 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #13 merge.
 - [x] CORE-03 implementation evidence is synchronized into this tracker after Core PR #14 merge; reset/change integration remains explicitly unchecked in CORE-07/08.
 - [x] CORE-04 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #15 merge; token-bearing activation/reset integration remains deferred to the owning later phases.
-- [x] CORE-05 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #16 merge; activation completion remains explicitly owned by CORE-06.
+- [x] CORE-05 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #16 merge; activation completion remained explicitly owned by CORE-06 until delivery.
+- [x] CORE-06 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #17 merge; forgot/reset remains explicitly owned by CORE-07.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -485,8 +488,8 @@ The implementation order is intentionally dependency-first:
 4. **CORE-03** user-wide session/credential invalidation. ✅
 5. **CORE-04** Core production identity notifications/email. ✅
 6. **CORE-05** atomic public signup/bootstrap. ✅
-7. **CORE-06** activation. ← NEXT
-8. **CORE-07** forgot/reset password.
+7. **CORE-06** activation. ✅
+8. **CORE-07** forgot/reset password. ← NEXT
 9. **CORE-08** authenticated password change.
 10. **CORE-09** adversarial/security certification and final Core CI.
 11. **CRM-BE-01/02** FAIR CRM Core client + auth bridge.
@@ -505,7 +508,8 @@ The implementation order is intentionally dependency-first:
 - [x] CORE-03 user-wide session/credential invalidation delivered through Core PR #14; final head `1b2dff1c5613405273ebe673210d522977e8d0c5`; CI #63 / run `33102833407` SUCCESS with 352 tests passed; merge `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4`.
 - [x] CORE-04 Core identity notifications / production email delivered through Core PR #15; final head `271124290858e0447af5ac90adc58436ccadf5a4`; CI #64 / run `33109701064` SUCCESS; merge `09617df8a17aa2ac744b5b1a9692d6418bbf0899`; migration head `20260827_0064_platform_identity_notifications`.
 - [x] CORE-05 public signup + atomic bootstrap delivered through Core PR #16; final head `052a2ac16c906bf854ea79917550fae04b44a2d1`; CI #70 / run `33119509255` SUCCESS with 363 tests passed; merge `8e406c9e286f494026edfe460ab7ca4156c2fe4d`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [ ] **NEXT RUNTIME PHASE: CORE-06 — Activation.**
+- [x] CORE-06 activation delivered through Core PR #17; final head `f4649d86863eccbfaf531d29353cfa2048041cdc`; CI #71 / run `33198567633` SUCCESS with 368 tests passed; merge `66dfdc373724509450e9ee2aed45f876b2935d1a`; migration head remains `20260827_0064_platform_identity_notifications`.
+- [ ] **NEXT RUNTIME PHASE: CORE-07 — Forgot/reset password.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 

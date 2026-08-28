@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-06 single-use account activation/set-password flow; delivered through Core PR #17
+- Public `POST /api/v1/auth/activation/complete` contract using the existing account-activation token primitive, shared Core `PasswordPolicy` and Argon2id hashing
+- Secret-safe `identity.activation.complete` organization audit evidence and activation tests covering replay, expiry, wrong-purpose tokens, rollback, non-consumption on weak password and post-activation login
 - P0.2 CORE-05 public commercial signup and atomic first-account bootstrap; delivered through Core PR #16
 - Public `POST /api/v1/auth/signup` contract creating a `PENDING_ACTIVATION` organization and inactive first user with no password hash
 - Atomic first-user `OrganizationAdmin` assignment, activation-token issuance and activation-notification enqueue on one request database transaction
@@ -31,6 +34,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Successful account activation now consumes the one-time token and transitions the inactive/passwordless first user plus its `PENDING_ACTIVATION` organization to `ACTIVE` in the same request transaction; activation does not issue an implicit session
+- Activation password-policy validation occurs before token consumption, and invalid/expired/replayed/wrong-purpose token conditions use one generic public error contract without exposing token details
+- Identity action-token consumption fallback normalizes persisted SQLite naive UTC expiry values before diagnostic expiry/replay checks
 - Normal public account provisioning now starts organizations in explicit non-operational `PENDING_ACTIVATION` state; existing normal authorization continues to require `ACTIVE`
 - Existing Platform Super Admin organization creation and manual user/password provisioning remain available and are not repurposed by public signup
 - The protected historical `organization_admin` role slug is accepted by the RoleSlug compatibility boundary while other invalid underscore slugs remain rejected
