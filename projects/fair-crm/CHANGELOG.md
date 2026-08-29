@@ -8,6 +8,16 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### P0.2 Identity / SaaS onboarding public auth UI — 2026-08-29
+
+- Completed CRM-UI-01 through FAIR CRM PR #88: public `/signup`, `/activate`, `/forgot-password` and `/reset-password` screens now consume the delivered thin FAIR CRM/Core identity bridge without requiring an authenticated product session.
+- Signup collects organization name + email only; activation/reset collect the new credential and pass the one-time action token through the bridge. FAIR CRM does not validate/persist identity action tokens or mutate credentials locally.
+- Activation/reset tokens are captured from the link into memory and removed from the browser address bar after initial render; missing-token states fail safely without echoing token material.
+- Public auth pages use shared FAIR CRM form/card/banner primitives, accessible loading/error/success states and the standard `PageShell`; Core remains authoritative for password policy, token validity and credential changes.
+- Frontend bridge coverage proves exact public paths/payloads, safe Core 4xx feedback, sanitized upstream 5xx handling and malformed-success fail-closed behavior. Public-route/missing-token rendering coverage is included in the normal Vitest suite.
+- PR #88 final head `3111660795f001d37e899e40abda9d880a3aa1d5` passed Development Standard Gate #291 / run `33233202519`: `56` frontend test files / `307` tests passed, production build passed and the zero-new UI-governance regression gate passed. The frontend-only change did not produce a separate Prod-Path E2E run. It merged to FAIR CRM `main` as `9265dbb24b13e404c8a18cdd21918948a3997b06`.
+- No FAIR CRM schema migration was required. The next P0.2 implementation phase is CRM-UI-02 login integration.
+
 ### P0.2 Identity / SaaS onboarding backend bridge — 2026-08-29
 
 - Completed CRM-BE-01 through FAIR CRM PR #86: the existing thin `CoreAuthClient` now proxies Core signup, activation completion, forgot/reset password and authenticated password-change APIs without reproducing Core identity business logic.
@@ -180,7 +190,7 @@ Canon: [CONSTITUTION.md](CONSTITUTION.md) Activity Timeline; [todo/TODO_MODULE_D
 - **ADR-022** — System Administration & Business Continuity Roadmap (1–2 years)
 - Official Admin → System navigation target; Business Continuity conceptual model
 - Backup Policy Engine design (Daily / Weekly / Monthly, change detection, retention)
-- Backup History, trigger types, bounded contexts (Backup vs Policy vs History vs DR vs Restore vs UDP)
+- Backup History, trigger types (Backup vs Policy vs History vs DR vs Restore vs UDP)
 - Future: cloud/remote backup (S3, Azure Blob, GCS, NAS), DR workspace, platform admin modules
 - Updated: `PROJECT_STATUS.md`, `CONSTITUTION.md`, `VISION.md`
 
