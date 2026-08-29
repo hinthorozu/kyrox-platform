@@ -61,8 +61,8 @@ Execution status:
 - **CORE-06 — Activation: DONE 2026-08-28.** Single-use activation/set-password now consumes the account-activation token atomically, applies the shared password policy and Argon2id hashing, activates the pending user and organization together, records secret-safe audit evidence and returns the user to login without issuing an implicit session.
 - **CORE-07 — Forgot/reset password: DONE 2026-08-29.** Enumeration-resistant recovery, reset-token delivery/consumption, resend cooldown/supersession, shared password policy, user-wide session/credential invalidation and secret-safe audit evidence are delivered.
 - **CORE-08 — Authenticated password change: DONE 2026-08-29.** Authenticated users can verify the current credential, apply the shared password policy to a distinct new password, atomically replace the hash, revoke all prior sessions/refresh credentials and emit secret-safe audit evidence without an implicit replacement session.
-- **CORE-09 — Core security/adversarial certification: NEXT.** Re-run and extend adversarial coverage on the final Core identity implementation head before FAIR CRM bridge work begins.
-- Later phases follow the order in the canonical tracker; do not skip dependencies or mark them delivered early.
+- **CORE-09 — Core security/adversarial certification: DONE 2026-08-29.** The completed onboarding/credential surface passed final-head adversarial and regression certification, including signup privilege-injection resistance and cross-organization activation isolation.
+- Core runtime work for this approved onboarding slice is complete; the next execution phase is the FAIR CRM thin auth bridge in the canonical tracker.
 
 ## Future platform candidates
 
