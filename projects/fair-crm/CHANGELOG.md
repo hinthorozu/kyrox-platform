@@ -8,6 +8,14 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### P0.2 Identity / SaaS onboarding login integration — 2026-08-29
+
+- Completed CRM-UI-02 through FAIR CRM PR #89: the existing login screen now exposes `Şifremi unuttum` → `/forgot-password` and `Hesap oluştur` → `/signup` entry points to the public identity flows delivered by CRM-UI-01.
+- Existing login submit/authentication/session behavior is unchanged. Activation success continues to return the user to login and does not silently issue an implicit product session.
+- Added focused frontend coverage for the login link labels/targets and extended the existing P0.2 public-auth feature contract; no backend or credential-authority logic was added.
+- PR #89 final head `298dcadbd88df5580db97d7c5f0305570e2c3e26` passed Development Standard Gate #293 / run `33233998091`: `57` frontend test files / `308` tests passed, production build passed and the zero-new UI-governance regression gate passed. The frontend-only change did not produce a separate Prod-Path E2E run. It merged to FAIR CRM `main` as `874c24b1c4c56ea7087e3acd6ea0708117e3a1a3`.
+- No FAIR CRM schema migration was required. The next P0.2 implementation phase is CRM-UI-03 authenticated security/password-change settings.
+
 ### P0.2 Identity / SaaS onboarding public auth UI — 2026-08-29
 
 - Completed CRM-UI-01 through FAIR CRM PR #88: public `/signup`, `/activate`, `/forgot-password` and `/reset-password` screens now consume the delivered thin FAIR CRM/Core identity bridge without requiring an authenticated product session.
