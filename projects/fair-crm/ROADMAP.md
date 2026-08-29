@@ -16,26 +16,26 @@ The first hardening wave (TI-01 through TI-06 plus additional derived-reference 
 
 P0.1 completion is a certification baseline, not an exemption: future organization-owned changes still require the applicable SaaS-impact and cross-organization regression evidence.
 
-### P0.2 Identity / SaaS onboarding bridge + UI — ACTIVE, CORE-DEPENDENT
+### P0.2 Identity / SaaS onboarding bridge + UI — ACTIVE
 
 The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns the identity runtime; FAIR CRM owns only the product transport bridge and user-facing screens.
 
 Canonical implementation tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 
-FAIR CRM scope, after the dependent Core APIs are implemented/certified:
+Core dependencies and the FAIR CRM backend bridge are now delivered. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. Neither phase introduced product-local password policy, credential storage or action-token authority.
 
-- extend the existing Core auth client with signup, activation, forgot/reset and authenticated change-password calls,
-- expose thin `/api/v1/auth/*` bridge routes using the existing login/refresh/logout transport pattern,
-- add `/signup`, `/activate`, `/forgot-password`, `/reset-password` public screens,
-- add authenticated account/security password-change UI,
-- add login links for account creation and password recovery,
+Current execution order:
+
+- **CRM-BE-01 — Core auth client extensions: DONE**
+- **CRM-BE-02 — thin auth bridge routes: DONE**
+- **CRM-UI-01 — public signup / activation / recovery screens: NEXT**
+- authenticated account/security password-change UI follows the public auth screens,
+- login links for account creation and password recovery must be added with the public auth UI,
 - preserve the existing Super Admin `/admin/system/users` manual user-creation flow,
 - preserve admin-supplied manual passwords,
 - optionally add a second "send setup link" user-creation mode only after the Core setup-token contract exists,
 - keep password hashing, activation/reset tokens, identity email and credential authority out of FAIR CRM,
 - verify the real flow with the permanent ABC ↔ XYZ tenant-isolation system gate plus applicable Development Standard and Prod-Path E2E gates.
-
-The FAIR CRM portion must not start by inventing temporary product-local signup/password infrastructure while Core dependencies are unfinished.
 
 The remaining P0.2 suspension/closure/retention decisions are still gated and are not activated by this onboarding workstream.
 
@@ -72,7 +72,7 @@ Current `Durdur` behavior cancels an operation. Planned behavior:
 
 - `Durdur` pauses instead of cancelling,
 - lifecycle supports `running → paused → running`,
-- a separate `İptal Et` action moves the operation to `cancelled`,
+- a separate `İptal Et` action moves an operation to `cancelled`,
 - paused operations preserve progress, logs and intermediate state,
 - `Devam Ettir` resumes from the preserved point.
 
