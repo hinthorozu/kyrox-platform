@@ -22,7 +22,7 @@ The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns
 
 Canonical implementation tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 
-Core dependencies, the FAIR CRM backend bridge and self-service onboarding/security UI are now delivered through CRM-UI-03. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. CRM-UI-01 added `/signup`, `/activate`, `/forgot-password` and `/reset-password` through FAIR CRM PR #88. CRM-UI-02 added account-creation and password-recovery entry links to the existing login screen through FAIR CRM PR #89. CRM-UI-03 added authenticated `/settings/security` password change through FAIR CRM PR #90 while preserving Core credential authority and forcing re-login after successful credential change.
+Core dependencies, the FAIR CRM backend bridge and FAIR CRM UI/compatibility phases are delivered through CRM-UI-04. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. CRM-UI-01 added `/signup`, `/activate`, `/forgot-password` and `/reset-password` through FAIR CRM PR #88. CRM-UI-02 added account-creation and password-recovery entry links to the existing login screen through FAIR CRM PR #89. CRM-UI-03 added authenticated `/settings/security` password change through FAIR CRM PR #90 while preserving Core credential authority and forcing re-login after successful credential change. CRM-UI-04 certified the pre-existing Super Admin manual user-management path through test-only FAIR CRM PR #91 with no production behavior change.
 
 Current execution order:
 
@@ -31,12 +31,12 @@ Current execution order:
 - **CRM-UI-01 — public signup / activation / recovery screens: DONE**
 - **CRM-UI-02 — login account-creation / password-recovery integration: DONE**
 - **CRM-UI-03 — authenticated account/security password-change UI: DONE**
-- **CRM-UI-04 — Super Admin user-management compatibility certification: NEXT**
-- preserve the existing Super Admin `/admin/system/users` manual user-creation flow,
-- preserve admin-supplied manual passwords,
-- optionally add a second "send setup link" user-creation mode only after the Core setup-token contract exists,
+- **CRM-UI-04 — Super Admin user-management compatibility certification: DONE**
+- **Cross-repository acceptance / E2E / tenant-isolation gates: NEXT**
+- preserve the existing Super Admin `/admin/system/users` manual user-creation flow and admin-supplied manual passwords,
+- do not add a "send setup link" user-creation mode until an approved Core setup-token contract exists,
 - keep password hashing, activation/reset tokens, identity email and credential authority out of FAIR CRM,
-- verify the real flow with the permanent ABC ↔ XYZ tenant-isolation system gate plus applicable Development Standard and Prod-Path E2E gates.
+- verify the complete public/authenticated flow with the permanent ABC ↔ XYZ tenant-isolation system gate plus applicable Development Standard and Prod-Path E2E gates before final P0.2 closure.
 
 The remaining P0.2 suspension/closure/retention decisions are still gated and are not activated by this onboarding workstream.
 
