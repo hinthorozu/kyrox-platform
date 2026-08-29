@@ -4,7 +4,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-08-26** |
+| Last verified | **2026-08-29** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
 | Migration head in `main` | `0076_import_analyze_matchable_fields_optional` |
@@ -16,6 +16,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Area | Status |
 |------|--------|
 | Tenant isolation / SaaS P0.1 | **Certified DONE (2026-08-26)** — TI-01 through TI-09 complete across API, repository, worker, export/download and Platform Super Admin boundaries |
+| Identity / SaaS onboarding P0.2 | **Backend bridge DONE through CRM-BE-02 (2026-08-29)** — thin Core auth client plus signup/activation/forgot/reset/change-password bridge routes are delivered; public/security UI remains next |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -31,9 +32,10 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 ## Current quality / documentation focus
 
-1. **Permission-controlled UI consistency** — navigation, routes, CRUD actions and non-CRUD actions must reflect effective permissions and the shared [CRUD & UI Authorization Standard](../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md). Backend authorization remains authoritative.
-2. **Implementation-to-documentation reconciliation** — quotation and cost-catalog work advanced beyond the old July documentation snapshot. Record what is actually implemented; do not recreate features from stale planning notes.
-3. **Status/roadmap discipline** — delivered truth stays here, future/active work stays in [ROADMAP.md](ROADMAP.md), detailed history stays in [CHANGELOG.md](CHANGELOG.md).
+1. **P0.2 public/security UI** — build the FAIR CRM signup, activation, password recovery/reset and authenticated password-change screens over the delivered thin backend bridge; Core remains credential authority.
+2. **Permission-controlled UI consistency** — navigation, routes, CRUD actions and non-CRUD actions must reflect effective permissions and the shared [CRUD & UI Authorization Standard](../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md). Backend authorization remains authoritative.
+3. **Implementation-to-documentation reconciliation** — quotation and cost-catalog work advanced beyond the old July documentation snapshot. Record what is actually implemented; do not recreate features from stale planning notes.
+4. **Status/roadmap discipline** — delivered truth stays here, future/active work stays in [ROADMAP.md](ROADMAP.md), detailed history stays in [CHANGELOG.md](CHANGELOG.md).
 
 ## SaaS tenant-isolation certification
 
@@ -43,9 +45,15 @@ P0.1 is complete. FAIR CRM now has deterministic fail-closed evidence for direct
 
 The detailed evidence record is [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md).
 
+## P0.2 identity/onboarding bridge
+
+CRM-BE-01 and CRM-BE-02 are delivered. FAIR CRM now consumes the approved public Core identity contract through its existing auth integration boundary: signup, activation completion, forgot-password, reset-password and authenticated password-change are proxied to Core without introducing product-local password policy, password hashing, action-token persistence or credential mutation.
+
+Successful reset/change transport clears the FAIR CRM refresh cookie because Core invalidates prior credentials. Existing login/refresh/logout behavior and the Platform Super Admin manual user-management flow remain supported. FAIR CRM PR #86 delivered the Core auth client extension; PR #87 delivered the thin bridge routes. The next implementation phase is the public authentication UI.
+
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 backend bridge phases required no FAIR CRM schema migration.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 
