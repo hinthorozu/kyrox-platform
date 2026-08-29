@@ -8,6 +8,15 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### P0.2 Identity / SaaS onboarding security settings — 2026-08-29
+
+- Completed CRM-UI-03 through FAIR CRM PR #90: authenticated `/settings/security` is available from the user menu with current-password, new-password and confirmation UX over the delivered FAIR CRM/Core change-password bridge.
+- FAIR CRM forwards the current/new credential with the existing Bearer access token; confirmation remains local UX only. Password policy, current-password verification, same-password rejection, credential replacement and session revocation remain Core-owned.
+- Successful change relies on Core session invalidation plus the FAIR CRM bridge refresh-cookie clear, then clears local access/session state and returns to `/login`. Failed current-password/policy/validation attempts leave the existing local session untouched.
+- Added transport coverage for exact Bearer/payload behavior, missing-token fail-closed handling, safe 4xx feedback, sanitized upstream 5xx and malformed-success responses; route/form rendering coverage proves access-token material is not rendered.
+- PR #90 final head `d99dcec064a9fecb9452729aca490a1f9f76a849` passed Development Standard Gate #300 / run `33234676182`: `59` frontend test files / `320` tests passed, production build passed and zero-new UI-governance regression passed. The frontend-only phase did not produce a separate Prod-Path E2E run. It merged to FAIR CRM `main` as `c40bd8518eca2561640c00de0537d8e0e0e85fbb`.
+- No backend or FAIR CRM schema migration changed. The next P0.2 phase is CRM-UI-04 Super Admin user-management compatibility certification.
+
 ### P0.2 Identity / SaaS onboarding login integration — 2026-08-29
 
 - Completed CRM-UI-02 through FAIR CRM PR #89: the existing login screen now exposes `Şifremi unuttum` → `/forgot-password` and `Hesap oluştur` → `/signup` entry points to the public identity flows delivered by CRM-UI-01.
