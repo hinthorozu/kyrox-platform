@@ -8,6 +8,16 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### P0.2 Identity / SaaS onboarding backend bridge — 2026-08-29
+
+- Completed CRM-BE-01 through FAIR CRM PR #86: the existing thin `CoreAuthClient` now proxies Core signup, activation completion, forgot/reset password and authenticated password-change APIs without reproducing Core identity business logic.
+- Completed CRM-BE-02 through FAIR CRM PR #87: FAIR CRM now exposes matching `/api/v1/auth/*` bridge routes over the Core client while preserving the existing login/refresh/logout transport pattern.
+- Public signup/activation/forgot/reset calls remain unauthenticated product transport; authenticated password change forwards the Bearer access token to Core rather than validating credentials locally.
+- Successful reset/password-change responses clear the FAIR CRM refresh cookie because Core invalidates prior sessions/credentials; failed validation does not incorrectly clear still-valid product cookie state.
+- Credential authority remains in Core: no FAIR CRM password hashing, password policy, raw activation/reset-token persistence or credential mutation was introduced.
+- CRM-BE-01 final head passed Development Standard Gate #278 and Prod-Path E2E #148 before merge. CRM-BE-02 final head `1068a5a94d26799e6b63565e18cf6a61e5699a72` passed Development Standard Gate #280 with `1781 passed` and Prod-Path E2E #149 before merge to FAIR CRM `main` as `0c8a0004f5067dbd8041898a1fe590026c22d736`.
+- No FAIR CRM schema migration was required. The next P0.2 implementation phase is CRM-UI-01 public signup/activation/password-recovery UI.
+
 ### SaaS P0.1 Tenant Isolation Certification — 2026-08-26
 
 - Completed TI-01 through TI-09 against the canonical `organization` tenant/account boundary; no parallel Tenant entity introduced.

@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CRM-BE-01 — Core client extensions`  
+**Current resume point:** `CRM-UI-01 — Public auth routes`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -81,7 +81,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 
 ### Activation / password recovery baseline
 
-- [x] Public organization signup exists — delivered by Core PR #16; FAIR CRM bridge/UI remains later work.
+- [x] Public organization signup exists — delivered by Core PR #16; FAIR CRM backend bridge is delivered through PRs #86/#87 and public UI remains later work.
 - [x] Account activation/set-password API exists — delivered by Core PR #17 as `POST /api/v1/auth/activation/complete` using the generic one-time token primitive from CORE-02.
 - [x] Forgot-password endpoint exists — delivered by Core PR #18 as `POST /api/v1/auth/password/forgot` with enumeration-safe public behavior and resend throttling/cooldown.
 - [x] Reset-password endpoint exists — delivered by Core PR #18 as `POST /api/v1/auth/password/reset` with one-time token consumption, shared PasswordPolicy and credential invalidation.
@@ -102,6 +102,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 
 - [x] FAIR CRM frontend has `/login`.
 - [x] FAIR CRM backend auth bridge proxies login/refresh/logout to Core rather than issuing credentials itself.
+- [x] FAIR CRM backend auth bridge also proxies signup/activation/forgot/reset/change-password to Core through CRM-BE-01/02.
 - [x] Refresh transport uses the existing FAIR CRM HttpOnly-cookie bridge pattern.
 - [x] FAIR CRM has `/admin/system/users` and existing Super Admin/user-management UI surfaces.
 - [ ] FAIR CRM has signup UI.
@@ -376,28 +377,32 @@ Public forgot-password responses must not reveal whether the email exists.
 
 ## 6. FAIR CRM backend bridge checklist
 
-### Phase CRM-BE-01 — Core client extensions
+### Phase CRM-BE-01 — Core client extensions — DONE 2026-08-29
 
-- [ ] Extend `CoreAuthClient` with signup.
-- [ ] Extend with activation complete.
-- [ ] Extend with forgot password.
-- [ ] Extend with reset password.
-- [ ] Extend with authenticated change password.
-- [ ] Preserve thin-client behavior; no Core token validation/business logic is copied into FAIR CRM.
-- [ ] Preserve safe error mapping and avoid leaking Core/provider internals.
+- [x] Extend `CoreAuthClient` with signup.
+- [x] Extend with activation complete.
+- [x] Extend with forgot password.
+- [x] Extend with reset password.
+- [x] Extend with authenticated change password.
+- [x] Preserve thin-client behavior; no Core token validation/business logic is copied into FAIR CRM.
+- [x] Preserve safe error mapping and avoid leaking Core/provider internals.
 
-### Phase CRM-BE-02 — Bridge routes
+**Evidence:** FAIR CRM PR #86 final head `934a7d1843bf5f036f06225393af2af4aa3810ce`; Development Standard Gate #278 SUCCESS with `1767 passed`; Prod-Path E2E #148 SUCCESS; merged to FAIR CRM `main` as `a83fa9a11dd603962cbb29510a0b11748f886d9f`. The existing `CoreAuthClient` was extended with signup, activation-complete, forgot/reset and authenticated change-password transport only. Public Core 4xx details remain available for product UX, provider/Core 5xx internals are sanitized, malformed success responses fail closed, and no password policy, action-token validation/persistence or credential mutation was copied into FAIR CRM. No FAIR CRM schema migration was required.
 
-- [ ] Add `POST /api/v1/auth/signup` bridge route.
-- [ ] Add activation-complete bridge route.
-- [ ] Add forgot-password bridge route.
-- [ ] Add reset-password bridge route.
-- [ ] Add change-password bridge route.
-- [ ] Keep existing login/refresh/logout routes unchanged unless the shared transport contract requires a compatible extension.
-- [ ] Keep CSRF/cookie rules correct for cookie-authenticated mutating paths.
-- [ ] Clear refresh cookie after successful password change/reset when required by the final session contract.
+### Phase CRM-BE-02 — Bridge routes — DONE 2026-08-29
 
-**DONE when:** FAIR CRM remains a transport bridge and all credential authority remains in Core.
+- [x] Add `POST /api/v1/auth/signup` bridge route.
+- [x] Add activation-complete bridge route.
+- [x] Add forgot-password bridge route.
+- [x] Add reset-password bridge route.
+- [x] Add change-password bridge route.
+- [x] Keep existing login/refresh/logout routes unchanged unless the shared transport contract requires a compatible extension.
+- [x] Keep CSRF/cookie rules correct for cookie-authenticated mutating paths.
+- [x] Clear refresh cookie after successful password change/reset when required by the final session contract.
+
+**Evidence:** FAIR CRM PR #87 final head `1068a5a94d26799e6b63565e18cf6a61e5699a72`; Development Standard Gate #280 / run `33230174837` SUCCESS with `1781 passed, 2 warnings`; Prod-Path E2E #149 / run `33230174828` SUCCESS; merged to FAIR CRM `main` as `0c8a0004f5067dbd8041898a1fe590026c22d736`. Public signup/activation/forgot/reset bridge routes do not require an authenticated cookie/CSRF header; authenticated password change requires a single Bearer access token and forwards it to Core without local JWT credential authority. Successful reset/change clears the FAIR CRM refresh cookie because Core invalidates prior sessions, while failed change validation does not clear a still-valid cookie. Existing login/refresh/logout behavior remains unchanged. No FAIR CRM schema migration was required.
+
+**DONE:** FAIR CRM remains a transport bridge and all credential authority remains in Core.
 
 ---
 
@@ -481,7 +486,8 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] CORE-06 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #17 merge; forgot/reset remained explicitly owned by CORE-07 until delivery.
 - [x] CORE-07 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #18 merge; authenticated password change remained explicitly owned by CORE-08 until delivery.
 - [x] CORE-08 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #19 merge; CORE-09 remained explicitly owned by the final Core certification phase until delivery.
-- [x] CORE-09 final Core security/adversarial certification evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #20 merge; the canonical resume point now moves to FAIR CRM backend integration.
+- [x] CORE-09 final Core security/adversarial certification evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #20 merge; the canonical resume point moved to FAIR CRM backend integration.
+- [x] CRM-BE-01 and CRM-BE-02 FAIR CRM backend bridge evidence is synchronized after PRs #86 and #87; the canonical resume point moves to CRM-UI-01.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -501,11 +507,12 @@ The implementation order is intentionally dependency-first:
 8. **CORE-07** forgot/reset password. ✅
 9. **CORE-08** authenticated password change. ✅
 10. **CORE-09** adversarial/security certification and final Core CI. ✅
-11. **CRM-BE-01** FAIR CRM Core client extensions. ← NEXT
-12. **CRM-BE-02** FAIR CRM auth bridge routes.
-13. **CRM-UI-01/02/03/04** public auth/security/Super Admin compatibility UI.
-14. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
-15. **Platform final documentation closure.**
+11. **CRM-BE-01** FAIR CRM Core client extensions. ✅
+12. **CRM-BE-02** FAIR CRM auth bridge routes. ✅
+13. **CRM-UI-01** public auth routes. ← NEXT
+14. **CRM-UI-02/03/04** login integration, security settings and Super Admin compatibility UI.
+15. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
+16. **Platform final documentation closure.**
 
 ### Current position
 
@@ -522,7 +529,9 @@ The implementation order is intentionally dependency-first:
 - [x] CORE-07 forgot/reset password delivered through Core PR #18; final head `7529f82689b970991314e9621feaa0341fe3f0a2`; CI #78 / run `33227509093` SUCCESS with 375 tests passed; merge `db5695d2c77a8e2dbe29dd19f4a3cb22d770e7d8`; migration head remains `20260827_0064_platform_identity_notifications`.
 - [x] CORE-08 authenticated password change delivered through Core PR #19; final head `ecb77f8918e9a156b686eb902c50692e92de3339`; CI #82 / run `33228044257` SUCCESS with 379 tests passed; merge `75905f02bdf621419f9b6560fff5809e56150ad5`; migration head remains `20260827_0064_platform_identity_notifications`.
 - [x] CORE-09 Core security/adversarial certification delivered through Core PR #20; final head `5c5113320ea910e80555e6cc526ed0c708580cd4`; CI #84 / run `33228476878` SUCCESS with 381 tests passed; merge `f6cbf417410d9148c225242790103d8cc9541f21`; no runtime/schema change and migration head remains `20260827_0064_platform_identity_notifications`.
-- [ ] **NEXT RUNTIME PHASE: CRM-BE-01 — FAIR CRM Core client extensions.**
+- [x] CRM-BE-01 Core client extensions delivered through FAIR CRM PR #86; final head `934a7d1843bf5f036f06225393af2af4aa3810ce`; Development Standard Gate #278 SUCCESS with 1767 tests passed; Prod-Path E2E #148 SUCCESS; merge `a83fa9a11dd603962cbb29510a0b11748f886d9f`.
+- [x] CRM-BE-02 auth bridge routes delivered through FAIR CRM PR #87; final head `1068a5a94d26799e6b63565e18cf6a61e5699a72`; Development Standard Gate #280 / run `33230174837` SUCCESS with 1781 tests passed; Prod-Path E2E #149 / run `33230174828` SUCCESS; merge `0c8a0004f5067dbd8041898a1fe590026c22d736`.
+- [ ] **NEXT RUNTIME PHASE: CRM-UI-01 — FAIR CRM public auth routes.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 
