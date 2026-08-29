@@ -8,6 +8,18 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### P0.2 Identity / SaaS onboarding final lifecycle certification — 2026-08-29
+
+- Completed the approved P0.2 identity/onboarding workstream through FAIR CRM PR #92 after CRM-UI-03 and CRM-UI-04 were merged and certified.
+- CRM-UI-03 shipped authenticated `/settings/security` through FAIR CRM PR #90. Current/new password and confirmation UX use the existing thin FAIR CRM/Core bridge; Core remains authoritative for current-password verification, PasswordPolicy, hashing and credential mutation. Successful change revokes Core sessions, clears the FAIR CRM refresh cookie and local frontend session, and returns to `/login`.
+- PR #90 final head `d99dcec064a9fecb9452729aca490a1f9f76a849` passed Development Standard Gate #300 / run `33234676182` and merged as `c40bd8518eca2561640c00de0537d8e0e0e85fbb`.
+- CRM-UI-04 certified the existing `/admin/system/users` manual user-create path through FAIR CRM PR #91: administrator-supplied passwords remain supported, FAIR CRM forwards them unchanged to Core, protected role/Super Admin controls remain backend-authoritative, and no unsupported setup-link or new Super Admin assignment path was added.
+- PR #91 final head `a5730c767ff1274484bfe9ddaa55c948cf4d73f9` passed Development Standard Gate #303 / run `33235256876` and merged as `b6cd8b8c9baebee54d83334f4c5669ea1564106e`. The phase was test-only and changed no production runtime, backend, schema or permission catalog.
+- Final FAIR CRM PR #92 added CI-only cross-repository lifecycle certification. Real FAIR CRM runs against real KYROX Core and Core's real SMTP adapter, with activation/reset mail captured only by an in-process memory-only SMTP sink. The certified lifecycle is signup → activation → login → forgot/reset → login → password change → login; activation/reset replay is rejected and pre-credential-change access/refresh sessions are rejected after reset/change.
+- PR #92 final head `d498245c4c60bd36b9b3a8aeffed4912e198123b` passed Development Standard Gate #306 / run `33246959509` and Prod-Path E2E #151 / run `33246959442`. The existing production-shaped validation passed `35` tests with `0` failures before the P0.2 lifecycle certification also passed. PR #92 merged as `2f9f159a303ffd055121547de51dcaefc15fc6a9`.
+- The lifecycle script keeps raw action tokens, generated passwords and access/refresh material process-local and does not persist or upload them. PR #92 changes CI/test/governance only; no FAIR CRM/Core application runtime or schema behavior changed.
+- This completion is intentionally limited to the approved identity/onboarding subset. ADR-0006 suspension, closure/delete/export/retention, billing/entitlement and other still-gated lifecycle decisions remain open.
+
 ### P0.2 Identity / SaaS onboarding login integration — 2026-08-29
 
 - Completed CRM-UI-02 through FAIR CRM PR #89: the existing login screen now exposes `Şifremi unuttum` → `/forgot-password` and `Hesap oluştur` → `/signup` entry points to the public identity flows delivered by CRM-UI-01.
