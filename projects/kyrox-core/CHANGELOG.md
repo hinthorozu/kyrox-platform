@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-08 authenticated self-service password change; delivered through Core PR #19
+- Authenticated `POST /api/v1/auth/password/change` requiring a valid access token backed by an active server-side session, current-password verification, shared Core `PasswordPolicy`, same-password/no-op rejection and Argon2id credential replacement
+- Secret-safe `identity.password.change` audit evidence plus CORE-03 user-wide session/refresh invalidation, including the session used to perform the change; no replacement session is issued implicitly
+- CORE-08 tests covering missing authentication, wrong-current/weak/same-password denial, non-revocation on failed changes, stale access/refresh invalidation after success, old-password rejection, new-password login, audit redaction and audit-failure rollback
 - P0.2 CORE-07 Core-owned forgot/reset password flow; delivered through Core PR #18
 - Public `POST /api/v1/auth/password/forgot` with enumeration-safe responses, active-account eligibility, 60-second database-backed resend cooldown, reset-token supersession and configurable reset-token TTL
 - Public `POST /api/v1/auth/password/reset` using the shared Core `PasswordPolicy`, atomic single-use reset-token consumption, Argon2id credential replacement, CORE-03 user-wide session/refresh invalidation and secret-safe `identity.password.reset` audit evidence
@@ -38,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Successful authenticated password change now verifies the current credential, requires a distinct policy-compliant new password, replaces the Core-owned Argon2id credential atomically and invokes CORE-03 so the current and all other prior sessions/refresh credentials fail immediately; the endpoint requires login again rather than issuing a new session
 - Successful password reset now replaces the Core-owned Argon2id credential, consumes the one-time reset token and invokes CORE-03 user-wide session/refresh invalidation so previously issued credentials fail immediately; reset does not issue an implicit session
 - Forgot-password behavior now suppresses account existence/eligibility differences behind one public response and applies deterministic resend cooldown/token supersession without persisting raw reset tokens or token-bearing URLs
 - Successful account activation now consumes the one-time token and transitions the inactive/passwordless first user plus its `PENDING_ACTIVATION` organization to `ACTIVE` in the same request transaction; activation does not issue an implicit session
@@ -51,7 +56,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Notification and job persistence now support explicit platform scope where required by Core identity delivery while preserving existing organization-scoped behavior
 - SMTP dispatch maps provider failures to generic errors and delivery logs omit message bodies/action URLs/tokens, SMTP credentials and full recipient addresses
 - Protected access-token validation now requires JWT `sid` to resolve to an active server-side session owned by JWT `sub`; revoked/deleted/mismatched sessions fail closed with 401 instead of leaving stale access tokens valid until natural expiry
-- User-wide credential invalidation revokes live refresh tokens with `SESSION_REVOKED` and active sessions while preserving other users; CORE-07 now invokes this primitive for password reset and CORE-08 remains responsible for invoking it from authenticated change-password
+- User-wide credential invalidation revokes live refresh tokens with `SESSION_REVOKED` and active sessions while preserving other users; both CORE-07 password reset and CORE-08 authenticated password change now invoke this primitive
 - Existing manual organization-user create/update password-setting paths now use the shared Core password policy while preserving Platform Super Admin manual user creation
 - Argon2id remains responsible for hashing/verification only; password policy is an application-level Core primitive reusable by activation/reset/change-password flows
 - Identity action-token issuance returns raw opaque token material only to the immediate caller while Core persistence stores only SHA-256 hashes; reissue supersedes older live same-purpose tokens
