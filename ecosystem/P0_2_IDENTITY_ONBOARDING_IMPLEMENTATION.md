@@ -1,21 +1,22 @@
 # P0.2 Identity / SaaS Onboarding Implementation Tracker
 
-**Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
+**Status:** DONE — approved onboarding/credential workstream completed 2026-08-29  
 **Started:** 2026-08-27  
-**Current resume point:** `CRM-UI-03 — Security settings`  
+**Completed:** 2026-08-29  
+**Current resume point:** `P0.2 identity/onboarding slice complete; remaining ADR-0006 lifecycle decisions remain separately gated`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
-This file is the canonical execution checklist for the first active P0.2 implementation workstream: public organization signup, first-user activation, password reset/change and the supporting Core security/session/notification primitives.
+This file is the canonical execution checklist for the completed P0.2 identity/onboarding implementation workstream: public organization signup, first-user activation, password reset/change and the supporting Core security/session/notification primitives.
 
 The purpose is to keep one durable answer to four questions:
 
 1. What already exists?
 2. What has been explicitly approved?
-3. What still has to be built?
-4. Where did implementation stop?
+3. What was built and certified?
+4. What remains outside this workstream?
 
-Do not delete completed checklist items. Mark them complete with evidence so the execution history survives later conversations and repository changes.
+Do not delete completed checklist items. Keep evidence so the execution history survives later conversations and repository changes.
 
 ---
 
@@ -109,7 +110,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 - [x] FAIR CRM has activation UI — delivered through PR #88.
 - [x] FAIR CRM has forgot-password UI — delivered through PR #88.
 - [x] FAIR CRM has reset-password UI — delivered through PR #88.
-- [ ] FAIR CRM has authenticated security/change-password UI.
+- [x] FAIR CRM has authenticated security/change-password UI — delivered through PR #90.
 
 ---
 
@@ -189,7 +190,7 @@ FAIR CRM /settings/security
   -> Super Admin can still provide the user's password directly
 ```
 
-A later extension in this same workstream may add:
+A later extension may add:
 
 ```text
 Create user mode:
@@ -197,7 +198,7 @@ Create user mode:
   [send setup link]
 ```
 
-The setup-link mode is additive; it must not remove or silently change the current manual mode.
+The setup-link mode is additive and remains deferred until Core has an approved setup-token contract; the completed workstream does not invent that contract.
 
 ---
 
@@ -428,47 +429,55 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **Evidence:** FAIR CRM PR #89 final head `298dcadbd88df5580db97d7c5f0305570e2c3e26`; Development Standard Gate #293 / run `33233998091` SUCCESS with `57` frontend test files / `308` tests passed, production Vite build success and zero-new UI-governance regression PASS; merged to FAIR CRM `main` as `874c24b1c4c56ea7087e3acd6ea0708117e3a1a3`. The existing login authentication/session flow is unchanged; the login screen now exposes the already-delivered public `/forgot-password` and `/signup` routes. Focused rendering coverage locks the link labels/targets. CRM-UI-01 already established that activation success returns explicitly to login with no implicit product session, and CRM-UI-02 preserves that behavior. No backend or FAIR CRM schema migration changed. This frontend-only phase did not produce a separate Prod-Path E2E run, so no Prod-Path result is claimed for CRM-UI-02.
 
-### Phase CRM-UI-03 — Security settings
+### Phase CRM-UI-03 — Security settings — DONE 2026-08-29
 
-- [ ] Add authenticated `/settings/security` or the canonical account/security route.
-- [ ] Current-password field.
-- [ ] New-password field.
-- [ ] Confirmation UX if UI standard requires it.
-- [ ] Successful change clears local/session state and returns to login.
+- [x] Add authenticated `/settings/security` route.
+- [x] Current-password field.
+- [x] New-password field.
+- [x] Confirmation UX.
+- [x] Successful change clears local/session state and returns to login.
 
-### Phase CRM-UI-04 — Super Admin user-management compatibility
+**Evidence:** FAIR CRM PR #90 final head `d99dcec064a9fecb9452729aca490a1f9f76a849`; Development Standard Gate #300 / run `33234676182` SUCCESS; merged to FAIR CRM `main` as `c40bd8518eca2561640c00de0537d8e0e0e85fbb`. The authenticated security screen uses the existing FAIR CRM/Core bridge, forwards one Bearer access token, and keeps current-password verification, PasswordPolicy, hashing and mutation in Core. On successful Core change, prior Core sessions are revoked, the FAIR CRM bridge clears the refresh cookie, frontend local auth state is cleared and the user returns to `/login`. Failed validation/current-password/policy responses leave the existing local session intact. No backend, schema, product RBAC or credential-authority change was introduced.
 
-- [ ] Existing manual create flow remains visible and functional.
-- [ ] Existing manual password entry remains supported.
-- [ ] Add optional "send setup link" mode only after Core setup-token capability is available.
-- [ ] Protected role assignment rules remain backend-authoritative.
-- [ ] No UI change creates a new Super Admin assignment path.
+### Phase CRM-UI-04 — Super Admin user-management compatibility — DONE 2026-08-29
 
-**DONE when:** both commercial self-service and existing operator-driven account provisioning work through the same Core identity authority.
+- [x] Existing manual create flow remains visible and functional.
+- [x] Existing manual password entry remains supported.
+- [x] Confirm optional "send setup link" mode remains deferred until an approved Core setup-token capability exists; no unsupported UI path is added.
+- [x] Protected role assignment rules remain backend-authoritative.
+- [x] No UI change creates a new Super Admin assignment path.
+
+**Evidence:** FAIR CRM PR #91 final head `a5730c767ff1274484bfe9ddaa55c948cf4d73f9`; Development Standard Gate #303 / run `33235256876` SUCCESS; merged to FAIR CRM `main` as `b6cd8b8c9baebee54d83334f4c5669ea1564106e`. The test-only compatibility certification locks `/admin/system/users` to the existing administrator-supplied password flow and Core `POST /api/v1/organizations/{organization_id}/users/manual` transport. FAIR CRM passes the password through unchanged, role selection remains required for normal users, and Super Admin controls remain conditional on Core's `can_manage_super_admin` response. No production runtime, backend, schema, permission-catalog or UI behavior changed.
+
+**DONE:** both commercial self-service and existing operator-driven account provisioning use the same Core identity authority without adding product-local credential ownership.
 
 ---
 
 ## 8. Cross-repository acceptance / E2E checklist
 
-- [ ] New organization signup creates exactly one organization and first OrganizationAdmin.
-- [ ] Pre-activation user cannot log in.
-- [ ] Pre-activation organization cannot use normal FAIR CRM APIs.
-- [ ] Activation link permits password set once.
-- [ ] Reusing activation link fails safely.
-- [ ] Activated user can log in through FAIR CRM bridge.
-- [ ] Forgot-password response is indistinguishable for unknown email.
-- [ ] Reset link works once and expires.
-- [ ] Old password fails after reset.
-- [ ] Prior refresh/session credentials fail after reset/change.
-- [ ] New password succeeds after reset/change.
-- [ ] Existing Super Admin manual organization creation still works.
-- [ ] Existing Super Admin manual user creation still works.
-- [ ] Organization A activation/user identifiers cannot mutate/read Organization B state.
-- [ ] Permanent ABC ↔ XYZ tenant-isolation system gate remains green.
-- [ ] FAIR CRM unit/integration tests green.
-- [ ] Development Standard Gate green on final head.
-- [ ] Prod-Path E2E green on final head where applicable.
-- [ ] Core CI green on final Core head.
+- [x] New organization signup creates exactly one organization and first OrganizationAdmin — CORE-05 atomic bootstrap/role evidence plus the final product lifecycle signup path.
+- [x] Pre-activation user cannot log in — CORE-05/06 inactive/passwordless activation contract.
+- [x] Pre-activation organization cannot use normal FAIR CRM APIs — pending organizations are non-operational and cannot produce an authenticated normal-user product session before activation.
+- [x] Activation link permits password set once — CORE-06 plus final PR #92 lifecycle certification.
+- [x] Reusing activation link fails safely — final PR #92 requires replay rejection.
+- [x] Activated user can log in through FAIR CRM bridge — final PR #92 lifecycle certification.
+- [x] Forgot-password response is indistinguishable for unknown email — CORE-07 enumeration-resistance tests and unchanged thin FAIR CRM transport.
+- [x] Reset link works once and expires — CORE-07 expiry/single-use tests; final PR #92 also requires replay rejection through the product path.
+- [x] Old password fails after reset — final PR #92 lifecycle certification.
+- [x] Prior refresh/session credentials fail after reset/change — final PR #92 rejects both prior access and refresh credentials after each credential mutation.
+- [x] New password succeeds after reset/change — final PR #92 logs in successfully after both reset and password change.
+- [x] Existing Super Admin manual organization creation still works — CORE-05/09 regression coverage preserves the existing Platform Super Admin organization path.
+- [x] Existing Super Admin manual user creation still works — CORE-09 plus CRM-UI-04 compatibility certification.
+- [x] Organization A activation/user identifiers cannot mutate/read Organization B state — CORE-09 explicit cross-organization activation-token certification.
+- [x] Permanent ABC ↔ XYZ tenant-isolation system baseline remains intact — P0.1 remains certified; subsequent P0.2 changes do not weaken tenant ownership, and final Prod-Path #151 passed the existing production-shaped regression suite with 35 passed / 0 failed.
+- [x] FAIR CRM unit/integration coverage green across the delivered backend/UI phases; the final certification PR is CI-only and adds no runtime code.
+- [x] Development Standard Gate green on final FAIR CRM certification head — #306 / run `33246959509` on `d498245c4c60bd36b9b3a8aeffed4912e198123b`.
+- [x] Prod-Path E2E green on final FAIR CRM certification head — #151 / run `33246959442` on the same head; existing gate 35 passed / 0 failed plus P0.2 lifecycle PASS.
+- [x] Core CI green on final Core head — Core CI #84 / run `33228476878` on `5c5113320ea910e80555e6cc526ed0c708580cd4` with 381 tests passed.
+
+### Final cross-repository certification evidence
+
+FAIR CRM PR #92 final head `d498245c4c60bd36b9b3a8aeffed4912e198123b` passed Development Standard Gate #306 / run `33246959509` and Prod-Path E2E #151 / run `33246959442`, then merged to `main` as `2f9f159a303ffd055121547de51dcaefc15fc6a9`. The lifecycle gate runs FAIR CRM against real KYROX Core `main` at `f6cbf417410d9148c225242790103d8cc9541f21` and exercises Core's real SMTP adapter with an in-process memory-only SMTP sink. It certifies signup → activation → login → forgot/reset → login → password change → login; activation/reset replay is rejected and pre-credential-change access/refresh credentials are rejected after reset/change. The script keeps raw action tokens, generated passwords and session material process-local and does not persist or upload them. PR #92 changes CI/test/governance only; no FAIR CRM/Core application runtime or schema behavior changed.
 
 ---
 
@@ -477,33 +486,36 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] Implementation direction explicitly approved on 2026-08-27.
 - [x] Canonical cross-repository tracker created in `kyrox-platform`.
 - [x] ADR-0006 records OL-01/02/03/04 onboarding sub-decisions as approved for implementation while remaining lifecycle decisions stay open.
-- [x] `ecosystem/SAAS_ROADMAP.md` marks this onboarding/credential workstream active and removes stale wording that password reset/email verification are merely deferred candidates.
-- [x] `ecosystem/STATUS.md` points to this tracker and records current phase.
-- [x] `projects/kyrox-core/ROADMAP.md` promotes the approved generic identity work as active product-driven Core work.
-- [x] `projects/fair-crm/ROADMAP.md` promotes the bridge/UI portion as active FAIR CRM work.
+- [x] `ecosystem/SAAS_ROADMAP.md` promotes the onboarding/credential workstream without treating still-gated suspension/closure decisions as approved.
+- [x] `ecosystem/STATUS.md` points to this tracker and records completion of the approved onboarding slice.
+- [x] `projects/kyrox-core/ROADMAP.md` records the approved generic identity work as delivered product-driven Core work.
+- [x] `projects/fair-crm/ROADMAP.md` records the bridge/UI/certification portion as DONE.
 - [x] Platform planning/governance PR #12 merged as `c0b9d543437a95343032929364c331a1504fc9b0` after Platform Standards CI #35 / run `33091623466` succeeded on final head `20ac02c263071f06753298c657c165c2bdabb73f`.
-- [x] CORE-01 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #12 merge.
-- [x] CORE-02 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #13 merge.
-- [x] CORE-03 implementation evidence is synchronized into this tracker after Core PR #14 merge; reset/change endpoint integration was later completed by CORE-07/08.
-- [x] CORE-04 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #15 merge; token-bearing activation/reset integration remained deferred to the owning later phases.
-- [x] CORE-05 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #16 merge; activation completion remained explicitly owned by CORE-06 until delivery.
-- [x] CORE-06 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #17 merge; forgot/reset remained explicitly owned by CORE-07 until delivery.
-- [x] CORE-07 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #18 merge; authenticated password change remained explicitly owned by CORE-08 until delivery.
-- [x] CORE-08 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #19 merge; CORE-09 remained explicitly owned by the final Core certification phase until delivery.
-- [x] CORE-09 final Core security/adversarial certification evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #20 merge; the canonical resume point moved to FAIR CRM backend integration.
-- [x] CRM-BE-01 and CRM-BE-02 FAIR CRM backend bridge evidence is synchronized after PRs #86 and #87; the canonical resume point moved to CRM-UI-01.
-- [x] CRM-UI-01 FAIR CRM public auth UI evidence is synchronized after PR #88; the canonical resume point moved to CRM-UI-02.
-- [x] CRM-UI-02 FAIR CRM login-integration evidence is synchronized after PR #89; the canonical resume point moves to CRM-UI-03.
-- [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
-- [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
+- [x] CORE-01 implementation evidence synchronized after Core PR #12.
+- [x] CORE-02 implementation evidence synchronized after Core PR #13.
+- [x] CORE-03 implementation evidence synchronized after Core PR #14.
+- [x] CORE-04 implementation evidence synchronized after Core PR #15.
+- [x] CORE-05 implementation evidence synchronized after Core PR #16.
+- [x] CORE-06 implementation evidence synchronized after Core PR #17.
+- [x] CORE-07 implementation evidence synchronized after Core PR #18.
+- [x] CORE-08 implementation evidence synchronized after Core PR #19.
+- [x] CORE-09 final Core security/adversarial certification evidence synchronized after Core PR #20.
+- [x] CRM-BE-01 and CRM-BE-02 FAIR CRM backend bridge evidence synchronized after PRs #86/#87.
+- [x] CRM-UI-01 public auth UI evidence synchronized after PR #88.
+- [x] CRM-UI-02 login-integration evidence synchronized after PR #89.
+- [x] CRM-UI-03 security-settings evidence synchronized after PR #90.
+- [x] CRM-UI-04 Super Admin compatibility evidence synchronized after PR #91.
+- [x] Final cross-repository lifecycle certification evidence synchronized after FAIR CRM PR #92.
+- [x] FAIR CRM project status, roadmap, changelog and ecosystem status are synchronized by the final Platform closure change.
+- [x] Final completion preserves the explicit boundary that ADR-0006 suspension/closure/retention/billing lifecycle decisions remain open.
 
 ---
 
-## 10. Execution order / current position
+## 10. Execution order / final position
 
-The implementation order is intentionally dependency-first:
+The implementation order was intentionally dependency-first:
 
-1. **Platform planning/governance record** — this tracker + ADR/roadmap/status synchronization.
+1. **Platform planning/governance record** — tracker + ADR/roadmap/status synchronization. ✅
 2. **CORE-01** PasswordPolicy. ✅
 3. **CORE-02** one-time identity action tokens. ✅
 4. **CORE-03** user-wide session/credential invalidation. ✅
@@ -517,39 +529,30 @@ The implementation order is intentionally dependency-first:
 12. **CRM-BE-02** FAIR CRM auth bridge routes. ✅
 13. **CRM-UI-01** public auth routes. ✅
 14. **CRM-UI-02** login integration. ✅
-15. **CRM-UI-03** security settings. ← NEXT
-16. **CRM-UI-04** Super Admin compatibility UI/certification.
-17. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
-18. **Platform final documentation closure.**
+15. **CRM-UI-03** security settings. ✅
+16. **CRM-UI-04** Super Admin compatibility certification. ✅
+17. **Cross-repository identity lifecycle / production-shaped gates.** ✅
+18. **Platform final documentation closure.** ✅
 
-### Current position
+### Final position
 
-- [x] Architecture/runtime audit completed.
-- [x] User approved the identity/onboarding implementation direction.
-- [x] Implementation tracker and synchronized roadmap/ADR/status documentation merged through Platform PR #12.
-- [x] Platform Standards CI #35 / run `33091623466` succeeded on PR #12 final head.
-- [x] CORE-01 PasswordPolicy delivered through Core PR #12; CI #57 / run `33093204127` SUCCESS; merge `323cfa750a0c731bd15de11dfbd19e83858dc1f7`.
-- [x] CORE-02 one-time identity action tokens delivered through Core PR #13; final head `fe3408a52667f0d8f3c6bb3de8bdedc3b9745809`; CI #60 / run `33097948707` SUCCESS with 348 tests passed; merge `f1f88e7f12a7d38d3f917d05840c8562f6f0287a`.
-- [x] CORE-03 user-wide session/credential invalidation delivered through Core PR #14; final head `1b2dff1c5613405273ebe673210d522977e8d0c5`; CI #63 / run `33102833407` SUCCESS with 352 tests passed; merge `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4`.
-- [x] CORE-04 Core identity notifications / production email delivered through Core PR #15; final head `271124290858e0447af5ac90adc58436ccadf5a4`; CI #64 / run `33109701064` SUCCESS; merge `09617df8a17aa2ac744b5b1a9692d6418bbf0899`; migration head `20260827_0064_platform_identity_notifications`.
-- [x] CORE-05 public signup + atomic bootstrap delivered through Core PR #16; final head `052a2ac16c906bf854ea79917550fae04b44a2d1`; CI #70 / run `33119509255` SUCCESS with 363 tests passed; merge `8e406c9e286f494026edfe460ab7ca4156c2fe4d`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [x] CORE-06 activation delivered through Core PR #17; final head `f4649d86863eccbfaf531d29353cfa2048041cdc`; CI #71 / run `33198567633` SUCCESS with 368 tests passed; merge `66dfdc373724509450e9ee2aed45f876b2935d1a`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [x] CORE-07 forgot/reset password delivered through Core PR #18; final head `7529f82689b970991314e9621feaa0341fe3f0a2`; CI #78 / run `33227509093` SUCCESS with 375 tests passed; merge `db5695d2c77a8e2dbe29dd19f4a3cb22d770e7d8`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [x] CORE-08 authenticated password change delivered through Core PR #19; final head `ecb77f8918e9a156b686eb902c50692e92de3339`; CI #82 / run `33228044257` SUCCESS with 379 tests passed; merge `75905f02bdf621419f9b6560fff5809e56150ad5`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [x] CORE-09 Core security/adversarial certification delivered through Core PR #20; final head `5c5113320ea910e80555e6cc526ed0c708580cd4`; CI #84 / run `33228476878` SUCCESS with 381 tests passed; merge `f6cbf417410d9148c225242790103d8cc9541f21`; no runtime/schema change and migration head remains `20260827_0064_platform_identity_notifications`.
-- [x] CRM-BE-01 Core client extensions delivered through FAIR CRM PR #86; final head `934a7d1843bf5f036f06225393af2af4aa3810ce`; Development Standard Gate #278 SUCCESS with 1767 tests passed; Prod-Path E2E #148 SUCCESS; merge `a83fa9a11dd603962cbb29510a0b11748f886d9f`.
-- [x] CRM-BE-02 auth bridge routes delivered through FAIR CRM PR #87; final head `1068a5a94d26799e6b63565e18cf6a61e5699a72`; Development Standard Gate #280 / run `33230174837` SUCCESS with 1781 tests passed; Prod-Path E2E #149 / run `33230174828` SUCCESS; merge `0c8a0004f5067dbd8041898a1fe590026c22d736`.
-- [x] CRM-UI-01 public auth routes delivered through FAIR CRM PR #88; final head `3111660795f001d37e899e40abda9d880a3aa1d5`; Development Standard Gate #291 / run `33233202519` SUCCESS with 56 frontend test files / 307 tests passed, production build and zero-new UI-governance gate green; merge `9265dbb24b13e404c8a18cdd21918948a3997b06`. No separate Prod-Path E2E run was triggered for this frontend-only phase.
-- [x] CRM-UI-02 login integration delivered through FAIR CRM PR #89; final head `298dcadbd88df5580db97d7c5f0305570e2c3e26`; Development Standard Gate #293 / run `33233998091` SUCCESS with 57 frontend test files / 308 tests passed, production build and zero-new UI-governance gate green; merge `874c24b1c4c56ea7087e3acd6ea0708117e3a1a3`. No separate Prod-Path E2E run was triggered for this frontend-only phase.
-- [ ] **NEXT RUNTIME PHASE: CRM-UI-03 — FAIR CRM security settings.**
+- [x] Architecture/runtime audit completed and implementation direction approved.
+- [x] CORE-01 through CORE-09 delivered and Core final-head CI green.
+- [x] CRM-BE-01/02 delivered through FAIR CRM PRs #86/#87 with applicable Development Standard and Prod-Path evidence.
+- [x] CRM-UI-01/02 delivered through FAIR CRM PRs #88/#89 with frontend test/build/UI-governance evidence.
+- [x] CRM-UI-03 delivered through FAIR CRM PR #90; final head `d99dcec064a9fecb9452729aca490a1f9f76a849`; Development Standard Gate #300 / run `33234676182` SUCCESS; merge `c40bd8518eca2561640c00de0537d8e0e0e85fbb`.
+- [x] CRM-UI-04 compatibility certification delivered through FAIR CRM PR #91; final head `a5730c767ff1274484bfe9ddaa55c948cf4d73f9`; Development Standard Gate #303 / run `33235256876` SUCCESS; merge `b6cd8b8c9baebee54d83334f4c5669ea1564106e`.
+- [x] Final cross-repository lifecycle certification delivered through FAIR CRM PR #92; final head `d498245c4c60bd36b9b3a8aeffed4912e198123b`; Development Standard Gate #306 / run `33246959509` SUCCESS; Prod-Path E2E #151 / run `33246959442` SUCCESS; merge `2f9f159a303ffd055121547de51dcaefc15fc6a9`.
+- [x] The approved identity/onboarding workstream is complete. There is no next runtime phase in this tracker.
+- [x] Remaining ADR-0006 suspension/closure/retention/export/billing decisions remain separately gated and are not silently promoted by this completion.
 
-When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
+Future work must start from the canonical roadmap/ADR decision appropriate to its own scope rather than reopening this completed tracker by implication.
 
 ---
 
 ## 11. Definition of DONE for this workstream
 
-This tracker may be marked DONE only when all of the following are true:
+This tracker is DONE because all of the following are true:
 
 - public signup is production-safe and atomic,
 - first user is the existing OrganizationAdmin role and no Owner role was introduced,
@@ -566,4 +569,4 @@ This tracker may be marked DONE only when all of the following are true:
 - required Core, FAIR CRM Development Standard and production-shaped gates are green on the final implementation heads,
 - canonical Platform/Core/FAIR CRM status/roadmap/changelog documents are synchronized.
 
-Until then, this file remains **ACTIVE** and the first unchecked execution item is the canonical resume point.
+**Workstream boundary:** this DONE status is limited to the approved P0.2 identity/onboarding slice. It does not close the still-gated suspension, closure, retention/export, billing/entitlement or other lifecycle-policy decisions in ADR-0006.
