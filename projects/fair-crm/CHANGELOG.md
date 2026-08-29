@@ -363,7 +363,7 @@ Canon: [CONSTITUTION.md](CONSTITUTION.md) Activity Timeline; [todo/TODO_MODULE_D
 - Activity source enum with default `manual` (system/automation values ready for future integrations)
 - Optional contact linkage with same-customer validation
 - Follow-up date support
-- Customer detail page **Aktiviteler** tab (add/edit dialog)
+- Customer detail page **Aktiviteler** tab with timeline list and add/edit dialog
 - Turkish frontend labels for types, status, and source
 - Backend tests and live API verification script
 
