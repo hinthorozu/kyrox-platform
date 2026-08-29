@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-08 — Authenticated password change`  
+**Current resume point:** `CORE-09 — Core security/adversarial certification`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -85,7 +85,7 @@ The rest of ADR-0006 remains separately gated. This file does **not** accept or 
 - [x] Account activation/set-password API exists — delivered by Core PR #17 as `POST /api/v1/auth/activation/complete` using the generic one-time token primitive from CORE-02.
 - [x] Forgot-password endpoint exists — delivered by Core PR #18 as `POST /api/v1/auth/password/forgot` with enumeration-safe public behavior and resend throttling/cooldown.
 - [x] Reset-password endpoint exists — delivered by Core PR #18 as `POST /api/v1/auth/password/reset` with one-time token consumption, shared PasswordPolicy and credential invalidation.
-- [ ] Authenticated self-service change-password endpoint exists.
+- [x] Authenticated self-service change-password endpoint exists — delivered by Core PR #19 as `POST /api/v1/auth/password/change` with current-password verification and credential invalidation.
 - [x] One-time identity security token persistence exists — delivered by Core PR #13 on 2026-08-27.
 - [x] Central reusable password policy exists — delivered by Core PR #12 on 2026-08-27.
 
@@ -213,7 +213,7 @@ Final endpoint names may be adjusted only if Core's existing API conventions req
 | Complete activation | `POST /api/v1/auth/activation/complete` | One-time token | DELIVERED CORE-06 |
 | Forgot password | `POST /api/v1/auth/password/forgot` | Public | DELIVERED CORE-07 |
 | Reset password | `POST /api/v1/auth/password/reset` | One-time token | DELIVERED CORE-07 |
-| Change password | `POST /api/v1/auth/password/change` | Access token + current password | TODO |
+| Change password | `POST /api/v1/auth/password/change` | Access token + current password | DELIVERED CORE-08 |
 | Existing manual user create | `/organizations/{organization_id}/users/manual` | RBAC | KEEP |
 
 Public forgot-password responses must not reveal whether the email exists.
@@ -262,11 +262,11 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] Make protected access-token validation fail closed unless JWT `sid` resolves to an active server-side session owned by JWT `sub`.
 - [x] Tests cover target-user scoping, idempotent revoke-all, inconsistent active-token/revoked-session cleanup, revoked/deleted session rejection and `sid`/`sub` ownership mismatch.
 - [x] CORE-07 password reset invokes the reusable primitive and proves prior credentials fail after reset — delivered by Core PR #18.
-- [ ] CORE-08 password change must invoke the reusable primitive and prove prior credentials fail after change.
+- [x] CORE-08 password change invokes the reusable primitive and proves prior access/refresh credentials fail after change — delivered by Core PR #19.
 
-**Evidence:** Core PR #14 final head `1b2dff1c5613405273ebe673210d522977e8d0c5`; Core CI #63 / run `33102833407` SUCCESS with `352 passed`; merged to Core `main` as `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4`. No schema migration was required. CORE-07 later integrated this primitive into password reset through Core PR #18 and its final-head credential-invalidation tests. The workflow's `Run lint` step again explicitly skipped Ruff because Ruff is not installed, so no separate Ruff lint execution is claimed.
+**Evidence:** Core PR #14 final head `1b2dff1c5613405273ebe673210d522977e8d0c5`; Core CI #63 / run `33102833407` SUCCESS with `352 passed`; merged to Core `main` as `63889c6c29a73b3224cdda0da21ed2bcc9ac9cb4`. No schema migration was required. CORE-07 integrated this primitive into password reset through Core PR #18; CORE-08 integrated it into authenticated password change through Core PR #19 and proves both the submitting access-token session and prior refresh token fail after successful change. The workflow's `Run lint` step again explicitly skipped Ruff because Ruff is not installed, so no separate Ruff lint execution is claimed.
 
-**DONE:** Core has deterministic server-side user-wide session/refresh invalidation, stale access tokens fail immediately when their server-side session is revoked/deleted/mismatched, and the reset path now invokes this primitive. Change-password endpoint integration remains explicitly owned by CORE-08.
+**DONE:** Core has deterministic server-side user-wide session/refresh invalidation, stale access tokens fail immediately when their server-side session is revoked/deleted/mismatched, and both password-reset and authenticated password-change paths invoke the same reusable primitive.
 
 ### Phase CORE-04 — Core identity notifications / production email — DONE 2026-08-27
 
@@ -335,18 +335,20 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **DONE:** password recovery is production-safe at the Core contract level, user enumeration is suppressed, reset tokens are expiring/single-use/superseded, secrets remain out of persistence/logging/audit, and successful reset invalidates prior credentials before the user logs in again.
 
-### Phase CORE-08 — Authenticated password change
+### Phase CORE-08 — Authenticated password change — DONE 2026-08-29
 
-- [ ] Add authenticated change-password API/use case.
-- [ ] Require current password verification.
-- [ ] Enforce PasswordPolicy on new password.
-- [ ] Define/reject same-password change.
-- [ ] Update hash atomically.
-- [ ] Revoke prior sessions/credentials using the CORE-03 primitive.
-- [ ] Add audit evidence.
-- [ ] Tests cover wrong current password and session/credential invalidation.
+- [x] Add authenticated change-password API/use case.
+- [x] Require current password verification.
+- [x] Enforce PasswordPolicy on new password.
+- [x] Define/reject same-password change.
+- [x] Update hash atomically.
+- [x] Revoke prior sessions/credentials using the CORE-03 primitive.
+- [x] Add audit evidence.
+- [x] Tests cover wrong current password and session/credential invalidation.
 
-**DONE when:** authenticated users can securely change their own password through Core without admin intervention.
+**Evidence:** Core PR #19 final head `ecb77f8918e9a156b686eb902c50692e92de3339`; Core CI #82 / run `33228044257` SUCCESS with `379 passed, 120 warnings in 20.96s`; merged to Core `main` as `75905f02bdf621419f9b6560fff5809e56150ad5`. No schema migration was required; migration head remains `20260827_0064_platform_identity_notifications`. Authenticated `POST /api/v1/auth/password/change` requires a valid Bearer access token whose `sid` resolves to an active server-side session owned by `sub`, verifies the current password before mutation, applies the shared `PasswordPolicy`, rejects same-password/no-op changes, replaces the Argon2id credential, invokes CORE-03 to revoke all live sessions/refresh credentials including the submitting session, writes secret-safe `identity.password.change` audit evidence and issues no replacement session. Tests prove missing authentication fails, wrong-current/weak/same-password attempts do not revoke the existing session, successful change makes the old access and refresh credentials fail, rejects the old password, permits fresh login with the new password, keeps plaintext current/new passwords out of response/log/audit evidence, and rolls back the password hash plus session/refresh revocations if a later audit write fails. The workflow's `Run lint` step reported success but explicitly printed `ruff not installed, skipping`, so separate Ruff lint execution is not claimed.
+
+**DONE:** authenticated users can securely change their own password through Core, failed validation attempts do not disturb the existing authenticated session, and a successful change deterministically invalidates all prior credentials before a new login.
 
 ### Phase CORE-09 — Core security/adversarial certification
 
@@ -471,11 +473,12 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] Platform planning/governance PR #12 merged as `c0b9d543437a95343032929364c331a1504fc9b0` after Platform Standards CI #35 / run `33091623466` succeeded on final head `20ac02c263071f06753298c657c165c2bdabb73f`.
 - [x] CORE-01 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #12 merge.
 - [x] CORE-02 implementation evidence is synchronized into the tracker, Core project status/changelog and ecosystem status after Core PR #13 merge.
-- [x] CORE-03 implementation evidence is synchronized into this tracker after Core PR #14 merge; reset/change integration remained explicitly owned by CORE-07/08.
+- [x] CORE-03 implementation evidence is synchronized into this tracker after Core PR #14 merge; reset/change endpoint integration was later completed by CORE-07/08.
 - [x] CORE-04 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #15 merge; token-bearing activation/reset integration remained deferred to the owning later phases.
 - [x] CORE-05 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #16 merge; activation completion remained explicitly owned by CORE-06 until delivery.
 - [x] CORE-06 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #17 merge; forgot/reset remained explicitly owned by CORE-07 until delivery.
-- [x] CORE-07 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #18 merge; authenticated password change remains explicitly owned by CORE-08.
+- [x] CORE-07 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #18 merge; authenticated password change remained explicitly owned by CORE-08 until delivery.
+- [x] CORE-08 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #19 merge; CORE-09 final Core security/adversarial certification remains the next phase.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -493,8 +496,8 @@ The implementation order is intentionally dependency-first:
 6. **CORE-05** atomic public signup/bootstrap. ✅
 7. **CORE-06** activation. ✅
 8. **CORE-07** forgot/reset password. ✅
-9. **CORE-08** authenticated password change. ← NEXT
-10. **CORE-09** adversarial/security certification and final Core CI.
+9. **CORE-08** authenticated password change. ✅
+10. **CORE-09** adversarial/security certification and final Core CI. ← NEXT
 11. **CRM-BE-01/02** FAIR CRM Core client + auth bridge.
 12. **CRM-UI-01/02/03/04** public auth/security/Super Admin compatibility UI.
 13. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
@@ -513,7 +516,8 @@ The implementation order is intentionally dependency-first:
 - [x] CORE-05 public signup + atomic bootstrap delivered through Core PR #16; final head `052a2ac16c906bf854ea79917550fae04b44a2d1`; CI #70 / run `33119509255` SUCCESS with 363 tests passed; merge `8e406c9e286f494026edfe460ab7ca4156c2fe4d`; migration head remains `20260827_0064_platform_identity_notifications`.
 - [x] CORE-06 activation delivered through Core PR #17; final head `f4649d86863eccbfaf531d29353cfa2048041cdc`; CI #71 / run `33198567633` SUCCESS with 368 tests passed; merge `66dfdc373724509450e9ee2aed45f876b2935d1a`; migration head remains `20260827_0064_platform_identity_notifications`.
 - [x] CORE-07 forgot/reset password delivered through Core PR #18; final head `7529f82689b970991314e9621feaa0341fe3f0a2`; CI #78 / run `33227509093` SUCCESS with 375 tests passed; merge `db5695d2c77a8e2dbe29dd19f4a3cb22d770e7d8`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [ ] **NEXT RUNTIME PHASE: CORE-08 — Authenticated password change.**
+- [x] CORE-08 authenticated password change delivered through Core PR #19; final head `ecb77f8918e9a156b686eb902c50692e92de3339`; CI #82 / run `33228044257` SUCCESS with 379 tests passed; merge `75905f02bdf621419f9b6560fff5809e56150ad5`; migration head remains `20260827_0064_platform_identity_notifications`.
+- [ ] **NEXT RUNTIME PHASE: CORE-09 — Core security/adversarial certification.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 

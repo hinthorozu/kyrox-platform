@@ -55,12 +55,13 @@ Execution status:
 
 - **CORE-01 — PasswordPolicy: DONE 2026-08-27.** Shared 12–255 character password policy is used by current password-setting paths while existing Super Admin/manual provisioning remains available.
 - **CORE-02 — One-time identity action tokens: DONE 2026-08-27.** Hash-only, expiring, single-use activation/reset token primitives with supersession and replay protection are delivered.
-- **CORE-03 — Session / credential invalidation: DONE 2026-08-27.** Reusable user-wide session/refresh revocation and server-side access-token session enforcement are delivered; password-reset integration is now delivered in CORE-07 while change-password integration remains CORE-08.
+- **CORE-03 — Session / credential invalidation: DONE 2026-08-27.** Reusable user-wide session/refresh revocation and server-side access-token session enforcement are delivered; both password-reset and authenticated password-change integrations now invoke the primitive.
 - **CORE-04 — Core identity notifications / production email: DONE 2026-08-27.** Platform-scoped identity notifications, Core-owned SMTP delivery, identity templates, platform idempotency and redacted delivery logging are delivered independently of FAIR CRM tenant mail configuration.
 - **CORE-05 — Public signup + atomic bootstrap: DONE 2026-08-28.** Controlled public signup now creates a non-operational pending organization, inactive first user with no password hash, existing protected `OrganizationAdmin` assignment, hash-only activation token and platform identity notification atomically while preserving existing operator provisioning.
 - **CORE-06 — Activation: DONE 2026-08-28.** Single-use activation/set-password now consumes the account-activation token atomically, applies the shared password policy and Argon2id hashing, activates the pending user and organization together, records secret-safe audit evidence and returns the user to login without issuing an implicit session.
 - **CORE-07 — Forgot/reset password: DONE 2026-08-29.** Enumeration-resistant recovery, reset-token delivery/consumption, resend cooldown/supersession, shared password policy, user-wide session/credential invalidation and secret-safe audit evidence are delivered.
-- **CORE-08 — Authenticated password change: NEXT.** Add current-password verification, new-password policy/no-op rejection, atomic credential replacement, session/credential invalidation and audit evidence.
+- **CORE-08 — Authenticated password change: DONE 2026-08-29.** Authenticated users can verify the current credential, apply the shared password policy to a distinct new password, atomically replace the hash, revoke all prior sessions/refresh credentials and emit secret-safe audit evidence without an implicit replacement session.
+- **CORE-09 — Core security/adversarial certification: NEXT.** Re-run and extend adversarial coverage on the final Core identity implementation head before FAIR CRM bridge work begins.
 - Later phases follow the order in the canonical tracker; do not skip dependencies or mark them delivered early.
 
 ## Future platform candidates
