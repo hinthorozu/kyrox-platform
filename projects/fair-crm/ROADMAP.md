@@ -22,15 +22,16 @@ The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns
 
 Canonical implementation tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 
-Core dependencies, the FAIR CRM backend bridge and the public auth screens are now delivered. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. CRM-UI-01 added `/signup`, `/activate`, `/forgot-password` and `/reset-password` through FAIR CRM PR #88. None of these phases introduced product-local password policy, credential storage or action-token authority.
+Core dependencies, the FAIR CRM backend bridge, public auth screens and login integration are now delivered. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. CRM-UI-01 added `/signup`, `/activate`, `/forgot-password` and `/reset-password` through FAIR CRM PR #88. CRM-UI-02 added account-creation and password-recovery entry links to the existing login screen through FAIR CRM PR #89 while preserving login behavior. None of these phases introduced product-local password policy, credential storage or action-token authority.
 
 Current execution order:
 
 - **CRM-BE-01 — Core auth client extensions: DONE**
 - **CRM-BE-02 — thin auth bridge routes: DONE**
 - **CRM-UI-01 — public signup / activation / recovery screens: DONE**
-- **CRM-UI-02 — login account-creation / password-recovery integration: NEXT**
-- authenticated account/security password-change UI follows login integration,
+- **CRM-UI-02 — login account-creation / password-recovery integration: DONE**
+- **CRM-UI-03 — authenticated account/security password-change UI: NEXT**
+- **CRM-UI-04 — Super Admin user-management compatibility certification: follows CRM-UI-03**
 - preserve the existing Super Admin `/admin/system/users` manual user-creation flow,
 - preserve admin-supplied manual passwords,
 - optionally add a second "send setup link" user-creation mode only after the Core setup-token contract exists,
