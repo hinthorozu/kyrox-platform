@@ -16,7 +16,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Area | Status |
 |------|--------|
 | Tenant isolation / SaaS P0.1 | **Certified DONE (2026-08-26)** — TI-01 through TI-09 complete across API, repository, worker, export/download and Platform Super Admin boundaries |
-| Identity / SaaS onboarding P0.2 | **Public auth UI DONE through CRM-UI-01 (2026-08-29)** — Core identity runtime, thin FAIR CRM bridge and public signup/activation/forgot/reset screens are delivered; login integration/security UI remain next |
+| Identity / SaaS onboarding P0.2 | **Login integration DONE through CRM-UI-02 (2026-08-29)** — Core identity runtime, thin FAIR CRM bridge, public signup/activation/forgot/reset screens and login entry links are delivered; authenticated security/password-change UI remains next |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -32,7 +32,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 ## Current quality / documentation focus
 
-1. **P0.2 login/security UI** — integrate account-creation/password-recovery links into login, then add authenticated password-change security settings over the delivered thin backend bridge; Core remains credential authority.
+1. **P0.2 security UI** — add authenticated `/settings/security` password-change UX over the delivered thin backend bridge; successful credential change must clear local/session state and return to login while Core remains credential authority.
 2. **Permission-controlled UI consistency** — navigation, routes, CRUD actions and non-CRUD actions must reflect effective permissions and the shared [CRUD & UI Authorization Standard](../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md). Backend authorization remains authoritative.
 3. **Implementation-to-documentation reconciliation** — quotation and cost-catalog work advanced beyond the old July documentation snapshot. Record what is actually implemented; do not recreate features from stale planning notes.
 4. **Status/roadmap discipline** — delivered truth stays here, future/active work stays in [ROADMAP.md](ROADMAP.md), detailed history stays in [CHANGELOG.md](CHANGELOG.md).
@@ -45,15 +45,15 @@ P0.1 is complete. FAIR CRM now has deterministic fail-closed evidence for direct
 
 The detailed evidence record is [P0.1 Tenant Isolation Certification](backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md).
 
-## P0.2 identity/onboarding bridge and public UI
+## P0.2 identity/onboarding bridge and UI
 
-CRM-BE-01, CRM-BE-02 and CRM-UI-01 are delivered. FAIR CRM consumes the approved public Core identity contract through its existing auth integration boundary and now exposes public `/signup`, `/activate`, `/forgot-password` and `/reset-password` user flows without introducing product-local password policy, password hashing, action-token persistence or credential mutation.
+CRM-BE-01, CRM-BE-02, CRM-UI-01 and CRM-UI-02 are delivered. FAIR CRM consumes the approved public Core identity contract through its existing auth integration boundary and exposes public `/signup`, `/activate`, `/forgot-password` and `/reset-password` user flows without introducing product-local password policy, password hashing, action-token persistence or credential mutation.
 
-Public auth pages run outside the authenticated product-session provider. Activation/reset action tokens are captured from the link, removed from the browser address bar after initial render and passed only to the FAIR CRM bridge/Core. The pages reuse the existing shared UI system and passed the zero-new UI-governance regression gate. Existing login/refresh/logout behavior and the Platform Super Admin manual user-management flow remain supported. FAIR CRM PR #88 delivered CRM-UI-01; the next implementation phase is login integration.
+Public auth pages run outside the authenticated product-session provider. Activation/reset action tokens are captured from the link, removed from the browser address bar after initial render and passed only to the FAIR CRM bridge/Core. The login screen now links to `/forgot-password` and `/signup` while preserving the existing login submit/authentication behavior. Activation success still returns to login and does not issue an implicit product session. FAIR CRM PR #88 delivered CRM-UI-01 and PR #89 delivered CRM-UI-02; the next implementation phase is authenticated security/password-change settings.
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 backend bridge and CRM-UI-01 required no FAIR CRM schema migration.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 backend bridge, CRM-UI-01 and CRM-UI-02 required no FAIR CRM schema migration.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 
