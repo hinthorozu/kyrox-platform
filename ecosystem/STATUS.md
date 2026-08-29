@@ -8,7 +8,7 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
 | Implementation repos | `kyrox-core`, `fair-crm` |
-| Last ecosystem sync | **2026-08-28** |
+| Last ecosystem sync | **2026-08-29** |
 
 ## SaaS readiness
 
@@ -20,7 +20,7 @@ The active cross-repository SaaS-readiness phase is **P0.2 — Organization life
 
 The approved workstream keeps `Organization` as the account boundary, keeps the direct single-organization user model, uses the existing `OrganizationAdmin` role for the first normal admin, preserves existing Platform Super Admin organization/user creation, and adds controlled public commercial signup plus Core-owned activation/set-password, password reset/change, one-time identity action tokens, shared password policy, session/credential invalidation and production identity-email capability. FAIR CRM remains a thin consumer of public Core identity APIs and will own the bridge/UI only.
 
-The canonical implementation/resume checklist is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). CORE-01 through CORE-04 are delivered through Core PRs #12–#15. CORE-05 public signup + atomic bootstrap is delivered through Core PR #16. **CORE-06 — activation/set-password is delivered through Core PR #17**, merged to Core `main` as `66dfdc373724509450e9ee2aed45f876b2935d1a` after final Core CI passed. Core now exposes `POST /api/v1/auth/activation/complete`; a valid one-time account-activation token plus a password satisfying the shared Core policy atomically sets the Argon2id credential, activates the previously inactive first user and `PENDING_ACTIVATION` organization, consumes the token and records secret-safe audit evidence. Weak passwords do not burn a valid token, replay/expired/wrong-purpose tokens fail through one generic public error contract, and activation does not issue an implicit session. **The next runtime phase is CORE-07 — Forgot/reset password.**
+The canonical implementation/resume checklist is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). CORE-01 through CORE-04 are delivered through Core PRs #12–#15. CORE-05 public signup + atomic bootstrap is delivered through Core PR #16. CORE-06 activation/set-password is delivered through Core PR #17. **CORE-07 — forgot/reset password is delivered through Core PR #18**, merged to Core `main` as `db5695d2c77a8e2dbe29dd19f4a3cb22d770e7d8` after final Core CI passed. Core now exposes `POST /api/v1/auth/password/forgot` with an enumeration-safe public response, recovery eligibility controls, deterministic resend cooldown and reset-token supersession, plus `POST /api/v1/auth/password/reset` with the shared password policy, atomic single-use reset-token consumption, Argon2id credential replacement, CORE-03 user-wide session/refresh invalidation and secret-safe audit evidence. Raw reset tokens/token-bearing URLs remain absent from persistence/logging and are materialized only for delivery. **The next runtime phase is CORE-08 — Authenticated password change.**
 
 The P0.2 lifecycle audit also confirmed that Core now uses direct `identity_users.organization_id` ownership for normal users; legacy memberships and membership invitations were removed by migration `20260817_0057_remove_memberships`. Organization suspend/delete remain SYSTEM-scope, Core delete remains a Core soft-delete, and the domain reactivation transition currently lacks a public organization API endpoint.
 
@@ -33,9 +33,9 @@ Active planning: [projects/kyrox-core/ROADMAP.md](../projects/kyrox-core/ROADMAP
 
 Core remains the reusable, product-agnostic SaaS backend. Identity, authentication, authorization, organization/user/role governance and shared platform services are implemented in Core. Products consume Core through public HTTP contracts; product domain logic does not belong in Core.
 
-The P0.2 identity/onboarding primitives are an approved, product-driven Core workstream. CORE-01 established the shared 12–255 character password policy. CORE-02 added generic hash-only, expiring, single-use identity action tokens. CORE-03 added user-wide session/refresh invalidation plus server-side access-token session enforcement. CORE-04 added platform-scoped Core identity notifications, production SMTP delivery capability and generic identity templates. CORE-05 added controlled public signup with atomic pending-organization/first-admin bootstrap and secure token handoff. CORE-06 added single-use activation/set-password with atomic user/organization activation and secret-safe audit evidence. **CORE-07 forgot/reset password is next.**
+The P0.2 identity/onboarding primitives are an approved, product-driven Core workstream. CORE-01 established the shared 12–255 character password policy. CORE-02 added generic hash-only, expiring, single-use identity action tokens. CORE-03 added user-wide session/refresh invalidation plus server-side access-token session enforcement. CORE-04 added platform-scoped Core identity notifications, production SMTP delivery capability and generic identity templates. CORE-05 added controlled public signup with atomic pending-organization/first-admin bootstrap and secure token handoff. CORE-06 added single-use activation/set-password with atomic user/organization activation and secret-safe audit evidence. CORE-07 added enumeration-safe forgot/reset password, reset-token cooldown/supersession, shared password policy enforcement, credential replacement, user-wide session/refresh invalidation and secret-safe reset audit evidence. **CORE-08 authenticated password change is next.**
 
-The Core migration head remains `20260827_0064_platform_identity_notifications`; CORE-05 and CORE-06 required no schema migration. Current-state details belong in the Core project status, not in permanent standards or roadmap documents.
+The Core migration head remains `20260827_0064_platform_identity_notifications`; CORE-05, CORE-06 and CORE-07 required no schema migration. Current-state details belong in the Core project status, not in permanent standards or roadmap documents.
 
 ## FAIR CRM
 
@@ -44,7 +44,7 @@ Current work queue: [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.
 
 FAIR CRM remains the active M4 product. Existing implementation includes the CRM foundations, data integration/import flows, operations/automation flows, mail delivery flows, quotation-related capabilities and a cost-catalog implementation. Its P0.1 tenant-isolation certification is complete; ongoing product work remains subject to the same SaaS-impact, authorization-scope and tenant-isolation delivery rules.
 
-The FAIR CRM portion of the approved P0.2 workstream is the thin Core auth bridge plus signup/activation/forgot/reset/change-password UI and preservation of the existing Super Admin manual user-management flow. It starts after the dependent Core contracts are implemented and certified.
+The FAIR CRM portion of the approved P0.2 workstream is the thin Core auth bridge plus signup/activation/forgot/reset/change-password UI and preservation of the existing Super Admin manual user-management flow. It starts after the remaining dependent Core change-password contract and Core security/adversarial certification are implemented and certified.
 
 The current documentation/quality focus is to keep Platform as the single human/AI knowledge source and to ensure permission-controlled UI surfaces consistently follow effective permissions and the shared CRUD/UI authorization standard.
 
