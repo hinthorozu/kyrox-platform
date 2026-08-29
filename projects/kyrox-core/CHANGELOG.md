@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- P0.2 CORE-09 final Core security/adversarial certification; delivered through Core PR #20
+- Final-head adversarial coverage proving public signup cannot self-assert Super Admin or inject a privileged role and that an Organization A activation token cannot mutate Organization B user/organization/token state
+- CORE-09 full-suite certification re-running activation/reset replay, expiry, wrong-purpose, token persistence/redaction, enumeration/cooldown, bootstrap rollback/role invariants, credential invalidation, manual Super Admin provisioning and login/refresh/logout regressions on one final Core head
 - P0.2 CORE-08 authenticated self-service password change; delivered through Core PR #19
 - Authenticated `POST /api/v1/auth/password/change` requiring a valid access token backed by an active server-side session, current-password verification, shared Core `PasswordPolicy`, same-password/no-op rejection and Argon2id credential replacement
 - Secret-safe `identity.password.change` audit evidence plus CORE-03 user-wide session/refresh invalidation, including the session used to perform the change; no replacement session is issued implicitly
@@ -42,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- The Core portion of P0.2 identity/onboarding is final-head security-certified; subsequent work moves to the FAIR CRM thin bridge/UI while Core remains the sole identity authority
 - Successful authenticated password change now verifies the current credential, requires a distinct policy-compliant new password, replaces the Core-owned Argon2id credential atomically and invokes CORE-03 so the current and all other prior sessions/refresh credentials fail immediately; the endpoint requires login again rather than issuing a new session
 - Successful password reset now replaces the Core-owned Argon2id credential, consumes the one-time reset token and invokes CORE-03 user-wide session/refresh invalidation so previously issued credentials fail immediately; reset does not issue an implicit session
 - Forgot-password behavior now suppresses account existence/eligibility differences behind one public response and applies deterministic resend cooldown/token supersession without persisting raw reset tokens or token-bearing URLs

@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CORE-09 — Core security/adversarial certification`  
+**Current resume point:** `CRM-BE-01 — Core client extensions`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -350,25 +350,27 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **DONE:** authenticated users can securely change their own password through Core, failed validation attempts do not disturb the existing authenticated session, and a successful change deterministically invalidates all prior credentials before a new login.
 
-### Phase CORE-09 — Core security/adversarial certification
+### Phase CORE-09 — Core security/adversarial certification — DONE 2026-08-29
 
-- [ ] Activation replay test.
-- [ ] Reset replay test.
-- [ ] Expired token tests.
-- [ ] Wrong-purpose token tests.
-- [ ] Raw-token-not-persisted test.
-- [ ] Secret/token log redaction test.
-- [ ] User enumeration test.
-- [ ] Rate-limit/cooldown tests where deterministic.
-- [ ] Bootstrap rollback/atomicity tests.
-- [ ] OrganizationAdmin bootstrap role test.
-- [ ] Normal user cannot self-assert Super Admin during signup.
-- [ ] Cross-organization isolation tests for any new organization/user identifier path.
-- [ ] Existing Super Admin manual create regression test.
-- [ ] Existing login/refresh/logout regression tests.
-- [ ] Core final-head CI green.
+- [x] Activation replay test.
+- [x] Reset replay test.
+- [x] Expired token tests.
+- [x] Wrong-purpose token tests.
+- [x] Raw-token-not-persisted test.
+- [x] Secret/token log redaction test.
+- [x] User enumeration test.
+- [x] Rate-limit/cooldown tests where deterministic.
+- [x] Bootstrap rollback/atomicity tests.
+- [x] OrganizationAdmin bootstrap role test.
+- [x] Normal user cannot self-assert Super Admin during signup.
+- [x] Cross-organization isolation tests for any new organization/user identifier path.
+- [x] Existing Super Admin manual create regression test.
+- [x] Existing login/refresh/logout regression tests.
+- [x] Core final-head CI green.
 
-**DONE when:** final implementation head passes the Core gate with no unresolved security or tenant-isolation regression.
+**Evidence:** Core PR #20 final head `5c5113320ea910e80555e6cc526ed0c708580cd4`; Core CI #84 / run `33228476878` SUCCESS with `381 passed, 120 warnings in 20.99s`; merged to Core `main` as `f6cbf417410d9148c225242790103d8cc9541f21`. No runtime code or schema migration changed in CORE-09; the migration head remains `20260827_0064_platform_identity_notifications`. The final-head suite re-ran activation/reset replay, expiry and wrong-purpose coverage, raw-token non-persistence and secret/log redaction, forgot-password enumeration resistance and deterministic cooldown/supersession, signup bootstrap rollback/atomicity and protected `OrganizationAdmin` assignment, reset/change credential invalidation, existing Platform Super Admin/manual provisioning regressions and login/refresh/logout regressions. CORE-09 also added explicit adversarial API tests proving signup payloads cannot self-assert `is_super_admin` or inject a privileged role and that an Organization A activation token activates only its bound user/organization while leaving Organization B pending/passwordless with its token untouched. The workflow's `Run lint` step again explicitly printed `ruff not installed, skipping`, so separate Ruff lint execution is not claimed.
+
+**DONE:** the completed Core onboarding/credential implementation passes the final Core gate with no unresolved security or tenant-isolation regression in the certified surface. Core implementation is handed off to the FAIR CRM thin bridge/UI phases.
 
 ---
 
@@ -478,7 +480,8 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] CORE-05 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #16 merge; activation completion remained explicitly owned by CORE-06 until delivery.
 - [x] CORE-06 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #17 merge; forgot/reset remained explicitly owned by CORE-07 until delivery.
 - [x] CORE-07 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #18 merge; authenticated password change remained explicitly owned by CORE-08 until delivery.
-- [x] CORE-08 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #19 merge; CORE-09 final Core security/adversarial certification remains the next phase.
+- [x] CORE-08 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #19 merge; CORE-09 remained explicitly owned by the final Core certification phase until delivery.
+- [x] CORE-09 final Core security/adversarial certification evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #20 merge; the canonical resume point now moves to FAIR CRM backend integration.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -497,11 +500,12 @@ The implementation order is intentionally dependency-first:
 7. **CORE-06** activation. ✅
 8. **CORE-07** forgot/reset password. ✅
 9. **CORE-08** authenticated password change. ✅
-10. **CORE-09** adversarial/security certification and final Core CI. ← NEXT
-11. **CRM-BE-01/02** FAIR CRM Core client + auth bridge.
-12. **CRM-UI-01/02/03/04** public auth/security/Super Admin compatibility UI.
-13. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
-14. **Platform final documentation closure.**
+10. **CORE-09** adversarial/security certification and final Core CI. ✅
+11. **CRM-BE-01** FAIR CRM Core client extensions. ← NEXT
+12. **CRM-BE-02** FAIR CRM auth bridge routes.
+13. **CRM-UI-01/02/03/04** public auth/security/Super Admin compatibility UI.
+14. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
+15. **Platform final documentation closure.**
 
 ### Current position
 
@@ -517,7 +521,8 @@ The implementation order is intentionally dependency-first:
 - [x] CORE-06 activation delivered through Core PR #17; final head `f4649d86863eccbfaf531d29353cfa2048041cdc`; CI #71 / run `33198567633` SUCCESS with 368 tests passed; merge `66dfdc373724509450e9ee2aed45f876b2935d1a`; migration head remains `20260827_0064_platform_identity_notifications`.
 - [x] CORE-07 forgot/reset password delivered through Core PR #18; final head `7529f82689b970991314e9621feaa0341fe3f0a2`; CI #78 / run `33227509093` SUCCESS with 375 tests passed; merge `db5695d2c77a8e2dbe29dd19f4a3cb22d770e7d8`; migration head remains `20260827_0064_platform_identity_notifications`.
 - [x] CORE-08 authenticated password change delivered through Core PR #19; final head `ecb77f8918e9a156b686eb902c50692e92de3339`; CI #82 / run `33228044257` SUCCESS with 379 tests passed; merge `75905f02bdf621419f9b6560fff5809e56150ad5`; migration head remains `20260827_0064_platform_identity_notifications`.
-- [ ] **NEXT RUNTIME PHASE: CORE-09 — Core security/adversarial certification.**
+- [x] CORE-09 Core security/adversarial certification delivered through Core PR #20; final head `5c5113320ea910e80555e6cc526ed0c708580cd4`; CI #84 / run `33228476878` SUCCESS with 381 tests passed; merge `f6cbf417410d9148c225242790103d8cc9541f21`; no runtime/schema change and migration head remains `20260827_0064_platform_identity_notifications`.
+- [ ] **NEXT RUNTIME PHASE: CRM-BE-01 — FAIR CRM Core client extensions.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 
