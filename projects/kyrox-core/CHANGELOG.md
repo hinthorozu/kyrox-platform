@@ -99,6 +99,7 @@ Sprint **0.4.0** — Platform Services (Audit Query, Settings, Background Jobs, 
 **Notifications Platform (Sprint 0.4.4)**
 
 - Domain: `Notification`, channel/status lifecycle, channel and settings reader ports
+- Application: send, get status, dispatch (job handler use case); settings-aware suppression
 - Infrastructure: `platform_notifications` table; `EmailLogStubAdapter` (PII-safe logs)
 - Jobs integration: `core.platform.notification.dispatch` via `JobEnqueuePort`
 - Settings integration: org keys `kyrox.notifications.email_enabled`, `kyrox.notifications.email_from` via reader port
@@ -112,8 +113,9 @@ Sprint **0.4.0** — Platform Services (Audit Query, Settings, Background Jobs, 
 
 ### Changed
 
-- `app/api/v1/router.py` includes organization and membership routers
-- Identity permission codes expected for org-scoped routes: `identity.organizations.*`, `identity.memberships.*`
+- `app/api/v1/router.py` includes audit, settings, jobs, and notifications routers
+- `app/main.py` registers job handler registry and notification platform bootstrap
+- Identity `PermissionModule` enum extended: `jobs`, `notifications`
 
 ### Notes
 
@@ -148,13 +150,13 @@ Sprint **0.3.5** — Organization & Membership Platform (full vertical slice).
 - `SecureInviteTokenService` for invite token hashing
 - Legacy `persistence/models.py` re-exports canonical models
 
-**Migrations (Alembic `20260701_0014`–`20260701_0016`)
+**Migrations (Alembic `20260701_0014`–`20260701_0016`)**
 
 - `identity_memberships`: `invited_at`, `joined_at` lifecycle columns with backfill
 - `identity_membership_invites` table for pending invite persistence
 - Schema cleanup: fail-fast guard for orphaned `role_id`, drop legacy `role_id` column, indexes
 
-**API & DI (`api/organization/`, `api/membership/`)
+**API & DI (`api/organization/`, `api/membership/`)**
 
 - `POST /api/v1/organizations` — create organization (JWT; owner from token `sub`)
 - `GET|PATCH /api/v1/organizations/{id}` — read/update (Bearer + `X-Organization-Id` + permission)
