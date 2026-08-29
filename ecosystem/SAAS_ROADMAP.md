@@ -82,13 +82,13 @@ Do not invent an `Owner` role or self-service destructive organization authority
 
 Current authorization governance classifies organization suspend/delete capabilities as SYSTEM scope. Self-service organization suspension/deletion, ownership transfer or similar lifecycle changes require an explicit product/platform decision and the corresponding permission/role/ADR changes before implementation.
 
-The P0.2 onboarding decision approved on 2026-08-27 adds controlled public commercial signup and first-user `OrganizationAdmin` bootstrap while preserving the existing Super Admin organization/user creation paths. It does not change destructive organization authority.
+The P0.2 onboarding decision approved on 2026-08-27 added controlled public commercial signup and first-user `OrganizationAdmin` bootstrap while preserving the existing Super Admin organization/user creation paths. The approved identity/onboarding slice was completed and production-shaped certified on 2026-08-29. It does not change destructive organization authority.
 
 ### 1.8 No speculative platform build-out
 
 During FAIR CRM M4, Core remains frozen against speculative platform development. Core changes are limited to bug/security/reliability work and reusable platform needs proven by a real product requirement. A future-looking capability does not become active merely because it appears in this roadmap.
 
-The P0.2 identity/onboarding workstream is an explicitly approved product-driven reusable Core need and is therefore active rather than speculative.
+The P0.2 identity/onboarding workstream was an explicitly approved product-driven reusable Core need and has been delivered; this completion does not activate any still-gated lifecycle, billing or offboarding scope.
 
 ---
 
@@ -177,11 +177,11 @@ Test list/detail/create/update/delete/archive/restore/execute/export/download pa
 - Background/internal jobs carry validated organization context or have an explicit system-wide design.
 - No unresolved cross-organization leak exists.
 
-**Exit status:** **SATISFIED**. P0.1 is completed history. P0.2 is the active canonical priority; its identity/onboarding subset is now explicitly promoted for implementation while the remaining lifecycle decisions stay gated.
+**Exit status:** **SATISFIED**. P0.1 is completed history. The approved P0.2 identity/onboarding slice is also complete; the remaining P0.2 lifecycle/offboarding decisions stay gated and must be activated explicitly before implementation.
 
 ---
 
-## P0.2 — Organization lifecycle contract and SaaS onboarding — PARTIALLY ACTIVE
+## P0.2 — Organization lifecycle contract and SaaS onboarding — ONBOARDING SLICE DONE / LIFECYCLE GATED
 
 ### Goal
 
@@ -189,42 +189,44 @@ Define and implement the commercial account lifecycle without duplicating Core o
 
 ### Verified current baseline
 
-Core currently owns the canonical organization and user-management primitives, but the identity model is **not membership-based anymore**:
+Core owns the canonical organization and user-management primitives, and the identity model is **not membership-based anymore**:
 
 - migration `20260817_0057_remove_memberships` replaced memberships with direct `identity_users.organization_id` ownership for normal users,
 - `identity_memberships` and `identity_membership_invites` were removed,
 - a normal user currently belongs to one organization; Platform Super Admin has no organization assignment,
-- existing `POST /organizations` is Platform Super Admin only,
-- direct organization user creation and role assignment exist,
+- existing `POST /organizations` remains Platform Super Admin only,
+- direct organization user creation and role assignment remain available,
 - the legacy `Owner` role was removed; `OrganizationAdmin` is the protected organization-level administrative role,
-- public signup, activation/set-password, forgot/reset password and authenticated self-service password change do not yet exist,
-- Core notifications/jobs/settings exist but the current Core email channel is a log stub,
-- organization suspend/delete are SYSTEM-scope operations,
-- Core organization delete is a Core soft-delete and does not itself delete product data in FAIR CRM,
+- public signup, activation/set-password, forgot/reset password and authenticated self-service password change are delivered,
+- Core has production-capable Core-owned SMTP identity email while retaining the redacted log adapter for development/test,
+- FAIR CRM exposes the thin identity bridge plus public signup/activation/recovery UI, login integration and authenticated security/password-change UI,
+- existing Super Admin manual organization/user creation and administrator-supplied password provisioning remain supported,
+- organization suspend/delete remain SYSTEM-scope operations,
+- Core organization delete remains a Core soft-delete and does not itself delete product data in FAIR CRM,
 - the organization domain supports reactivation but the current public organization API does not expose a reactivation endpoint.
 
-### Approved onboarding/credential subset — ACTIVE 2026-08-27
+### Approved onboarding/credential subset — DONE 2026-08-29
 
-ADR-0006 remains Proposed overall, but OL-01 through OL-04 are approved for implementation:
+ADR-0006 remains Proposed overall, but OL-01 through OL-04 were approved for implementation and the approved identity/onboarding slice is complete:
 
-- keep existing Platform Super Admin organization creation,
-- add controlled public commercial organization signup alongside it,
-- use existing `OrganizationAdmin` as the first normal admin; no Owner role,
-- keep the direct single-organization user model,
-- add generic Core account activation/set-password rather than restoring membership invitations,
-- add Core-owned forgot/reset/change password,
-- add reusable one-time hashed identity action tokens,
-- add shared Core password policy,
-- add user-wide credential/session invalidation,
-- add production Core identity-email capability,
-- keep existing Super Admin manual user creation and admin-supplied password mode,
-- keep FAIR CRM as a thin Core API consumer for identity.
+- existing Platform Super Admin organization creation is preserved,
+- controlled public commercial organization signup is available alongside it,
+- the first normal admin uses the existing protected `OrganizationAdmin` role; no Owner role was introduced,
+- the direct single-organization user model remains,
+- Core owns account activation/set-password rather than restoring membership invitations,
+- Core owns forgot/reset/change password,
+- reusable hash-only one-time identity action tokens are implemented,
+- shared Core password policy is implemented,
+- user-wide credential/session invalidation is implemented,
+- production Core identity-email capability is implemented,
+- existing Super Admin manual user creation and admin-supplied password mode are preserved,
+- FAIR CRM remains a thin Core API consumer for identity.
 
-The canonical phase-by-phase checklist and resume point are in [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
+The canonical completion record is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). Core phases CORE-01 through CORE-09, FAIR CRM CRM-BE-01/02 and CRM-UI-01 through CRM-UI-04 are complete. Final production-shaped certification is FAIR CRM PR #92, final head `d498245c4c60bd36b9b3a8aeffed4912e198123b`, with Development Standard Gate #306 and Prod-Path E2E #151 green before merge `2f9f159a303ffd055121547de51dcaefc15fc6a9`. The lifecycle certification exercises signup → activation → login → forgot/reset → login → password change → login against real Core/FAIR CRM services and Core SMTP delivery, including one-time token replay rejection and prior session/refresh invalidation.
 
 ### Remaining lifecycle decisions — STILL GATED
 
-The following remain unresolved and are **not** authorized by the onboarding approval:
+The following remain unresolved and are **not** authorized by the completed onboarding slice:
 
 - self-service suspension/closure authority,
 - reactivation API policy,
@@ -240,12 +242,12 @@ The following remain unresolved and are **not** authorized by the onboarding app
 - Do not add a new Owner role.
 - Do not create a second identity/password/token store in FAIR CRM.
 - Do not remove or silently replace existing Super Admin manual organization/user creation.
-- Do not infer approval for suspend/delete/closure/retention from the onboarding approval.
+- Do not infer approval for suspend/delete/closure/retention from the completed onboarding slice.
 - All new organization/user identifiers remain subject to the permanent tenant-isolation system regression gate.
 
 ### Exit criteria
 
-P0.2 is complete only when both the active onboarding/credential workstream and the still-open lifecycle/offboarding decisions are production-safe and verified. The full organization lifecycle must be explicit, permission-scoped, auditable and backed by public Core contracts plus product orchestration where necessary.
+The **identity/onboarding subset is satisfied**. Full P0.2 remains open until the still-gated lifecycle/offboarding decisions are explicitly approved, implemented and production-safe. The full organization lifecycle must be explicit, permission-scoped, auditable and backed by public Core contracts plus product orchestration where necessary.
 
 ---
 
@@ -269,7 +271,7 @@ Raise the production runtime from single-product operational safety to commercia
 
 ### Identity/security scope
 
-Account activation, password reset/change, one-time identity tokens, credential/session invalidation and identity-email delivery are now active through the approved P0.2 onboarding workstream and are tracked there rather than as deferred candidates.
+Account activation, password reset/change, one-time identity tokens, credential/session invalidation and identity-email delivery were delivered and production-shaped certified through the completed P0.2 identity/onboarding slice; they are no longer deferred candidates.
 
 Remaining deferred candidates include MFA, richer login rate limiting/account lockout beyond the controls required for P0.2 recovery endpoints, refresh-token reuse detection and richer device/session management. They become active only through an explicit requirement/planning decision.
 
@@ -376,7 +378,7 @@ Subscription events deterministically produce the approved organization commerci
 
 Provide a clear first-run flow using approved Core capabilities instead of duplicating platform identity/organization logic.
 
-The identity/account-entry portion is now being implemented under P0.2. Product first-value onboarding remains here:
+The identity/account-entry portion was delivered and production-shaped certified under the P0.2 identity/onboarding slice. Product first-value onboarding remains here:
 
 ```text
 public organization signup
