@@ -2,7 +2,7 @@
 
 **Status:** ACTIVE — implementation approved for the onboarding/credential workstream  
 **Started:** 2026-08-27  
-**Current resume point:** `CRM-UI-02 — Login integration`  
+**Current resume point:** `CRM-UI-03 — Security settings`  
 **Canonical owner:** `kyrox-platform` for architecture/tracking, `kyrox-core` for generic identity runtime, `fair-crm` for product bridge/UI  
 **Parent:** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) / [KYROX SaaS Readiness Roadmap](SAAS_ROADMAP.md)
 
@@ -419,12 +419,14 @@ Public forgot-password responses must not reveal whether the email exists.
 
 **Evidence:** FAIR CRM PR #88 final head `3111660795f001d37e899e40abda9d880a3aa1d5`; Development Standard Gate #291 / run `33233202519` SUCCESS with `56 passed` frontend test files / `307 passed` tests, production Vite build success and zero-new UI-governance violations; merged to FAIR CRM `main` as `9265dbb24b13e404c8a18cdd21918948a3997b06`. Public auth screens render outside the authenticated `AuthProvider`/product app, use the existing shared `PageShell`/Card/Banner/FormField UI system, consume only the thin FAIR CRM auth bridge, and do not introduce product-local credential authority. Activation/reset tokens are captured from the link, removed from the browser address bar after initial render, never displayed/logged and passed only to the bridge/Core. No FAIR CRM schema migration was required. This frontend-only change did not produce a separate Prod-Path E2E run, so no Prod-Path result is claimed for CRM-UI-01.
 
-### Phase CRM-UI-02 — Login integration
+### Phase CRM-UI-02 — Login integration — DONE 2026-08-29
 
-- [ ] Add "Şifremi unuttum" link to login.
-- [ ] Add "Hesap oluştur" link to login.
-- [ ] Preserve current login behavior.
-- [ ] Activation success returns user to login rather than silently issuing an implicit product session unless implementation evidence justifies a different accepted choice.
+- [x] Add "Şifremi unuttum" link to login.
+- [x] Add "Hesap oluştur" link to login.
+- [x] Preserve current login behavior.
+- [x] Activation success returns user to login rather than silently issuing an implicit product session unless implementation evidence justifies a different accepted choice.
+
+**Evidence:** FAIR CRM PR #89 final head `298dcadbd88df5580db97d7c5f0305570e2c3e26`; Development Standard Gate #293 / run `33233998091` SUCCESS with `57` frontend test files / `308` tests passed, production Vite build success and zero-new UI-governance regression PASS; merged to FAIR CRM `main` as `874c24b1c4c56ea7087e3acd6ea0708117e3a1a3`. The existing login authentication/session flow is unchanged; the login screen now exposes the already-delivered public `/forgot-password` and `/signup` routes. Focused rendering coverage locks the link labels/targets. CRM-UI-01 already established that activation success returns explicitly to login with no implicit product session, and CRM-UI-02 preserves that behavior. No backend or FAIR CRM schema migration changed. This frontend-only phase did not produce a separate Prod-Path E2E run, so no Prod-Path result is claimed for CRM-UI-02.
 
 ### Phase CRM-UI-03 — Security settings
 
@@ -490,7 +492,8 @@ Public forgot-password responses must not reveal whether the email exists.
 - [x] CORE-08 implementation evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #19 merge; CORE-09 remained explicitly owned by the final Core certification phase until delivery.
 - [x] CORE-09 final Core security/adversarial certification evidence is synchronized into the tracker, Core project status/changelog/roadmap and ecosystem status after Core PR #20 merge; the canonical resume point moved to FAIR CRM backend integration.
 - [x] CRM-BE-01 and CRM-BE-02 FAIR CRM backend bridge evidence is synchronized after PRs #86 and #87; the canonical resume point moved to CRM-UI-01.
-- [x] CRM-UI-01 FAIR CRM public auth UI evidence is synchronized after PR #88; the canonical resume point moves to CRM-UI-02.
+- [x] CRM-UI-01 FAIR CRM public auth UI evidence is synchronized after PR #88; the canonical resume point moved to CRM-UI-02.
+- [x] CRM-UI-02 FAIR CRM login-integration evidence is synchronized after PR #89; the canonical resume point moves to CRM-UI-03.
 - [ ] Project status/changelog documents continue to be updated as each later implementation PR actually merges; planning checkboxes must not claim runtime delivery before code exists.
 - [ ] Final completion synchronizes Core/FAIR CRM/Platform status, roadmaps and changelogs.
 
@@ -513,10 +516,11 @@ The implementation order is intentionally dependency-first:
 11. **CRM-BE-01** FAIR CRM Core client extensions. ✅
 12. **CRM-BE-02** FAIR CRM auth bridge routes. ✅
 13. **CRM-UI-01** public auth routes. ✅
-14. **CRM-UI-02** login integration. ← NEXT
-15. **CRM-UI-03/04** security settings and Super Admin compatibility UI.
-16. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
-17. **Platform final documentation closure.**
+14. **CRM-UI-02** login integration. ✅
+15. **CRM-UI-03** security settings. ← NEXT
+16. **CRM-UI-04** Super Admin compatibility UI/certification.
+17. **Cross-repository E2E / tenant-isolation / production-shaped gates.**
+18. **Platform final documentation closure.**
 
 ### Current position
 
@@ -536,7 +540,8 @@ The implementation order is intentionally dependency-first:
 - [x] CRM-BE-01 Core client extensions delivered through FAIR CRM PR #86; final head `934a7d1843bf5f036f06225393af2af4aa3810ce`; Development Standard Gate #278 SUCCESS with 1767 tests passed; Prod-Path E2E #148 SUCCESS; merge `a83fa9a11dd603962cbb29510a0b11748f886d9f`.
 - [x] CRM-BE-02 auth bridge routes delivered through FAIR CRM PR #87; final head `1068a5a94d26799e6b63565e18cf6a61e5699a72`; Development Standard Gate #280 / run `33230174837` SUCCESS with 1781 tests passed; Prod-Path E2E #149 / run `33230174828` SUCCESS; merge `0c8a0004f5067dbd8041898a1fe590026c22d736`.
 - [x] CRM-UI-01 public auth routes delivered through FAIR CRM PR #88; final head `3111660795f001d37e899e40abda9d880a3aa1d5`; Development Standard Gate #291 / run `33233202519` SUCCESS with 56 frontend test files / 307 tests passed, production build and zero-new UI-governance gate green; merge `9265dbb24b13e404c8a18cdd21918948a3997b06`. No separate Prod-Path E2E run was triggered for this frontend-only phase.
-- [ ] **NEXT RUNTIME PHASE: CRM-UI-02 — FAIR CRM login integration.**
+- [x] CRM-UI-02 login integration delivered through FAIR CRM PR #89; final head `298dcadbd88df5580db97d7c5f0305570e2c3e26`; Development Standard Gate #293 / run `33233998091` SUCCESS with 57 frontend test files / 308 tests passed, production build and zero-new UI-governance gate green; merge `874c24b1c4c56ea7087e3acd6ea0708117e3a1a3`. No separate Prod-Path E2E run was triggered for this frontend-only phase.
+- [ ] **NEXT RUNTIME PHASE: CRM-UI-03 — FAIR CRM security settings.**
 
 When work resumes, start from the first unchecked item in this section unless a failed CI/security finding requires returning to an earlier phase.
 
