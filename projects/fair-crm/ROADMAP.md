@@ -22,15 +22,15 @@ The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns
 
 Canonical implementation tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 
-Core dependencies and the FAIR CRM backend bridge are now delivered. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. Neither phase introduced product-local password policy, credential storage or action-token authority.
+Core dependencies, the FAIR CRM backend bridge and the public auth screens are now delivered. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. CRM-UI-01 added `/signup`, `/activate`, `/forgot-password` and `/reset-password` through FAIR CRM PR #88. None of these phases introduced product-local password policy, credential storage or action-token authority.
 
 Current execution order:
 
 - **CRM-BE-01 — Core auth client extensions: DONE**
 - **CRM-BE-02 — thin auth bridge routes: DONE**
-- **CRM-UI-01 — public signup / activation / recovery screens: NEXT**
-- authenticated account/security password-change UI follows the public auth screens,
-- login links for account creation and password recovery must be added with the public auth UI,
+- **CRM-UI-01 — public signup / activation / recovery screens: DONE**
+- **CRM-UI-02 — login account-creation / password-recovery integration: NEXT**
+- authenticated account/security password-change UI follows login integration,
 - preserve the existing Super Admin `/admin/system/users` manual user-creation flow,
 - preserve admin-supplied manual passwords,
 - optionally add a second "send setup link" user-creation mode only after the Core setup-token contract exists,
