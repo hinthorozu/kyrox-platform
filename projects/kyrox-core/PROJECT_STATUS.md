@@ -4,22 +4,22 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-08-28** |
+| Last verified | **2026-08-29** |
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
 | Migration head in `main` | `20260827_0064_platform_identity_notifications` |
-| Main CI | Core CI #71 green on P0.2 CORE-06 final head before merge |
+| Main CI | Core CI #78 green on P0.2 CORE-07 final head before merge |
 
 ## Current capability state
 
 | Area | Status |
 |------|--------|
-| Identity and authentication | Implemented baseline plus shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation, server-side access-token session enforcement, controlled public signup/atomic first-user bootstrap and single-use activation/set-password |
+| Identity and authentication | Implemented baseline plus shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation, server-side access-token session enforcement, controlled public signup/atomic first-user bootstrap, single-use activation/set-password and Core-owned forgot/reset password |
 | Authorization | Implemented; normal organization permission checks require an `active` organization, so `pending_activation` organizations are non-operational until successful activation |
-| Organization and user management | Implemented; normal users use direct single-organization ownership via `identity_users.organization_id`; public signup creates a `pending_activation` organization and inactive first `OrganizationAdmin`, and CORE-06 activates both after a valid one-time token/password-set flow while existing Platform Super Admin organization/user creation remains available |
+| Organization and user management | Implemented; normal users use direct single-organization ownership via `identity_users.organization_id`; public signup creates a `pending_activation` organization and inactive first `OrganizationAdmin`, CORE-06 activates both after a valid one-time token/password-set flow, and existing Platform Super Admin organization/user creation remains available |
 | Membership / invitation model | Removed by migration `20260817_0057_remove_memberships`; not a current Core capability |
 | Roles and permissions | Implemented and evolved through later migrations |
-| Audit | Implemented; activation completion records secret-safe `identity.activation.complete` organization audit evidence |
+| Audit | Implemented; activation completion records secret-safe `identity.activation.complete` evidence and successful password reset records secret-safe `identity.password.reset` evidence |
 | Settings | Implemented |
 | Background jobs | Implemented; internal jobs support platform scope where required by Core identity notifications while existing organization-scoped behavior remains available |
 | Notifications | Implemented baseline plus Core-owned production SMTP identity-email capability, platform-scoped recipients/jobs, identity templates, deterministic platform idempotency and redacted delivery logging |
@@ -52,7 +52,7 @@ CORE-03 delivered:
 - protected access-token fail-closed validation requiring JWT `sid` to resolve to an active server-side session owned by JWT `sub`,
 - tests proving revoked/deleted sessions and `sid`/`sub` ownership mismatch return 401.
 
-Password reset and authenticated password change do not exist yet and must invoke the CORE-03 primitive in CORE-07/CORE-08 with endpoint-level stale-credential tests.
+CORE-07 now invokes the CORE-03 primitive after password reset and proves the prior refresh/session credentials fail. Authenticated password change still does not exist and must invoke the same primitive in CORE-08 with endpoint-level stale-credential tests.
 
 **CORE-04 — Core identity notifications / production email is delivered.** Core PR #15 merged to `main` as `09617df8a17aa2ac744b5b1a9692d6418bbf0899` after CI #64 / run `33109701064` succeeded on final head `271124290858e0447af5ac90adc58436ccadf5a4`.
 
@@ -99,7 +99,21 @@ CORE-06 delivered:
 
 CORE-06 required no schema migration; the migration head remains `20260827_0064_platform_identity_notifications`. CI #71 reported `368 passed, 120 warnings in 18.32s`. The workflow's `Run lint` step reported success but explicitly printed `ruff not installed, skipping`, so separate Ruff lint execution is not claimed.
 
-The next runtime phase is **CORE-07 — Forgot/reset password**. It must add enumeration-resistant recovery, password-reset token delivery/consumption, shared PasswordPolicy enforcement, CORE-03 session/credential invalidation and secret-safe audit evidence. Authenticated change-password remains CORE-08.
+**CORE-07 — Forgot/reset password is delivered.** Core PR #18 merged to `main` as `db5695d2c77a8e2dbe29dd19f4a3cb22d770e7d8` after CI #78 / run `33227509093` succeeded on final head `7529f82689b970991314e9621feaa0341fe3f0a2` with 375 tests passing.
+
+CORE-07 delivered:
+
+- public `POST /api/v1/auth/password/forgot` with an indistinguishable 202 response for recoverable and unknown/non-eligible accounts,
+- active-account recovery eligibility, a deterministic 60-second database-backed resend cooldown and same-user reset-token supersession after cooldown,
+- a configurable 60-minute reset-token TTL using the existing hash-only reconstructable identity action-token persistence and delivery-time URL materialization,
+- public `POST /api/v1/auth/password/reset` with shared `PasswordPolicy` validation before token consumption, atomic single-use reset-token consumption and Argon2id credential replacement,
+- CORE-03 user-wide session/refresh invalidation after a successful credential reset so prior refresh/session credentials fail immediately,
+- secret-safe `identity.password.reset` audit evidence without raw token, password or password hash,
+- tests covering enumeration resistance, cooldown/supersession, raw-token non-persistence/log redaction, weak-password non-consumption, expired/replayed/invalid reset tokens, inactive/deleted account policy, prior credential invalidation, old-password rejection and successful login only with the new password.
+
+CORE-07 required no schema migration; the migration head remains `20260827_0064_platform_identity_notifications`. CI #78 reported `375 passed, 120 warnings in 19.07s`. The workflow's `Run lint` step again explicitly printed `ruff not installed, skipping`, so separate Ruff lint execution is not claimed.
+
+The next runtime phase is **CORE-08 — Authenticated password change**. It must verify the current password, apply the shared PasswordPolicy to the new password, reject a same-password/no-op change, update the credential atomically, invoke CORE-03 session/credential invalidation and record secret-safe audit evidence.
 
 ## Organization lifecycle baseline
 
@@ -120,7 +134,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration; CORE-06 added activation/set-password runtime and audit behavior without a schema migration.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration; CORE-06 added activation/set-password runtime and audit behavior without a schema migration; CORE-07 added password-recovery runtime, reset-token cooldown/supersession policy and credential invalidation without a schema migration.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 
