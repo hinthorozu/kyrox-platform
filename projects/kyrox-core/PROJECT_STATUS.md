@@ -8,13 +8,13 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
 | Migration head in `main` | `20260827_0064_platform_identity_notifications` |
-| Main CI | Core CI #82 green on P0.2 CORE-08 final head before merge |
+| Main CI | Core CI #84 green on P0.2 CORE-09 final certification head before merge |
 
 ## Current capability state
 
 | Area | Status |
 |------|--------|
-| Identity and authentication | Implemented baseline plus shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation, server-side access-token session enforcement, controlled public signup/atomic first-user bootstrap, single-use activation/set-password, Core-owned forgot/reset password and authenticated self-service password change |
+| Identity and authentication | Implemented baseline plus shared 12–255 character `PasswordPolicy`, one-time identity action tokens, user-wide session/refresh invalidation, server-side access-token session enforcement, controlled public signup/atomic first-user bootstrap, single-use activation/set-password, Core-owned forgot/reset password and authenticated self-service password change; final P0.2 Core adversarial certification is complete |
 | Authorization | Implemented; normal organization permission checks require an `active` organization, so `pending_activation` organizations are non-operational until successful activation |
 | Organization and user management | Implemented; normal users use direct single-organization ownership via `identity_users.organization_id`; public signup creates a `pending_activation` organization and inactive first `OrganizationAdmin`, CORE-06 activates both after a valid one-time token/password-set flow, and existing Platform Super Admin organization/user creation remains available |
 | Membership / invitation model | Removed by migration `20260817_0057_remove_memberships`; not a current Core capability |
@@ -129,7 +129,11 @@ CORE-08 delivered:
 
 CORE-08 required no schema migration; the migration head remains `20260827_0064_platform_identity_notifications`. CI #82 reported `379 passed, 120 warnings in 20.96s`. The workflow's `Run lint` step again explicitly printed `ruff not installed, skipping`, so separate Ruff lint execution is not claimed.
 
-The next Core phase is **CORE-09 — Core security/adversarial certification**. It must certify the completed Core onboarding/credential surface on one final head before FAIR CRM bridge/UI implementation begins; prior phase evidence may be reused for coverage but CORE-09 checkboxes remain open until final-head certification succeeds.
+**CORE-09 — Core security/adversarial certification is delivered.** Core PR #20 merged to `main` as `f6cbf417410d9148c225242790103d8cc9541f21` after CI #84 / run `33228476878` succeeded on final head `5c5113320ea910e80555e6cc526ed0c708580cd4` with `381 passed, 120 warnings in 20.99s`.
+
+CORE-09 certified the completed Core identity/onboarding implementation on one final head. The full suite re-ran activation/reset replay, expiry and wrong-purpose handling, raw-token non-persistence and secret/log redaction, forgot-password enumeration resistance and cooldown/supersession, bootstrap rollback/atomicity, first-user `OrganizationAdmin` assignment, reset/change session invalidation, existing Super Admin manual provisioning regressions, and login/refresh/logout regressions. Two explicit adversarial gaps were added: public signup payloads cannot self-assert `is_super_admin` or inject a privileged role, and an Organization A activation token cannot mutate Organization B user/organization/token state. CORE-09 changed tests only; no runtime code or schema migration was added. The workflow's lint step again printed `ruff not installed, skipping`, so separate Ruff execution is not claimed.
+
+The Core portion of the approved P0.2 onboarding/credential workstream is now complete. The canonical next phase is **CRM-BE-01 — FAIR CRM Core client extensions**, followed by the FAIR CRM bridge/UI and cross-repository acceptance gates.
 
 ## Organization lifecycle baseline
 
@@ -150,7 +154,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration; CORE-06 added activation/set-password runtime and audit behavior without a schema migration; CORE-07 added password-recovery runtime, reset-token cooldown/supersession policy and credential invalidation without a schema migration; CORE-08 added authenticated password-change runtime, credential invalidation and audit behavior without a schema migration.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration; CORE-06 added activation/set-password runtime and audit behavior without a schema migration; CORE-07 added password-recovery runtime, reset-token cooldown/supersession policy and credential invalidation without a schema migration; CORE-08 added authenticated password-change runtime, credential invalidation and audit behavior without a schema migration; CORE-09 added final adversarial certification tests only and no schema change.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 
