@@ -16,29 +16,27 @@ The first hardening wave (TI-01 through TI-06 plus additional derived-reference 
 
 P0.1 completion is a certification baseline, not an exemption: future organization-owned changes still require the applicable SaaS-impact and cross-organization regression evidence.
 
-### P0.2 Identity / SaaS onboarding bridge + UI — ACTIVE
+### P0.2 Identity / SaaS onboarding bridge + UI — DONE
 
-The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns the identity runtime; FAIR CRM owns only the product transport bridge and user-facing screens.
+The identity/onboarding subset of ADR-0006 was approved on 2026-08-27. Core owns the identity runtime; FAIR CRM owns only the product transport bridge and user-facing screens. That approved onboarding/credential workstream is complete as of 2026-08-29.
 
 Canonical implementation tracker: [../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../../ecosystem/P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 
-Core dependencies, the FAIR CRM backend bridge, public auth screens and login integration are now delivered. CRM-BE-01 extended the existing thin Core auth client through FAIR CRM PR #86. CRM-BE-02 exposed the matching `/api/v1/auth/*` transport routes through FAIR CRM PR #87. CRM-UI-01 added `/signup`, `/activate`, `/forgot-password` and `/reset-password` through FAIR CRM PR #88. CRM-UI-02 added account-creation and password-recovery entry links to the existing login screen through FAIR CRM PR #89 while preserving login behavior. None of these phases introduced product-local password policy, credential storage or action-token authority.
+Delivered execution order:
 
-Current execution order:
+- **CRM-BE-01 — Core auth client extensions: DONE** — FAIR CRM PR #86
+- **CRM-BE-02 — thin auth bridge routes: DONE** — FAIR CRM PR #87
+- **CRM-UI-01 — public signup / activation / recovery screens: DONE** — FAIR CRM PR #88
+- **CRM-UI-02 — login account-creation / password-recovery integration: DONE** — FAIR CRM PR #89
+- **CRM-UI-03 — authenticated account/security password-change UI: DONE** — FAIR CRM PR #90
+- **CRM-UI-04 — Super Admin user-management compatibility certification: DONE** — FAIR CRM PR #91
+- **Final cross-repository identity lifecycle certification: DONE** — FAIR CRM PR #92; Development Standard Gate #306 and Prod-Path E2E #151 passed the final head before merge.
 
-- **CRM-BE-01 — Core auth client extensions: DONE**
-- **CRM-BE-02 — thin auth bridge routes: DONE**
-- **CRM-UI-01 — public signup / activation / recovery screens: DONE**
-- **CRM-UI-02 — login account-creation / password-recovery integration: DONE**
-- **CRM-UI-03 — authenticated account/security password-change UI: NEXT**
-- **CRM-UI-04 — Super Admin user-management compatibility certification: follows CRM-UI-03**
-- preserve the existing Super Admin `/admin/system/users` manual user-creation flow,
-- preserve admin-supplied manual passwords,
-- optionally add a second "send setup link" user-creation mode only after the Core setup-token contract exists,
-- keep password hashing, activation/reset tokens, identity email and credential authority out of FAIR CRM,
-- verify the real flow with the permanent ABC ↔ XYZ tenant-isolation system gate plus applicable Development Standard and Prod-Path E2E gates.
+The final production-shaped certification runs FAIR CRM against real KYROX Core and Core's SMTP adapter, using a memory-only SMTP sink for action-email capture. It verifies signup → activation → login → forgot/reset → login → password change → login, rejects activation/reset token replay, and proves pre-credential-change access/refresh sessions fail after reset/change. No FAIR CRM/Core application runtime or schema behavior was added by the certification PR.
 
-The remaining P0.2 suspension/closure/retention decisions are still gated and are not activated by this onboarding workstream.
+The existing Super Admin `/admin/system/users` manual user-creation flow and administrator-supplied password mode remain supported. No setup-link mode was added because Core does not yet expose an approved setup-token contract. Password hashing, password policy, activation/reset token authority, identity email and credential mutation remain in Core.
+
+**Scope boundary:** this DONE status applies only to the approved identity/onboarding subset. ADR-0006 suspension orchestration, closure/delete/export/retention, billing/entitlement and other still-gated lifecycle decisions remain open and require separate approval before implementation.
 
 ## Active product-quality track
 
