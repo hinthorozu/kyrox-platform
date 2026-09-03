@@ -1,14 +1,14 @@
 # P0.2 Organization Lifecycle Decisions — Temporary Draft
 
-**Status:** TEMPORARY WORKING NOTE — NOT ACCEPTED POLICY  
+**Status:** TEMPORARY WORKING NOTE — OL-05 ACCEPTED; REMAINING LIFECYCLE DECISIONS GATED  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
-**Purpose:** Keep the current real OL-05 → OL-10 Platform state visible while another topic is reviewed. This file must not be treated as an implementation authorization or as a replacement for ADR-0006.
+**Purpose:** Keep the current P0.2 lifecycle decision state visible while the remaining items are reviewed. This file is a working companion to ADR-0006 and must not replace the canonical ADR.
 
 ## Current canonical state
 
 | ID | Decision area | Current Platform state |
 | --- | --- | --- |
-| OL-05 | Self-service suspend/delete authority | **PENDING ACCEPTANCE** |
+| OL-05 | Self-service suspend/delete authority | **ACCEPTED 2026-09-03** |
 | OL-06 | Reactivation | **PENDING ACCEPTANCE** |
 | OL-07 | Suspension job/provider behavior | **OPEN DETAIL** |
 | OL-08 | Closure/export/retention/delete sequence | **PENDING ACCEPTANCE** |
@@ -24,14 +24,24 @@
 - Organization roles cannot receive those permissions.
 - Current destructive lifecycle authority therefore remains platform/system controlled.
 
-### Proposed direction already recorded in ADR-0006
+### Accepted decision — 2026-09-03
 
-- Keep actual suspend/delete execution as Platform Super Admin operations.
-- An OrganizationAdmin-facing product may later expose a **request closure** workflow, but a request must not gain SYSTEM-scope destructive authority.
+**Organization suspension, closure and destructive deletion remain Platform SuperAdmin-controlled SYSTEM operations. OrganizationAdmin cannot directly execute these operations. An organization-facing closure-request workflow may be provided, but such a request does not grant destructive lifecycle authority. All executed lifecycle transitions must be auditable.**
+
+Operational meaning:
+
+- Actual organization suspension is executable only by Platform SuperAdmin/system authority.
+- Actual organization closure/destructive deletion is executable only by Platform SuperAdmin/system authority.
+- OrganizationAdmin cannot obtain destructive lifecycle authority through an organization-scoped role.
+- A future OrganizationAdmin-facing **request closure** workflow is allowed, but the request is only a request and never grants SYSTEM-scope suspend/delete authority.
+- Safe organization-profile updates may remain organization-scoped where separately permitted.
+- Executed lifecycle transitions must create auditable evidence identifying the actor, target organization, transition and timestamp; a reason/context should be recorded where the operation contract supports it.
 
 ### Status
 
-**PENDING ACCEPTANCE** — this direction is documented but not yet accepted as final lifecycle policy.
+**ACCEPTED 2026-09-03 — NOT YET DONE.**
+
+Acceptance locks the policy. Completion still requires implementation verification across Core and FAIR CRM, negative authorization tests for OrganizationAdmin/other roles, SuperAdmin execution tests, UI/direct-route consistency where applicable, and audit evidence. Any verified gap must be implemented and certified before OL-05 can be marked `DONE`.
 
 ---
 
@@ -311,11 +321,11 @@ This section records a design proposal only. It must not be treated as implement
 
 ## Important boundary
 
-This draft records **what Platform currently says plus explicit working proposals**, not a new accepted policy.
+This draft records the current Platform lifecycle decision state and explicit working proposals.
 
 - OL-01 → OL-04 are already approved and their implementation workstream is complete.
-- OL-05 → OL-10 remain gated exactly as shown above.
-- OL-11 is a new working proposal and is **not accepted or implemented**.
-- Do not mark OL-05 → OL-11 `ACCEPTED` here.
-- Do not implement runtime lifecycle changes from this draft alone.
-- Final decisions must be written back to ADR-0006 and then promoted into an implementation checklist before code changes begin.
+- OL-05 is **ACCEPTED 2026-09-03**, but must not be marked `DONE` until implementation verification/certification is complete.
+- OL-06 → OL-10 remain gated exactly as shown above.
+- OL-11 is a working proposal and is **not accepted or implemented**.
+- Do not implement still-gated OL-06 → OL-11 runtime behavior from this draft alone.
+- Accepted decisions must be synchronized to ADR-0006 and then promoted into an implementation checklist before code changes begin.
