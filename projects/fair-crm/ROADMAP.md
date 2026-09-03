@@ -36,7 +36,18 @@ The final production-shaped certification runs FAIR CRM against real KYROX Core 
 
 The existing Super Admin `/admin/system/users` manual user-creation flow and administrator-supplied password mode remain supported. No setup-link mode was added because Core does not yet expose an approved setup-token contract. Password hashing, password policy, activation/reset token authority, identity email and credential mutation remain in Core.
 
-**Scope boundary:** this DONE status applies only to the approved identity/onboarding subset. ADR-0006 suspension orchestration, closure/delete/export/retention, billing/entitlement and other still-gated lifecycle decisions remain open and require separate approval before implementation.
+### P0.2 OL-05 destructive organization authority — DONE 2026-09-03
+
+OL-05 is accepted and cross-repository certified. Organization suspend/closure/destructive lifecycle execution remains Platform SuperAdmin / SYSTEM authority only; OrganizationAdmin cannot directly execute it or obtain the required SYSTEM lifecycle permission through an organization role.
+
+Completion evidence:
+
+- KYROX Core PR #21 certified lifecycle endpoint authorization behavior and added audit evidence for successful organization suspend/delete transitions.
+- KYROX Core PR #22 certified that SYSTEM-scope lifecycle permissions cannot be assigned to organization-role templates, including by Platform SuperAdmin.
+- FAIR CRM current-main verification found no alternate product-owned suspend/delete authority that widens the Core boundary. The organization-management UI consumes Core organization APIs; UI permission gating is UX and Core backend authorization remains authoritative.
+- Canonical completion tracker: [../../ecosystem/P0_2_OL_05_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_05_IMPLEMENTATION.md).
+
+**Scope boundary:** OL-05 certifies destructive lifecycle **authority only**. Core delete remains a Core soft-delete/tombstone. OL-06 reactivation, OL-07 suspension job/provider behavior, OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
 
 ## Active product-quality track
 
