@@ -1,6 +1,6 @@
 # ADR-0006: Organization lifecycle and SaaS onboarding contract
 
-- **Status:** Proposed — onboarding/credential sub-decisions approved for implementation 2026-08-27
+- **Status:** Proposed — OL-01 through OL-05 accepted; remaining lifecycle decisions still gated
 - **Date:** 2026-08-26
 - **Deciders:** KYROX ecosystem maintainers
 - **Roadmap gate:** P0.2 — Organization lifecycle contract and SaaS onboarding decisions
@@ -9,9 +9,9 @@
 
 P0.1 tenant-isolation certification is complete. The next SaaS-readiness gate is to define how a commercial KYROX account is created, administered, suspended, reactivated and eventually closed without duplicating Core capabilities or leaking lifecycle semantics across repositories.
 
-The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27; suspension, closure, retention and backup decisions remain open, so the ADR as a whole remains Proposed.
+The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27. OL-05 destructive lifecycle authority was accepted on 2026-09-03. Reactivation, suspension runtime behavior, closure sequencing, retention and backup decisions remain open, so the ADR as a whole remains Proposed.
 
-The canonical implementation checklist for the approved onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
+The canonical implementation checklist for the completed onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
 
 ## Verified current implementation
 
@@ -60,7 +60,7 @@ The [P0.2 lifecycle runtime audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md) verifies 
 
 ## Decision state
 
-The onboarding/credential subset below is approved for implementation. Other lifecycle sections remain proposals until separately accepted.
+OL-01 through OL-05 are accepted. OL-01 through OL-04 onboarding/credential implementation is complete. OL-05 acceptance locks destructive lifecycle authority but is not `DONE` until implementation verification and certification are completed. Other lifecycle sections remain proposals/open choices until separately accepted.
 
 ### 1. Keep Organization as the only account boundary — APPROVED
 
@@ -136,13 +136,17 @@ The same generic identity/security foundation will support:
 
 Existing Super Admin manual user creation remains supported. The setup-link mode is additive and must not remove the current admin-supplied password path.
 
-### 7. Keep destructive organization authority SYSTEM-scoped — PROPOSED
+### 7. Keep destructive organization authority SYSTEM-scoped — ACCEPTED 2026-09-03
 
-Actual organization suspension and deletion remain proposed as Platform Super Admin operations.
+Organization suspension, closure and destructive deletion remain Platform SuperAdmin-controlled SYSTEM operations. OrganizationAdmin cannot directly execute these operations.
 
-An organization-facing product may later provide a **request closure** workflow, but the request itself does not gain authority to execute system-scope suspend/delete.
+An organization-facing product may provide a **request closure** workflow, but the request itself does not gain authority to execute system-scope suspension, closure or destructive deletion.
 
-OrganizationAdmin may continue to update safe organization profile fields where permitted; this does not imply destructive account authority.
+OrganizationAdmin may continue to update safe organization profile fields where separately permitted; this does not imply destructive account authority.
+
+All executed lifecycle transitions must be auditable. Audit evidence must identify the actor, target organization, transition and timestamp; a reason/context should be recorded where the operation contract supports it.
+
+Acceptance of this decision locks the authority policy but does not by itself prove implementation completion. OL-05 becomes `DONE` only after Core and FAIR CRM behavior is verified against this contract, negative authorization cases are tested, SuperAdmin execution is tested, UI/direct-route behavior is consistent where applicable, and lifecycle audit evidence is proven. Any verified gap must be implemented before closure.
 
 ### 8. Add an explicit reactivation system action before relying on suspension operationally — PROPOSED
 
@@ -210,7 +214,7 @@ These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be
 | OL-02 | First normal admin role | OrganizationAdmin exists; Owner removed | Use OrganizationAdmin; no Owner | **APPROVED 2026-08-27** |
 | OL-03 | User ↔ organization model | Direct single `organization_id`; memberships removed | Keep single-org model for M4 | **APPROVED 2026-08-27** |
 | OL-04 | Team/user onboarding | Direct manual user create exists; activation/reset absent | Generic Core activation/set-password + reset/change; keep manual Super Admin create | **APPROVED 2026-08-27** |
-| OL-05 | Self-service suspend/delete | SYSTEM scope | Keep execution Super Admin only; optional closure-request flow later | **PENDING ACCEPTANCE** |
+| OL-05 | Self-service suspend/delete | SYSTEM scope | Platform SuperAdmin-only execution; optional closure-request flow without destructive authority; lifecycle transitions auditable | **ACCEPTED 2026-09-03** |
 | OL-06 | Reactivation | Domain transition exists; API missing | Add Super Admin reactivation API before operational use | **PENDING ACCEPTANCE** |
 | OL-07 | Suspension job/provider behavior | New protected starts are denied, but queued/running scraper, enrichment, import and mail work generally does not re-check Core lifecycle state; outbound delivery relies on product account activity | Block new work; explicitly cancel/pause/drain existing work; disable side effects | **OPEN DETAIL** |
 | OL-08 | Closure/export/retention/delete sequence | Not defined cross-repo | Staged offboarding before Core tombstone | **PENDING ACCEPTANCE** |
@@ -219,9 +223,11 @@ These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be
 
 ## Implementation gate
 
-The approved OL-01 through OL-04 onboarding/credential subset is authorized for implementation and tracked in [P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
+The approved OL-01 through OL-04 onboarding/credential subset is implemented and tracked in [P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md).
 
-Runtime work for OL-05 through OL-10 remains gated until the relevant decisions are accepted. Approval of the onboarding subset must not be misread as acceptance of suspension, closure, retention or backup semantics.
+OL-05 is now accepted and authorized for implementation verification and any narrowly required remediation needed to satisfy the accepted authority/audit contract. Acceptance is not completion: OL-05 remains open until verification, tests and certification establish that the runtime matches the decision.
+
+Runtime work for OL-06 through OL-10 remains gated until the relevant decisions are accepted. OL-05 acceptance must not be misread as acceptance of reactivation, suspension job/provider semantics, closure sequencing, retention durations or backup behavior.
 
 Implementation ownership remains:
 
@@ -236,7 +242,8 @@ Implementation ownership remains:
 - user-wide session/credential invalidation,
 - generic identity notification/email capability,
 - identity/security audit records,
-- existing Super Admin manual user/organization flows preserved.
+- existing Super Admin manual user/organization flows preserved,
+- destructive organization lifecycle authority enforcement and Core lifecycle audit behavior for accepted OL-05.
 
 ### FAIR CRM-owned
 
@@ -244,6 +251,7 @@ Implementation ownership remains:
 - signup/activation/forgot/reset/change-password UX,
 - existing Super Admin user-management UX compatibility plus optional setup-link mode,
 - product first-value onboarding after authentication,
+- UI/direct-route consistency with accepted OL-05 authority where FAIR CRM exposes organization lifecycle controls,
 - product lifecycle behavior for still-open suspension/closure decisions.
 
 ### Platform-owned
@@ -272,13 +280,14 @@ P0.2 as a whole is complete only when:
 
 ## Relationship to existing ADRs
 
-This ADR's approved onboarding subset:
+This ADR's accepted decisions:
 
-- extends ADR-0003 Organization-as-account semantics,
-- keeps ADR-0003 Platform Super Admin invariant intact,
-- keeps ADR-0005 `OrganizationAdmin` role governance intact,
-- supersedes membership-specific implementation wording in ADR-0005 because Core migration 0057 removed memberships,
-- does not authorize a new Owner role or self-service destructive organization action.
+- extend ADR-0003 Organization-as-account semantics,
+- keep ADR-0003 Platform Super Admin invariant intact,
+- keep ADR-0005 `OrganizationAdmin` role governance intact,
+- supersede membership-specific implementation wording in ADR-0005 because Core migration 0057 removed memberships,
+- do not authorize a new Owner role or self-service destructive organization action,
+- keep organization suspension, closure and destructive deletion as Platform SuperAdmin-controlled SYSTEM operations under OL-05.
 
 The ADR remains Proposed overall until the remaining lifecycle decisions are resolved.
 
