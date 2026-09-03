@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** OL07-03 IN PROGRESS. Core PR #25 (`feat/ol07-03-product-lifecycle-contract`, head `3dda5b6854a6720e1ab7e17b31b8aeb732e62587`) and FAIR CRM PR #249 (`feat/ol07-03-lifecycle-guard`, head `748427f5b7f5a8431b333e45bd9aa3158e360f08`) are open. Core CI #102, FAIR Development Standard Gate #663 and Prod-Path E2E #232 are running. Scope is restricted to the Core read-only lifecycle snapshot contract and FAIR reusable fail-closed lifecycle guard. Do not start OL07-04 until OL07-03 has CI green, merge, `main` verification and this tracker is checked `[x]`.  
+**Current resume point:** OL07-03 COMPLETE. Core PR #25 and FAIR CRM PR #249 are squash-merged, verified on `main`, and backed by green final CI. The next unchecked item is OL07-04 — Queued product work cancellation; it is NOT STARTED.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -51,22 +51,25 @@
   - `main` verified: target organization normal-user sessions/refresh tokens are revoked; old access/refresh and new login are denied; Platform SuperAdmin remains unaffected.
   - OL07-03 lifecycle contract code was excluded from OL07-02 before merge.
 
-- [ ] **OL07-03 — Cross-repository lifecycle authority contract**
-  - **Core PR #25** — `feat/ol07-03-product-lifecycle-contract`; head `3dda5b6854a6720e1ab7e17b31b8aeb732e62587`.
-  - Core exposes dedicated-credential, read-only `GET /api/v1/organizations/{organization_id}/lifecycle-snapshot` returning canonical `organization_id`, lifecycle `status`, and `work_allowed`.
-  - Only canonical `ACTIVE` maps to `work_allowed=true`.
-  - Core contract does not use a user JWT, provider credential, FAIR CRM table, or product-owned lifecycle state.
-  - Core regression covers dedicated credential enforcement and ACTIVE/SUSPENDED response behavior.
-  - **FAIR CRM PR #249** — `feat/ol07-03-lifecycle-guard`; head `748427f5b7f5a8431b333e45bd9aa3158e360f08`.
-  - FAIR has a reusable `OrganizationLifecycleGuard` and dedicated lifecycle client/configuration.
-  - Guard validates returned organization identity, known lifecycle status, boolean `work_allowed`, and status/work consistency.
-  - Core unreachable/non-200/malformed/inconsistent/wrong-organization responses fail closed.
-  - Canonical non-active state raises explicit work-not-allowed denial.
-  - No scraper/import/mail/provider execution path is wired yet; that belongs to OL07-04+.
-  - **Pending certification:** Core CI #102 + FAIR Development Standard Gate #663 + Prod-Path E2E #232 must be green; then both PRs require merge, `main` verification and tracker `[x]` before OL07-04 starts.
+- [x] **OL07-03 — Cross-repository lifecycle authority contract**
+  - **Core PR #25** merged via squash from `feat/ol07-03-product-lifecycle-contract`.
+  - Final scoped Core PR head: `f2973f1f5f9396604eac7524b6f4e831ea33d9dd`.
+  - Final Core PR CI: CI #104 SUCCESS.
+  - Core merge commit: `5ad6da0459da640893e4339a87f5528e93271161`.
+  - Core `main` verified: dedicated-credential, read-only `GET /api/v1/organizations/{organization_id}/lifecycle-snapshot` is registered and returns canonical `organization_id`, lifecycle `status`, and `work_allowed`.
+  - Only canonical `ACTIVE` maps to `work_allowed=true`; missing/wrong lifecycle credential is rejected; the contract does not use user JWTs, provider credentials, FAIR CRM tables, or product-owned lifecycle state.
+  - **FAIR CRM PR #249** merged via squash from `feat/ol07-03-lifecycle-guard`.
+  - Final scoped FAIR CRM PR head: `6c871222af1fee839a65d278f1f2c063463abd3b`.
+  - Final FAIR CRM PR gates: Development Standard Gate #669 SUCCESS; Prod-Path E2E #238 SUCCESS on clean rerun.
+  - FAIR CRM merge commit: `52ecbbae2bf295f6b79eb4e89a4ac0100c0e145e`.
+  - FAIR CRM `main` verified: reusable `OrganizationLifecycleGuard` and dedicated lifecycle client/configuration are present; organization identity, known status, boolean `work_allowed`, and status/work consistency are validated.
+  - Core unreachable/non-200/malformed/inconsistent/wrong-organization responses fail closed; canonical non-active state raises explicit work-not-allowed denial.
+  - FAIR CRM `main` push Development Standard Gate #670 SUCCESS, including Backend Quality Check.
+  - Cross-repository Prod-Path E2E paired FAIR CRM with the matching Core candidate and a randomized shared lifecycle credential; the live ACTIVE lifecycle snapshot assertion passed.
+  - No scraper/import/mail/provider execution path was wired in OL07-03; those remain OL07-04+ scope.
 
 - [ ] **OL07-04 — Queued product work cancellation**
-  - NOT STARTED until OL07-03 is DONE.
+  - NOT STARTED. OL07-03 is complete; this is the next gated implementation item.
   - Scraper, enrichment, import, operations and other organization-owned queued work must be cancelled/not started after suspension.
   - Cancellation must be deterministic and organization-scoped.
 
