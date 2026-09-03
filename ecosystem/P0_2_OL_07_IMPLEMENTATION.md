@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** OL07-02 FINALIZATION — Core PR #24 is scoped strictly to organization suspension session/refresh invalidation and suspended-user login/refresh denial. Early OL07-03 lifecycle-snapshot/token work was removed from PR #24. Finalize CI, merge Core PR #24, verify `main`, then mark OL07-02 DONE before starting OL07-03.  
+**Current resume point:** OL07-02 DONE — Core organization suspension session/refresh invalidation is merged and verified on `main`. Next item is OL07-03, which is NOT STARTED. Do not begin OL07-03 until work explicitly resumes from this tracker.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -50,18 +50,21 @@
   - Reactivation accepted: no automatic restart/requeue.
   - Audit accepted: detailed per affected item.
 
-- [ ] **OL07-02 — Core session invalidation on organization suspension**
-  - Core PR #24: `feat/ol-07-suspension-runtime`.
-  - Current scoped head before final CI: `496c0ec26d1eb34ac5dcbaa765824a01411ee6ac`.
-  - Early OL07-03 product lifecycle snapshot/token changes removed from this PR.
+- [x] **OL07-02 — Core session invalidation on organization suspension**
+  - Core PR #24 merged via squash.
+  - Final scoped PR head: `496c0ec26d1eb34ac5dcbaa765824a01411ee6ac`.
+  - Final scoped CI: Core CI #101 SUCCESS.
+  - Merge commit: `5e120ca4f911690c1f6e5217d6530b18f2e4fa83`.
+  - Early OL07-03 product lifecycle snapshot/token changes were removed before final CI/merge.
   - Suspension invalidates active sessions/refresh tokens for normal users of the target organization.
   - Suspended organization users cannot continue with prior access token, refresh, or new login.
   - Platform SuperAdmin remains outside organization-scoped revocation.
-  - Regression coverage exists in `backend/tests/modules/identity/organization/test_organization_suspension_sessions.py`.
-  - Final requirements still open: latest scoped CI green, squash merge PR #24, verify merged `main` behavior/head, then check this item `[x]`.
+  - Regression coverage: `backend/tests/modules/identity/organization/test_organization_suspension_sessions.py`.
+  - `main` verification completed: suspend use case invokes organization-scoped session revocation and regression test is present.
+  - Scope verification completed: OL07-03 `product_lifecycle_routes.py` is not present on Core `main`.
 
 - [ ] **OL07-03 — Cross-repository lifecycle authority contract**
-  - NOT STARTED until OL07-02 is fully DONE.
+  - NOT STARTED.
   - Define the smallest public Core/product contract FAIR CRM can use to establish organization lifecycle eligibility without querying Core tables.
   - Side-effect boundaries must fail closed when lifecycle eligibility cannot be established.
   - Avoid an unbounded synchronous Core lookup for every local row operation; use explicit checkpoints/orchestration appropriate to existing architecture.
