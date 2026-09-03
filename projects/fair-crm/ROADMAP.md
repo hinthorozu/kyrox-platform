@@ -49,6 +49,20 @@ Completion evidence:
 
 **Scope boundary:** OL-05 certifies destructive lifecycle **authority only**. Core delete remains a Core soft-delete/tombstone. OL-06 reactivation, OL-07 suspension job/provider behavior, OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
 
+### P0.2 OL-06 organization reactivation — DONE 2026-09-04
+
+OL-06 is accepted and cross-repository certified. Organization reactivation remains Platform SuperAdmin / SYSTEM authority only and is valid only as the canonical Core `SUSPENDED -> ACTIVE` transition for a non-deleted organization.
+
+Completion evidence:
+
+- KYROX Core PR #23 added `identity.organizations.reactivate` as a SYSTEM-scoped, non-assignable permission and exposed `POST /organizations/{organization_id}/reactivate`.
+- The Core implementation reuses the existing domain transition, emits `identity.organization.reactivated` audit evidence and rejects `ACTIVE`, `PENDING_ACTIVATION`, `ARCHIVED` and soft-deleted/tombstoned source states.
+- Core PR #23 final head `655b61155e0ad799d7381d21858c9fd1d5b3a0f7` passed CI #88 and was squash-merged to Core `main` as `f24089cbb29f38b42270d0d9edb2235aa7815719`.
+- FAIR CRM current-main verification found no alternate product-owned organization reactivation/suspension authority. No FAIR CRM runtime change was required for OL-06.
+- Canonical completion tracker: [../../ecosystem/P0_2_OL_06_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_06_IMPLEMENTATION.md).
+
+**Scope boundary:** OL-06 restores only canonical Core organization lifecycle state. It does not resume queued/running product jobs, re-enable provider credentials, restart outbound mail or define other product side effects. Those semantics are the next decision gate, **OL-07**.
+
 ## Active product-quality track
 
 ### Permission-controlled UI consistency
