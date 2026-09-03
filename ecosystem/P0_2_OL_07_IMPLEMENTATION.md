@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** DECISION LOCKED — accepted suspension runtime matrix is recorded below. Platform canonical sync and Core/FAIR CRM implementation are in progress. Resume from this file; do not reopen the accepted policy unless a new explicit decision supersedes it.  
+**Current resume point:** OL07-02 FINALIZATION — Core PR #24 is scoped strictly to organization suspension session/refresh invalidation and suspended-user login/refresh denial. Early OL07-03 lifecycle-snapshot/token work was removed from PR #24. Finalize CI, merge Core PR #24, verify `main`, then mark OL07-02 DONE before starting OL07-03.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -34,6 +34,10 @@
 5. **No speculative event-bus/platform expansion.** Reuse existing public contracts and job/cancellation primitives where they satisfy the accepted behavior; add the smallest explicit cross-repository lifecycle contract necessary where they do not.
 6. **No automatic resume.** OL-06 reactivation restores canonical Core organization state only; it never implies restart/requeue of OL-07-cancelled work.
 
+## Sequencing rule
+
+**Do not start or implement the next OL07 checklist item until the current item is fully complete: implementation + CI + merge + `main` verification + tracker update.** Research required to diagnose the current item is allowed; implementation for a later item is not.
+
 ## Certification checklist
 
 - [x] **OL07-01 — Decision acceptance / policy lock**
@@ -47,11 +51,17 @@
   - Audit accepted: detailed per affected item.
 
 - [ ] **OL07-02 — Core session invalidation on organization suspension**
-  - Inspect and reuse the existing Core user-wide credential/session invalidation primitive where applicable.
-  - Suspension must invalidate active sessions/refresh tokens for normal users of the target organization without weakening Platform SuperAdmin behavior.
-  - Add regression coverage for suspended-organization login/session/refresh behavior.
+  - Core PR #24: `feat/ol-07-suspension-runtime`.
+  - Current scoped head before final CI: `496c0ec26d1eb34ac5dcbaa765824a01411ee6ac`.
+  - Early OL07-03 product lifecycle snapshot/token changes removed from this PR.
+  - Suspension invalidates active sessions/refresh tokens for normal users of the target organization.
+  - Suspended organization users cannot continue with prior access token, refresh, or new login.
+  - Platform SuperAdmin remains outside organization-scoped revocation.
+  - Regression coverage exists in `backend/tests/modules/identity/organization/test_organization_suspension_sessions.py`.
+  - Final requirements still open: latest scoped CI green, squash merge PR #24, verify merged `main` behavior/head, then check this item `[x]`.
 
 - [ ] **OL07-03 — Cross-repository lifecycle authority contract**
+  - NOT STARTED until OL07-02 is fully DONE.
   - Define the smallest public Core/product contract FAIR CRM can use to establish organization lifecycle eligibility without querying Core tables.
   - Side-effect boundaries must fail closed when lifecycle eligibility cannot be established.
   - Avoid an unbounded synchronous Core lookup for every local row operation; use explicit checkpoints/orchestration appropriate to existing architecture.
