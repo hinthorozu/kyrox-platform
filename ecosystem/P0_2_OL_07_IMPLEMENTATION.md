@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** OL07-02 DONE — Core organization suspension session/refresh invalidation is merged and verified on `main`. Next item is OL07-03, which is NOT STARTED. Do not begin OL07-03 until work explicitly resumes from this tracker.  
+**Current resume point:** OL07-03 IN PROGRESS. Core PR #25 (`feat/ol07-03-product-lifecycle-contract`, head `3dda5b6854a6720e1ab7e17b31b8aeb732e62587`) and FAIR CRM PR #249 (`feat/ol07-03-lifecycle-guard`, head `748427f5b7f5a8431b333e45bd9aa3158e360f08`) are open. Core CI #102, FAIR Development Standard Gate #663 and Prod-Path E2E #232 are running. Scope is restricted to the Core read-only lifecycle snapshot contract and FAIR reusable fail-closed lifecycle guard. Do not start OL07-04 until OL07-03 has CI green, merge, `main` verification and this tracker is checked `[x]`.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -28,48 +28,45 @@
 ## Non-negotiable implementation semantics
 
 1. **Suspend is fail-closed for work and external effects.** If authoritative lifecycle state cannot be established at a destructive/external side-effect boundary, execution must not proceed.
-2. **Tenant isolation remains separate from lifecycle eligibility.** A worker can have the correct `organization_id` and still be prohibited from executing because the organization is suspended.
-3. **Core remains lifecycle authority.** FAIR CRM must not query Core tables directly or duplicate organization lifecycle state as an independent authority.
-4. **FAIR CRM owns product execution semantics.** Core must not import or manipulate scraper/import/mail/provider product internals.
-5. **No speculative event-bus/platform expansion.** Reuse existing public contracts and job/cancellation primitives where they satisfy the accepted behavior; add the smallest explicit cross-repository lifecycle contract necessary where they do not.
-6. **No automatic resume.** OL-06 reactivation restores canonical Core organization state only; it never implies restart/requeue of OL-07-cancelled work.
+2. **Tenant isolation remains separate from lifecycle eligibility.** Correct `organization_id` does not imply execution eligibility.
+3. **Core remains lifecycle authority.** FAIR CRM must not query Core tables directly or maintain an independent lifecycle authority.
+4. **FAIR CRM owns product execution semantics.** Core must not manipulate scraper/import/mail/provider internals.
+5. **No speculative event-bus/platform expansion.** Add only the smallest explicit cross-repository contract necessary.
+6. **No automatic resume.** OL-06 reactivation restores Core organization state only; cancelled work remains cancelled.
 
 ## Sequencing rule
 
-**Do not start or implement the next OL07 checklist item until the current item is fully complete: implementation + CI + merge + `main` verification + tracker update.** Research required to diagnose the current item is allowed; implementation for a later item is not.
+**Do not start or implement the next OL07 checklist item until the current item is fully complete: implementation + CI + merge + `main` verification + tracker update.**
 
 ## Certification checklist
 
 - [x] **OL07-01 — Decision acceptance / policy lock**
-  - Session behavior accepted: immediate revoke.
-  - Queued jobs accepted: cancel.
-  - Running work accepted: cancel at earliest safe checkpoint.
-  - Queued outbound mail accepted: cancel.
-  - In-flight provider behavior accepted: best-effort abort + explicit irreversible-side-effect audit.
-  - Provider credentials accepted: encrypted retention + lifecycle unusable while suspended.
-  - Reactivation accepted: no automatic restart/requeue.
-  - Audit accepted: detailed per affected item.
+  - Immediate session revoke, queued-work cancel, running-work safe-checkpoint cancel, queued mail cancel, best-effort in-flight provider abort, encrypted-but-unusable credentials, no automatic resume, detailed audit all accepted.
 
 - [x] **OL07-02 — Core session invalidation on organization suspension**
   - Core PR #24 merged via squash.
   - Final scoped PR head: `496c0ec26d1eb34ac5dcbaa765824a01411ee6ac`.
-  - Final scoped CI: Core CI #101 SUCCESS.
+  - Final CI: Core CI #101 SUCCESS.
   - Merge commit: `5e120ca4f911690c1f6e5217d6530b18f2e4fa83`.
-  - Early OL07-03 product lifecycle snapshot/token changes were removed before final CI/merge.
-  - Suspension invalidates active sessions/refresh tokens for normal users of the target organization.
-  - Suspended organization users cannot continue with prior access token, refresh, or new login.
-  - Platform SuperAdmin remains outside organization-scoped revocation.
-  - Regression coverage: `backend/tests/modules/identity/organization/test_organization_suspension_sessions.py`.
-  - `main` verification completed: suspend use case invokes organization-scoped session revocation and regression test is present.
-  - Scope verification completed: OL07-03 `product_lifecycle_routes.py` is not present on Core `main`.
+  - `main` verified: target organization normal-user sessions/refresh tokens are revoked; old access/refresh and new login are denied; Platform SuperAdmin remains unaffected.
+  - OL07-03 lifecycle contract code was excluded from OL07-02 before merge.
 
 - [ ] **OL07-03 — Cross-repository lifecycle authority contract**
-  - NOT STARTED.
-  - Define the smallest public Core/product contract FAIR CRM can use to establish organization lifecycle eligibility without querying Core tables.
-  - Side-effect boundaries must fail closed when lifecycle eligibility cannot be established.
-  - Avoid an unbounded synchronous Core lookup for every local row operation; use explicit checkpoints/orchestration appropriate to existing architecture.
+  - **Core PR #25** — `feat/ol07-03-product-lifecycle-contract`; head `3dda5b6854a6720e1ab7e17b31b8aeb732e62587`.
+  - Core exposes dedicated-credential, read-only `GET /api/v1/organizations/{organization_id}/lifecycle-snapshot` returning canonical `organization_id`, lifecycle `status`, and `work_allowed`.
+  - Only canonical `ACTIVE` maps to `work_allowed=true`.
+  - Core contract does not use a user JWT, provider credential, FAIR CRM table, or product-owned lifecycle state.
+  - Core regression covers dedicated credential enforcement and ACTIVE/SUSPENDED response behavior.
+  - **FAIR CRM PR #249** — `feat/ol07-03-lifecycle-guard`; head `748427f5b7f5a8431b333e45bd9aa3158e360f08`.
+  - FAIR has a reusable `OrganizationLifecycleGuard` and dedicated lifecycle client/configuration.
+  - Guard validates returned organization identity, known lifecycle status, boolean `work_allowed`, and status/work consistency.
+  - Core unreachable/non-200/malformed/inconsistent/wrong-organization responses fail closed.
+  - Canonical non-active state raises explicit work-not-allowed denial.
+  - No scraper/import/mail/provider execution path is wired yet; that belongs to OL07-04+.
+  - **Pending certification:** Core CI #102 + FAIR Development Standard Gate #663 + Prod-Path E2E #232 must be green; then both PRs require merge, `main` verification and tracker `[x]` before OL07-04 starts.
 
 - [ ] **OL07-04 — Queued product work cancellation**
+  - NOT STARTED until OL07-03 is DONE.
   - Scraper, enrichment, import, operations and other organization-owned queued work must be cancelled/not started after suspension.
   - Cancellation must be deterministic and organization-scoped.
 
@@ -85,99 +82,64 @@
 
 - [ ] **OL07-07 — In-flight provider best-effort abort semantics**
   - Use existing cancellation hooks where technically possible.
-  - Provider calls already irreversibly handed off are not falsely reported as recalled.
+  - Irreversibly handed-off provider calls are not falsely reported as recalled.
   - No subsequent provider side effect starts after suspension is observed.
 
 - [ ] **OL07-08 — Provider credential lifecycle gate**
   - Credentials remain encrypted/persisted.
-  - Delivery/integration use is prohibited while organization is suspended even if the product account itself is otherwise active.
-  - Reactivation restores lifecycle eligibility only; normal provider/account validity checks remain authoritative too.
+  - Credential use is prohibited while organization is suspended.
+  - Reactivation restores lifecycle eligibility only; provider/account validity checks remain authoritative too.
 
 - [ ] **OL07-09 — Detailed suspension disposition audit**
-  - Record affected job/mail/provider item identifiers and resulting disposition.
-  - Record cancellation/abort success or failure.
-  - Record in-flight/irreversible external side effects explicitly.
-  - Do not expose raw credentials/tokens/secrets in audit metadata.
+  - Record affected job/mail/provider identifiers and resulting disposition.
+  - Record cancellation/abort success/failure and irreversible external effects.
+  - Never expose raw credentials/tokens/secrets in audit metadata.
 
 - [ ] **OL07-10 — Reactivation non-resume regression**
   - Jobs/mail cancelled by suspension remain cancelled after reactivation.
-  - No automatic requeue/restart is triggered by OL-06 reactivation.
+  - OL-06 reactivation triggers no automatic requeue/restart.
 
 - [ ] **OL07-11 — Core runtime certification**
-  - Core changes merged with applicable CI green.
+  - All OL-07 Core changes merged with applicable CI green.
 
 - [ ] **OL07-12 — FAIR CRM runtime certification**
-  - FAIR CRM changes merged with Development Standard Gate / applicable production-shaped runtime coverage green.
+  - FAIR CRM changes merged with Development Standard Gate / production-shaped runtime coverage green.
 
 - [ ] **OL07-13 — Canonical ADR / roadmap synchronization**
   - ADR-0006 records OL-07 ACCEPTED and implementation state accurately.
-  - SaaS roadmap and FAIR CRM roadmap reflect OL-07 accepted/in-progress, then DONE only after runtime certification.
+  - SaaS roadmap and FAIR CRM roadmap reflect OL-07 state.
 
 - [ ] **OL07-14 — Cross-repository completion**
-  - Core + FAIR CRM behavior matches the accepted matrix.
-  - Canonical evidence is synchronized.
-  - Only then mark OL-07 DONE and advance the next decision gate to OL-08.
+  - Core + FAIR CRM behavior matches accepted matrix; canonical evidence synchronized; then mark OL-07 DONE and advance to OL-08.
 
-## Verified pre-implementation runtime gap
-
-The existing runtime audit established that Core suspension blocks new normal permission-protected requests, but already queued/running FAIR CRM scraper, enrichment, import and mail execution generally trusts previously established organization-scoped context and does not re-check Core lifecycle state during execution. Tenant isolation remains intact; lifecycle eligibility is the gap OL-07 closes.
-
-Known audit targets include:
-
-- `kyrox-core/backend/app/modules/identity/application/organization/suspend_organization.py`
-- `fair-crm/backend/app/modules/scraper/application/adapter_test_run_job_runner.py`
-- `fair-crm/backend/app/modules/scraper/application/enrichment_run_job_runner.py`
-- `fair-crm/backend/app/modules/data_integration/application/import_job_runner.py`
-- `fair-crm/backend/app/modules/operations/application/start_operation.py`
-- `fair-crm/backend/app/modules/operations/infrastructure/handlers/bulk_email_handler.py`
-- `fair-crm/backend/app/modules/mail_send_operations/application/process_mail_send_operations_worker.py`
-- `fair-crm/backend/app/modules/mail_send_operations/application/mail_send_operation_dispatcher.py`
-- `fair-crm/backend/app/modules/email_delivery/application/email_delivery_service.py`
-
-## Implementation ownership
+## Ownership
 
 ### KYROX Core
-
-- canonical organization `ACTIVE` / `SUSPENDED` lifecycle authority,
-- suspend/reactivate APIs and lifecycle audit,
+- canonical organization lifecycle authority,
+- suspend/reactivate API and lifecycle audit,
 - organization suspension session/refresh invalidation,
-- any reusable public lifecycle eligibility contract required by products.
+- product-consumable lifecycle eligibility contract.
 
 ### FAIR CRM
-
-- queued product work cancellation,
-- running job cooperative safe-checkpoint cancellation,
-- outbound mail cancellation and execution-time lifecycle gate,
-- provider credential usability gate,
-- best-effort in-flight provider abort behavior,
-- detailed product disposition audit evidence,
-- no-auto-resume behavior after reactivation.
+- lifecycle contract consumer/guard,
+- queued/running product-work cancellation,
+- mail/provider/credential enforcement,
+- detailed product disposition audit,
+- no-auto-resume behavior.
 
 ### KYROX Platform
-
-- OL-07 policy/ADR,
-- implementation tracker and cross-repository sequencing,
-- certification evidence and roadmap synchronization.
-
-## Scope boundary / non-goals
-
-OL-07 does **not** decide or implement:
-
-- OL-08 closure/export/retention/anonymization/delete sequencing,
-- OL-09 retention/grace durations,
-- OL-10 backup restore implications,
-- hard deletion of product data or credentials,
-- automatic restart of cancelled work after reactivation,
-- a second product-owned organization lifecycle authority.
+- canonical OL-07 decision and sequencing,
+- resume tracker,
+- cross-repository certification evidence.
 
 ## Resume protocol
 
-If implementation work or the conversation is interrupted:
+If work or the conversation is interrupted:
 
-1. Open this file from `kyrox-platform`.
-2. Read **Current resume point** and the certification checklist.
-3. Inspect the referenced Core/FAIR CRM PRs and latest CI recorded here.
-4. Continue from the first unchecked implementation/certification item.
-5. Update this tracker after every material implementation milestone or PR/CI state change.
+1. Open this file from `kyrox-platform` branch `docs/ol-07-suspension-runtime-semantics`.
+2. Read **Current resume point** and the first unchecked checklist item.
+3. Inspect the PRs/head SHAs/CI runs recorded there.
+4. Continue only that checklist item until implementation + CI + merge + `main` verification are complete.
+5. Update this tracker before advancing to the next item.
 
 This file is the canonical OL-07 implementation resume record until OL-07 is certified DONE.
