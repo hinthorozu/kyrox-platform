@@ -80,9 +80,9 @@ remain owned by the product unless an explicit cross-product platform contract i
 
 Do not invent an `Owner` role or self-service destructive organization authority from common SaaS conventions.
 
-Current authorization governance classifies organization suspend/delete capabilities as SYSTEM scope. Self-service organization suspension/deletion, ownership transfer or similar lifecycle changes require an explicit product/platform decision and the corresponding permission/role/ADR changes before implementation.
+ADR-0006 OL-05 was accepted and implementation-certified on 2026-09-03: organization suspension, closure and destructive lifecycle execution remain Platform SuperAdmin-controlled SYSTEM operations. OrganizationAdmin cannot directly execute those operations or receive their SYSTEM permissions through an organization role. A future organization-facing closure-request workflow may be provided, but a request never grants destructive lifecycle authority. Executed lifecycle transitions must be auditable.
 
-The P0.2 onboarding decision approved on 2026-08-27 added controlled public commercial signup and first-user `OrganizationAdmin` bootstrap while preserving the existing Super Admin organization/user creation paths. The approved identity/onboarding slice was completed and production-shaped certified on 2026-08-29. It does not change destructive organization authority.
+The P0.2 onboarding decision approved on 2026-08-27 added controlled public commercial signup and first-user `OrganizationAdmin` bootstrap while preserving the existing Super Admin organization/user creation paths. The approved identity/onboarding slice was completed and production-shaped certified on 2026-08-29. It does not change the OL-05 destructive-authority boundary.
 
 ### 1.8 No speculative platform build-out
 
@@ -177,11 +177,11 @@ Test list/detail/create/update/delete/archive/restore/execute/export/download pa
 - Background/internal jobs carry validated organization context or have an explicit system-wide design.
 - No unresolved cross-organization leak exists.
 
-**Exit status:** **SATISFIED**. P0.1 is completed history. The approved P0.2 identity/onboarding slice is also complete; the remaining P0.2 lifecycle/offboarding decisions stay gated and must be activated explicitly before implementation.
+**Exit status:** **SATISFIED**. P0.1 is completed history. The approved P0.2 identity/onboarding slice is also complete; OL-05 destructive authority is accepted/certified; the remaining P0.2 lifecycle/offboarding decisions stay gated and must be activated explicitly before implementation.
 
 ---
 
-## P0.2 — Organization lifecycle contract and SaaS onboarding — ONBOARDING SLICE DONE / LIFECYCLE GATED
+## P0.2 — Organization lifecycle contract and SaaS onboarding — ONBOARDING + OL-05 DONE / REMAINING LIFECYCLE GATED
 
 ### Goal
 
@@ -224,11 +224,26 @@ ADR-0006 remains Proposed overall, but OL-01 through OL-04 were approved for imp
 
 The canonical completion record is [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). Core phases CORE-01 through CORE-09, FAIR CRM CRM-BE-01/02 and CRM-UI-01 through CRM-UI-04 are complete. Final production-shaped certification is FAIR CRM PR #92, final head `d498245c4c60bd36b9b3a8aeffed4912e198123b`, with Development Standard Gate #306 and Prod-Path E2E #151 green before merge `2f9f159a303ffd055121547de51dcaefc15fc6a9`. The lifecycle certification exercises signup → activation → login → forgot/reset → login → password change → login against real Core/FAIR CRM services and Core SMTP delivery, including one-time token replay rejection and prior session/refresh invalidation.
 
+### OL-05 destructive organization authority — DONE 2026-09-03
+
+ADR-0006 OL-05 is accepted and implementation-certified:
+
+- suspend/closure/destructive lifecycle execution is Platform SuperAdmin / SYSTEM authority only,
+- OrganizationAdmin cannot directly execute those operations,
+- SYSTEM lifecycle permissions cannot be assigned to organization roles,
+- successful Core suspend/delete transitions produce audit evidence,
+- Core PR #21 certifies lifecycle endpoint authorization/audit behavior,
+- Core PR #22 certifies the SYSTEM-permission role-assignment boundary,
+- current FAIR CRM integration does not widen or duplicate Core lifecycle authority.
+
+Canonical completion record: [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](P0_2_OL_05_IMPLEMENTATION.md).
+
+OL-05 certifies **authority only**. Core organization delete remains a soft-delete/tombstone; product-data offboarding semantics remain OL-08 scope.
+
 ### Remaining lifecycle decisions — STILL GATED
 
-The following remain unresolved and are **not** authorized by the completed onboarding slice:
+The following remain unresolved and are **not** authorized by completion of OL-01 through OL-05:
 
-- self-service suspension/closure authority,
 - reactivation API policy,
 - deterministic queued/running job behavior on suspension,
 - provider side-effect/credential behavior on suspension,
@@ -242,12 +257,12 @@ The following remain unresolved and are **not** authorized by the completed onbo
 - Do not add a new Owner role.
 - Do not create a second identity/password/token store in FAIR CRM.
 - Do not remove or silently replace existing Super Admin manual organization/user creation.
-- Do not infer approval for suspend/delete/closure/retention from the completed onboarding slice.
+- Do not interpret OL-05 completion as approval for reactivation, suspension job/provider semantics, product-data closure/offboarding, retention or backup behavior.
 - All new organization/user identifiers remain subject to the permanent tenant-isolation system regression gate.
 
 ### Exit criteria
 
-The **identity/onboarding subset is satisfied**. Full P0.2 remains open until the still-gated lifecycle/offboarding decisions are explicitly approved, implemented and production-safe. The full organization lifecycle must be explicit, permission-scoped, auditable and backed by public Core contracts plus product orchestration where necessary.
+The **identity/onboarding subset and OL-05 destructive-authority gate are satisfied**. Full P0.2 remains open until the still-gated lifecycle/offboarding decisions are explicitly approved, implemented and production-safe. The full organization lifecycle must be explicit, permission-scoped, auditable and backed by public Core contracts plus product orchestration where necessary.
 
 ---
 
@@ -649,6 +664,7 @@ Do not copy this roadmap into `fair-crm` or `kyrox-core` code repositories.
 - [Ecosystem Roadmap](ROADMAP.md)
 - [Known Deferred Work](KNOWN_DEFERRED.md)
 - [P0.2 Identity / SaaS Onboarding Implementation Tracker](P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
+- [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](P0_2_OL_05_IMPLEMENTATION.md)
 - [Core/Product Separation — ADR-0002](decisions/0002-core-product-separation.md)
 - [Identity Security Strategy — ADR-0003](decisions/0003-identity-security-strategy.md)
 - [Audit Service Strategy — ADR-0004](decisions/0004-audit-service-strategy.md)
