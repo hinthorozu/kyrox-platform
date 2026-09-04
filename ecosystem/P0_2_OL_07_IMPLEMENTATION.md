@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** OL07-03 COMPLETE. Core PR #25 and FAIR CRM PR #249 are squash-merged, verified on `main`, and backed by green final CI. The next unchecked item is OL07-04 — Queued product work cancellation; it is NOT STARTED.  
+**Current resume point:** OL07-04 IN PROGRESS. FAIR CRM PR #250 (`feat/ol07-04-queued-work-cancellation`) implements organization-scoped pre-start lifecycle enforcement for queued import, scraper/enrichment, data-operation and mail work. Current head `5fae90d6bc26d01aa0657279635b03b15e01b3e2`; Development Standard Gate #678 and Prod-Path E2E #246 are the current required CI runs. Merge is not authorized yet. OL07-04 remains unchecked until CI green + merge + `main` verification; do not start OL07-05.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -68,10 +68,20 @@
   - Cross-repository Prod-Path E2E paired FAIR CRM with the matching Core candidate and a randomized shared lifecycle credential; the live ACTIVE lifecycle snapshot assertion passed.
   - No scraper/import/mail/provider execution path was wired in OL07-03; those remain OL07-04+ scope.
 
-- [ ] **OL07-04 — Queued product work cancellation**
-  - NOT STARTED. OL07-03 is complete; this is the next gated implementation item.
-  - Scraper, enrichment, import, operations and other organization-owned queued work must be cancelled/not started after suspension.
-  - Cancellation must be deterministic and organization-scoped.
+- [ ] **OL07-04 — Queued product work cancellation — IN PROGRESS**
+  - FAIR CRM PR #250 is open on `feat/ol07-04-queued-work-cancellation`; current head `5fae90d6bc26d01aa0657279635b03b15e01b3e2`.
+  - Shared pre-start gate recognizes the explicit queued product entrypoints for import analyze/apply/bulk-decision, fair scraper, adapter-test scraper, enrichment and data-operation jobs; unknown functions are not silently treated as lifecycle-owned work.
+  - Import runner public entrypoints independently apply the gate before any `mark_running()` path, closing direct-runner bypasses.
+  - Explicit non-active Core lifecycle snapshots terminalize queued work organization-scope only; lifecycle unavailable/invalid fails closed without guessing a terminal lifecycle disposition.
+  - Queued analyze cancellation terminalizes its job and returns `ANALYSIS_QUEUED` batch state to retryable `ANALYSIS_FAILED`; queued apply cancellation terminalizes both the job and its already-`APPLYING` batch so no false active batch remains.
+  - Scraper/enrichment history uses the existing local `RUNNING` queue-time sentinel; pre-start cancellation now uses a transition that refuses to rewrite an already terminal scraper run, covering the pre-start race.
+  - Data-operation cancellation maps through to parent OperationRun `CANCELLED` where orchestration identifiers are present.
+  - Central mail worker checks lifecycle per candidate before queue claim/provider dispatch. Non-active queued mail is cancelled; Core lifecycle outage defers without provider dispatch; candidate-scoped decisions preserve Organization A/B isolation.
+  - Lifecycle-deferred mail is not counted as worker `picked_count`, preventing the background drain loop from retrying the same unverifiable queued row up to its drain-round limit.
+  - Mail rows cancelled for lifecycle reasons are not accepted by the normal retry use-case, which supports only `FAILED`; reactivation therefore does not implicitly requeue them.
+  - Focused tests cover active/suspended/unavailable decisions, organization isolation, import public-runner ordering, apply batch terminalization, mail defer/pick semantics, and scraper terminal-state race protection.
+  - Current required CI: Development Standard Gate #678 and Prod-Path E2E #246. Both must be green on the final PR head before merge can be considered.
+  - Pending: explicit user merge authorization, PR merge, FAIR CRM `main` verification, then this checkbox may become `[x]`. OL07-05 must not start before that sequence completes.
 
 - [ ] **OL07-05 — Running product work safe-checkpoint cancellation**
   - Scraper/enrichment/import/operation runners must observe lifecycle cancellation at safe checkpoints.
