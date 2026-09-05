@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** OL07-05 IN PROGRESS. FAIR CRM PR #251 (`feat/ol07-05-running-work-checkpoints`) is open from OL07-04-complete `main` (`a01b9de53090e42ddfa5f9c88a19655cc830c4b2`). Current head `526657393c4f527234a2f95bb77c969c2b3f19eb` adds Core-authoritative lifecycle checkpoints for already-running import, scraper/enrichment, and data-operation work. Development Standard Gate #683 and Prod-Path E2E #250 are the initial PR CI runs and are not yet final evidence. OL07-05 remains unchecked until implementation/test review, final-head CI green, explicit merge authorization, merge, FAIR CRM `main` verification, and tracker completion. Do not start OL07-06.  
+**Current resume point:** OL07-05 IN PROGRESS / MERGE-READY. FAIR CRM PR #251 (`feat/ol07-05-running-work-checkpoints`) is open from OL07-04-complete `main` (`a01b9de53090e42ddfa5f9c88a19655cc830c4b2`). Final candidate head `523f2274a37b3876b092c34b6f761573bd13eedd` implements Core-authoritative safe-checkpoint cancellation for already-running import, scraper/adapter-test/enrichment, and data-operation work. Final-head Development Standard Gate #688 SUCCESS (including Backend Quality Check) and Prod-Path E2E #255 SUCCESS; no unresolved PR review threads were present at verification. OL07-05 remains unchecked until explicit merge authorization, PR merge, FAIR CRM `main` verification, and tracker completion. Do not start OL07-06.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -86,15 +86,16 @@
   - FAIR CRM `main` verified at `a01b9de53090e42ddfa5f9c88a19655cc830c4b2`; OL07-04 queued-work lifecycle enforcement is present on `main`.
   - FAIR CRM `main` push Development Standard Gate #682 SUCCESS, including Backend Quality Check.
 
-- [ ] **OL07-05 — Running product work safe-checkpoint cancellation — IN PROGRESS**
-  - FAIR CRM PR #251 is open on `feat/ol07-05-running-work-checkpoints`; current head `526657393c4f527234a2f95bb77c969c2b3f19eb`.
+- [ ] **OL07-05 — Running product work safe-checkpoint cancellation — IN PROGRESS / MERGE-READY**
+  - FAIR CRM PR #251 is open on `feat/ol07-05-running-work-checkpoints`; final candidate head `523f2274a37b3876b092c34b6f761573bd13eedd`.
   - Shared running-work checkpoint reads fresh Core lifecycle state; explicit non-active state raises a cancellation signal while lifecycle unavailable/invalid remains a distinct fail-closed authority error.
-  - Import analyze checkpoints chunk/persistence boundaries; apply and bulk-decision checkpoint row/mutation boundaries and completion. Running cancellation rolls back the open transaction before terminal state persistence.
-  - Existing scraper/adapter-test/enrichment cooperative cancellation hooks now also observe Core lifecycle in production runners, preserving their page/candidate safe checkpoints.
-  - Data-operation dataset writes, per-customer assignment, destructive delete boundaries and completion are lifecycle-checkpointed; running DataOperationRun may terminalize as `CANCELLED` and linked OperationRun synchronization already maps that state.
-  - Focused tests cover active/suspended/unavailable checkpoint semantics, RUNNING -> CANCELLED domain transitions and import row checkpoint ordering.
-  - Initial CI: Development Standard Gate #683 and Prod-Path E2E #250 started for current head; final result pending.
-  - Pending: final-head tests/CI green, explicit user merge authorization, PR merge, FAIR CRM `main` verification, then this checkbox may become `[x]`. OL07-06 must not start before that sequence completes.
+  - Import analyze checkpoints chunk/persistence boundaries; apply and bulk-decision checkpoint row/mutation boundaries and completion. Running cancellation rolls back the open transaction before terminal state persistence; import job `RUNNING -> CANCELLED` and apply batch cancellation are covered.
+  - Existing scraper/adapter-test/enrichment cooperative cancellation hooks observe Core lifecycle in production runners, preserving page/candidate safe checkpoints. Scraper cooperative-cancel control flow was hardened so broad adapter `except Exception` handlers cannot convert an observed suspension into a generic scrape failure.
+  - Data-operation dataset writes, per-customer assignment, destructive delete boundaries and completion are lifecycle-checkpointed; suspension prevents the next dataset/mutation/destructive step and rolls back the active transaction before terminal cancellation is persisted.
+  - Focused tests cover active/suspended/unavailable checkpoint semantics, scraper cancellation-signal propagation, RUNNING -> CANCELLED domain transitions, import runner rollback/cancellation, import row checkpoint ordering, and data-operation no-next-step behavior.
+  - Final PR CI on `523f2274a37b3876b092c34b6f761573bd13eedd`: Development Standard Gate #688 SUCCESS, including Backend Quality Check; Prod-Path E2E #255 SUCCESS.
+  - PR review verification found no unresolved review threads; PR is mergeable.
+  - Pending: explicit user merge authorization, PR merge, FAIR CRM `main` verification, then this checkbox may become `[x]`. OL07-06 must not start before that sequence completes.
 
 - [ ] **OL07-06 — Outbound mail suspension enforcement**
   - Queued unsent mail must not reach a provider after suspension.
