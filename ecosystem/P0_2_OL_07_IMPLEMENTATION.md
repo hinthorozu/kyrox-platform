@@ -4,7 +4,7 @@
 **Decision:** OL-07 ACCEPTED 2026-09-04  
 **Started:** 2026-09-04  
 **Completed:** —  
-**Current resume point:** OL07-04 DONE. FAIR CRM PR #250 (`feat/ol07-04-queued-work-cancellation`) was squash-merged at final head `38124b9c2a59126977fb22b094a01850e4a315f3`; PR gates Development Standard Gate #681 SUCCESS and Prod-Path E2E #249 SUCCESS; merge commit `a01b9de53090e42ddfa5f9c88a19655cc830c4b2`. FAIR CRM `main` was verified at that merge commit with OL07-04 queued-work lifecycle enforcement present; main-push Development Standard Gate #682 SUCCESS. OL07-04 is complete. OL07-05 is now the first unchecked item; do not start OL07-06 until OL07-05 is fully complete.  
+**Current resume point:** OL07-05 IN PROGRESS. FAIR CRM PR #251 (`feat/ol07-05-running-work-checkpoints`) is open from OL07-04-complete `main` (`a01b9de53090e42ddfa5f9c88a19655cc830c4b2`). Current head `526657393c4f527234a2f95bb77c969c2b3f19eb` adds Core-authoritative lifecycle checkpoints for already-running import, scraper/enrichment, and data-operation work. Development Standard Gate #683 and Prod-Path E2E #250 are the initial PR CI runs and are not yet final evidence. OL07-05 remains unchecked until implementation/test review, final-head CI green, explicit merge authorization, merge, FAIR CRM `main` verification, and tracker completion. Do not start OL07-06.  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Accepted policy
@@ -86,10 +86,15 @@
   - FAIR CRM `main` verified at `a01b9de53090e42ddfa5f9c88a19655cc830c4b2`; OL07-04 queued-work lifecycle enforcement is present on `main`.
   - FAIR CRM `main` push Development Standard Gate #682 SUCCESS, including Backend Quality Check.
 
-- [ ] **OL07-05 — Running product work safe-checkpoint cancellation**
-  - Scraper/enrichment/import/operation runners must observe lifecycle cancellation at safe checkpoints.
-  - No next batch/row/step may start after suspension is observed.
-  - Open transactional work must settle safely according to existing transaction boundaries.
+- [ ] **OL07-05 — Running product work safe-checkpoint cancellation — IN PROGRESS**
+  - FAIR CRM PR #251 is open on `feat/ol07-05-running-work-checkpoints`; current head `526657393c4f527234a2f95bb77c969c2b3f19eb`.
+  - Shared running-work checkpoint reads fresh Core lifecycle state; explicit non-active state raises a cancellation signal while lifecycle unavailable/invalid remains a distinct fail-closed authority error.
+  - Import analyze checkpoints chunk/persistence boundaries; apply and bulk-decision checkpoint row/mutation boundaries and completion. Running cancellation rolls back the open transaction before terminal state persistence.
+  - Existing scraper/adapter-test/enrichment cooperative cancellation hooks now also observe Core lifecycle in production runners, preserving their page/candidate safe checkpoints.
+  - Data-operation dataset writes, per-customer assignment, destructive delete boundaries and completion are lifecycle-checkpointed; running DataOperationRun may terminalize as `CANCELLED` and linked OperationRun synchronization already maps that state.
+  - Focused tests cover active/suspended/unavailable checkpoint semantics, RUNNING -> CANCELLED domain transitions and import row checkpoint ordering.
+  - Initial CI: Development Standard Gate #683 and Prod-Path E2E #250 started for current head; final result pending.
+  - Pending: final-head tests/CI green, explicit user merge authorization, PR merge, FAIR CRM `main` verification, then this checkbox may become `[x]`. OL07-06 must not start before that sequence completes.
 
 - [ ] **OL07-06 — Outbound mail suspension enforcement**
   - Queued unsent mail must not reach a provider after suspension.
