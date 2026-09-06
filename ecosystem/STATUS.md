@@ -8,7 +8,7 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
 | Implementation repos | `kyrox-core`, `fair-crm` |
-| Last ecosystem sync | **2026-08-29** |
+| Last ecosystem sync | **2026-09-06** |
 
 ## SaaS readiness
 
@@ -16,7 +16,7 @@ Single source of truth for **cross-repository current state**. Detailed product/
 
 Closure evidence is recorded in [projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md](../projects/fair-crm/backlog/P0_1_TENANT_ISOLATION_CERTIFICATION.md). FAIR CRM PRs #83 and #84 close TI-07 and TI-09; Core PR #11 closes TI-08. The final FAIR CRM TI-09 head passed Development Standard Gate #268 and Prod-Path E2E #140 before merge. P0.1 completion does not waive the SaaS-impact gates for future changes; new organization-owned behavior must continue to ship with applicable cross-organization evidence.
 
-**The approved P0.2 identity / SaaS onboarding workstream is DONE as of 2026-08-29.** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) remains Proposed overall because suspension/closure/retention/backup and related lifecycle decisions are still open, but its explicitly approved identity/onboarding subset OL-01 through OL-04 has now been implemented and production-path certified across Core and FAIR CRM.
+**The approved P0.2 identity / SaaS onboarding workstream is DONE as of 2026-08-29.** [ADR-0006](decisions/0006-organization-lifecycle-and-onboarding.md) remains Proposed overall because remaining suspension provider semantics, closure/retention/backup and related lifecycle decisions are still open, but its explicitly approved identity/onboarding subset OL-01 through OL-04 has been implemented and production-path certified across Core and FAIR CRM.
 
 The completed workstream keeps `Organization` as the account boundary, keeps the direct single-organization user model, uses the existing protected `OrganizationAdmin` role for the first normal admin, preserves existing Platform Super Admin organization/user creation, and provides controlled public commercial signup plus Core-owned activation/set-password, password reset/change, one-time identity action tokens, shared password policy, session/credential invalidation and production identity-email capability. FAIR CRM remains a thin consumer of public Core identity APIs and owns no credential authority.
 
@@ -26,7 +26,7 @@ FAIR CRM then delivered CRM-BE-01/02 through PRs #86/#87, public auth and login 
 
 Final FAIR CRM PR #92 (`d498245c4c60bd36b9b3a8aeffed4912e198123b`) added CI-only cross-repository lifecycle certification and merged as `2f9f159a303ffd055121547de51dcaefc15fc6a9`. Development Standard Gate #306 / run `33246959509` and Prod-Path E2E #151 / run `33246959442` passed the same final head. The Prod-Path run first passed the existing production-shaped gate with **35 passed, 0 failed**, then certified signup → activation → login → forgot/reset → login → password change → login through real FAIR CRM + real KYROX Core. Core's real SMTP adapter delivered activation/reset email into an in-process memory-only SMTP sink; activation/reset replay was rejected and pre-credential-change access/refresh sessions were rejected after reset/change. The certification PR changed no FAIR CRM/Core application runtime or schema behavior.
 
-The P0.2 lifecycle audit still records the separate OL-07 execution-policy gap: normal permission-protected starts are blocked after suspension, but already queued/running FAIR CRM work generally continues from previously established organization-scoped job context without re-checking authoritative Core organization status. This remains a **lifecycle-policy gap, not a P0.1 tenant-isolation regression**, and the completed onboarding workstream does not authorize suspension/closure runtime changes.
+**OL-07 suspension runtime implementation is now IN PROGRESS.** OL07-03 established the Core-owned product lifecycle snapshot contract and FAIR CRM fail-closed lifecycle guard. OL07-04 then made queued/pending organization-owned FAIR CRM work cancel before start when Core reports a non-active lifecycle state. OL07-05 is **DONE as of 2026-09-06**: FAIR CRM PR #251 adds cooperative cancellation of already-running import, scraper/enrichment and data-operation work at safe checkpoints, with owned transactions rolled back before terminal cancellation state is persisted. The canonical implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](P0_2_OL_07_IMPLEMENTATION.md). OL-07 as a whole remains open because provider/in-flight side-effect and resumption semantics are not yet completed.
 
 ## KYROX Core
 
@@ -47,6 +47,8 @@ Current work queue: [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.
 FAIR CRM remains the active M4 product. Existing implementation includes the CRM foundations, data integration/import flows, operations/automation flows, mail delivery flows, quotation-related capabilities and a cost-catalog implementation. Its P0.1 tenant-isolation certification is complete; ongoing product work remains subject to the same SaaS-impact, authorization-scope and tenant-isolation delivery rules.
 
 The approved P0.2 product integration is complete: thin Core auth bridge, public signup/activation/password-recovery, login entry links, authenticated security/password change, preserved Super Admin manual user provisioning and final cross-repository lifecycle certification. Credential authority and password/token logic remain entirely in Core. No unsupported setup-link mode was added.
+
+FAIR CRM also now consumes the Core lifecycle snapshot at execution time for the completed OL07-03/04/05 slices: queued work is blocked/cancelled before start and already-running covered work cooperatively stops at safe checkpoints after suspension/non-active lifecycle is observed. Provider/in-flight behavior remains the next OL-07 boundary and must not be inferred from these completed slices.
 
 The current documentation/quality focus is to keep Platform as the single human/AI knowledge source and to ensure permission-controlled UI surfaces consistently follow effective permissions and the shared CRUD/UI authorization standard.
 
