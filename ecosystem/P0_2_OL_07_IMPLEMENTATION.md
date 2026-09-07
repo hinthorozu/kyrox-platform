@@ -1,14 +1,13 @@
 # P0.2 OL-07 — Suspension Job / Provider Behavior Implementation Tracker
 
-**Status:** IN PROGRESS — OL07-03 through OL07-07 complete  
-**Current resume point:** deterministic reactivation/resumption semantics  
+**Status:** DONE 2026-09-07 — lifecycle authority, suspension execution, provider handoff and deterministic reactivation/resumption certified  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Scope
 
-OL-07 defines deterministic FAIR CRM behavior when the Core-owned organization lifecycle no longer allows product work. The lifecycle authority remains KYROX Core; FAIR CRM consumes the public lifecycle contract and owns product-job/provider behavior.
+OL-07 defines deterministic FAIR CRM behavior when the Core-owned organization lifecycle no longer allows product work and when a suspended organization is later reactivated. The lifecycle authority remains KYROX Core; FAIR CRM consumes the public lifecycle contract and owns product-job/provider behavior.
 
-OL-07 is not complete yet. This tracker records only implemented and verified substeps and must not be read as approval of still-open reactivation/resumption semantics.
+OL-07 is complete. This tracker records the implemented and verified suspension, provider-handoff and reactivation/resumption semantics. It does **not** authorize OL-08 closure/export/retention/delete behavior.
 
 ## Completed implementation sequence
 
@@ -60,14 +59,30 @@ OL-07 is not complete yet. This tracker records only implemented and verified su
   - FAIR CRM merge commit: `4f52961341bc4d80c4a576fa85525aa511d68b82`.
   - **OL07-07 completed 2026-09-07.**
 
-## Current certified behavior
+- [x] **Final reactivation/resumption certification**
+  - FAIR CRM PR #254 certified that Core `SUSPENDED -> ACTIVE` restores eligibility for new work but does not resurrect previously terminalized product work.
+  - Work explicitly cancelled because of suspension remains `CANCELLED`; old detached callbacks remain locally non-startable after reactivation.
+  - Newly created/queued work after reactivation may start through the normal lifecycle gate.
+  - Work deferred only because Core lifecycle authority was temporarily unavailable remains non-terminal and may start once authority returns and reports `ACTIVE`.
+  - Provider accounts/configuration remain active and encrypted during suspension; new outbound work after reactivation can use the same configured account without a lifecycle credential re-enable mutation.
+  - Mail cancelled before provider handoff remains terminal and is not selected by the mail worker after reactivation.
+  - `provider_handoff_uncertain` remains terminal/non-auto-retry after reactivation; lifecycle restoration cannot make an ambiguous external side effect safe to resend.
+  - No FAIR CRM application runtime change was required because the existing state machines and worker selectors already enforced these semantics; PR #254 added explicit cross-state regression certification.
+  - PR #254 final head `e17593e49ecb25a3aef736b0ceaa1fafa14c7e77` passed Development Standard Gate #700 and Prod-Path E2E #264 before merge.
+  - FAIR CRM squash-merge commit: `18b0b638ba946c2910698e1df7c4ab5283c4958f`.
+  - **Deterministic reactivation/resumption certified 2026-09-07.**
+
+## Final certified behavior
 
 ```text
 Core lifecycle ACTIVE
-  -> queued work may start
-  -> running work may continue
-  -> outbound SMTP/provider handoff may proceed
-  -> reactivation/resumption of previously cancelled product work is not yet implied
+  -> fresh/new queued work may start
+  -> currently running allowed work may continue
+  -> new outbound SMTP/provider handoff may proceed
+  -> provider configuration preserved through suspension is usable without lifecycle re-enable
+  -> work merely deferred by temporary lifecycle-authority outage may proceed once authority returns ACTIVE
+  -> previously suspension-cancelled work is NOT resurrected
+  -> cancelled/ambiguous mail is NOT automatically resent
 
 Core lifecycle SUSPENDED / non-active
   -> queued work is cancelled before start
@@ -85,17 +100,18 @@ Core lifecycle unavailable / invalid
   -> do not invent ACTIVE state
   -> do not call the outbound provider
   -> do not falsely record explicit suspension cancellation
+  -> pre-start work left non-terminal may proceed later only after authority returns and reports ACTIVE
 ```
 
-## Still open in OL-07
+## OL-07 completion boundary
 
-OL07-07 does **not** complete OL-07. The following lifecycle behavior remains separately gated:
+OL-07 is **DONE**. The suspension and reactivation lifecycle semantics are deterministic across queued work, running work, outbound provider handoff and ambiguous in-flight delivery outcomes.
 
-- deterministic product-side resumption behavior after organization reactivation,
-- final OL-07 cross-repository certification and canonical ADR/roadmap closure.
+OL-07 completion does not authorize or imply:
 
-No OL-08 closure/export/retention/delete behavior is authorized by this tracker.
+- closure/export/retention/anonymization/delete sequencing,
+- provider credential revocation for organization closure,
+- retention/grace durations,
+- backup ageing or restore behavior.
 
-## Resume point
-
-**Next: deterministic reactivation/resumption semantics.** OL07-07 in-flight provider-handoff behavior is complete and merged. Do not infer automatic restart/resend from Core `SUSPENDED -> ACTIVE`; resumption must be specified explicitly per product work type, and uncertain provider handoffs must remain non-auto-retry.
+Those remain OL-08 through OL-10 decision scope.
