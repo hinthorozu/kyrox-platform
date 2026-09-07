@@ -1,6 +1,6 @@
 # ADR-0006: Organization lifecycle and SaaS onboarding contract
 
-- **Status:** Proposed — OL-01 through OL-07 accepted and implementation/certification complete; OL08-A closure orchestration accepted and OL08-01 authorized; OL08-B through OL08-G, OL-09 and OL-10 unresolved
+- **Status:** Proposed — OL-01 through OL-07 accepted and implementation/certification complete; OL08-A accepted and OL08-01 complete; OL08-B technical export contract partially accepted; OL08-C through OL08-G, OL-09 and OL-10 unresolved
 - **Date:** 2026-08-26
 - **Deciders:** KYROX ecosystem maintainers
 - **Roadmap gate:** P0.2 — Organization lifecycle contract and SaaS onboarding decisions
@@ -9,9 +9,9 @@
 
 P0.1 tenant-isolation certification is complete. The next SaaS-readiness gate is to define how a commercial KYROX account is created, administered, suspended, reactivated and eventually closed without duplicating Core capabilities or leaking lifecycle semantics across repositories.
 
-The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27 and completed on 2026-08-29. OL-05 destructive organization authority was accepted and implementation-certified on 2026-09-03. OL-06 reactivation was accepted on 2026-09-03 and implementation-certified on 2026-09-04 through KYROX Core PR #23. OL-07 suspension/job/provider/reactivation product semantics were implementation-certified on 2026-09-07 through FAIR CRM PRs #249–#254. OL-08 decision readiness was then audited against the current Core and FAIR CRM runtime. On 2026-09-07, OL08-A was accepted narrowly to authorize only the non-destructive closure execution/orchestration contract (OL08-01); export, credential destruction, product-data/artifact disposition, retention/grace and backup/restore implications remain separately gated, so the ADR as a whole remains Proposed.
+The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27 and completed on 2026-08-29. OL-05 destructive organization authority was accepted and implementation-certified on 2026-09-03. OL-06 reactivation was accepted on 2026-09-03 and implementation-certified on 2026-09-04 through KYROX Core PR #23. OL-07 suspension/job/provider/reactivation product semantics were implementation-certified on 2026-09-07 through FAIR CRM PRs #249–#254. OL-08 decision readiness was then audited against the current Core and FAIR CRM runtime. On 2026-09-07, OL08-A was accepted narrowly to authorize non-destructive closure execution/orchestration; OL08-01 was then implemented/certified through FAIR CRM PR #255 and Platform PR #36. OL08-B now partially accepts the technical closure-export contract while keeping `not_required` policy authority, persistent/downloadable closure-package lifecycle and every irreversible cleanup/tombstone gate separately unresolved. The ADR as a whole therefore remains Proposed.
 
-The canonical implementation checklist for the approved onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). OL-05 completion evidence is retained in [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md). OL-06 completion evidence is retained in [P0.2 OL-06 Organization Reactivation Implementation Tracker](../P0_2_OL_06_IMPLEMENTATION.md). OL-07 completion evidence is retained in [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../P0_2_OL_07_IMPLEMENTATION.md). OL-08 readiness is recorded in [P0.2 OL-08 Organization Offboarding Decision Readiness](../P0_2_OL_08_DECISION_READINESS.md), and the accepted OL08-A/OL08-01 runtime work is tracked in [P0.2 OL-08 Organization Offboarding Implementation Tracker](../P0_2_OL_08_IMPLEMENTATION.md).
+The canonical implementation checklist for the approved onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). OL-05 completion evidence is retained in [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md). OL-06 completion evidence is retained in [P0.2 OL-06 Organization Reactivation Implementation Tracker](../P0_2_OL_06_IMPLEMENTATION.md). OL-07 completion evidence is retained in [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../P0_2_OL_07_IMPLEMENTATION.md). OL-08 readiness is recorded in [P0.2 OL-08 Organization Offboarding Decision Readiness](../P0_2_OL_08_DECISION_READINESS.md), OL-08 implementation/certification is tracked in [P0.2 OL-08 Organization Offboarding Implementation Tracker](../P0_2_OL_08_IMPLEMENTATION.md), and the accepted OL08-B technical export boundary is detailed in [P0.2 OL-08B Closure Export Contract Decision](../P0_2_OL_08_B_EXPORT_DECISION.md).
 
 ## Verified current implementation
 
@@ -51,11 +51,11 @@ Core and FAIR CRM use separate persistence. Suspending or soft-deleting an organ
 
 OL-07 now defines the certified suspension/reactivation runtime split: Core remains lifecycle authority; FAIR CRM checks that authority at queued-work start, running-work safe checkpoints and immediately before outbound provider handoff. Explicit suspension terminalizes covered queued/running work according to the certified state machines, blocks new provider handoff, preserves provider configuration/credentials, and never fabricates provider recall after handoff starts. Reactivation restores eligibility for fresh/new work and safely deferred non-terminal work but does not resurrect suspension-cancelled work or auto-resend ambiguous provider outcomes.
 
-The OL-08 readiness audit verified an additional cross-repository gap: current Core organization delete directly sets the Core tombstone after SYSTEM authorization but has no product-offboarding-complete prerequisite, while FAIR CRM only reads the Core lifecycle snapshot and has no durable closure execution state. Therefore Core tombstone cannot safely serve as the closure start signal. OL08-A assigns durable closure execution/progress state to FAIR CRM while keeping Core as lifecycle authority and reserves Core tombstone as the final cross-repository lifecycle mutation.
+The OL-08 readiness audit verified an additional cross-repository gap: current Core organization delete directly sets the Core tombstone after SYSTEM authorization but has no product-offboarding-complete prerequisite, while FAIR CRM previously had no durable closure execution state. Therefore Core tombstone cannot safely serve as the closure start signal. OL08-A assigns durable closure execution/progress state to FAIR CRM while keeping Core as lifecycle authority and reserves Core tombstone as the final cross-repository lifecycle mutation. OL08-01 now implements that non-destructive state machine. OL08-B additionally accepts the technical shape of a closure-export completeness contract without treating existing feature exports as a closure-complete package.
 
 ## Decision state
 
-OL-01 through OL-07 are accepted and their implementation/certification workstreams are complete. OL08-A is accepted narrowly and authorizes OL08-01 non-destructive closure execution/orchestration. OL08-B through OL08-G, OL-09 and OL-10 remain proposals/open choices until separately accepted.
+OL-01 through OL-07 are accepted and their implementation/certification workstreams are complete. OL08-A is accepted and OL08-01 is implementation/certification complete. OL08-B is partially accepted for the technical export contract and bounded non-destructive planner scope described below. OL08-C through OL08-G, OL-09 and OL-10 remain proposals/open choices, and OL08-B still has unresolved package-lifecycle / `not_required` policy authority.
 
 ### 1. Keep Organization as the only account boundary — APPROVED
 
@@ -147,7 +147,7 @@ Operational meaning:
 Implementation/certification evidence:
 
 - KYROX Core PR #21 added explicit audit evidence for successful suspend/delete transitions and certified anonymous denial, organization-user denial, cross-organization spoof denial, Platform SuperAdmin success and no mutation on rejected requests.
-- KYROX Core PR #22 added the direct regression proving a SYSTEM-scope lifecycle permission cannot be assigned to an organization-role template, even by Platform SuperAdmin, and that no role-permission association is persisted after the rejected request.
+- KYROX Core PR #22 added the direct regression proving a SYSTEM-scope lifecycle permission cannot be assigned to an organization-role template, even by Platform Superadmin, and that no role-permission association is persisted after the rejected request.
 - Current FAIR CRM integration does not expose an alternate product-owned lifecycle authority that widens the Core SYSTEM boundary; organization lifecycle mutations remain Core-authoritative.
 - The canonical completion record is [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md).
 
@@ -206,41 +206,55 @@ Implementation/certification evidence:
 
 **Scope boundary:** OL-07 certifies suspension and reactivation runtime behavior only. Organization closure/export/retention/anonymization/delete sequencing, retention/grace periods and backup ageing/restoration remain OL-08 through OL-10.
 
-### 10. Organization deletion is the final step of an offboarding workflow, not the first step — PARTIALLY ACCEPTED / OL08-A 2026-09-07
+### 10. Organization deletion is the final step of an offboarding workflow, not the first step — PARTIALLY ACCEPTED / OL08-A + OL08-B TECHNICAL CONTRACT 2026-09-07
 
 Core's current delete is only a Core soft-delete. It must not be treated as complete customer data deletion.
 
 **Accepted OL08-A boundary:** organization closure execution is represented by a FAIR CRM-owned durable orchestration record while Core remains canonical lifecycle authority. A new closure execution may begin only after Core reports the target organization as non-deleted and `SUSPENDED`. Platform SuperAdmin / SYSTEM authority controls start/status/retry. The execution must be idempotent/restartable, expose explicit failure/block evidence, retain auditable actor/target/execution/phase/timestamps, and permit at most one open execution per organization. Closure progress is not encoded into Core `OrganizationStatus` and the Core tombstone is not a start signal.
 
-OL08-A authorizes **OL08-01 only**, a non-destructive execution/state-machine slice. OL08-01 may create/read/retry closure execution state and audit evidence, but it must not:
+OL08-A authorized OL08-01, a non-destructive execution/state-machine slice. OL08-01 is now implementation/certification complete through FAIR CRM PR #255 and Platform PR #36. It does not export closure data, revoke credentials, destroy product data/artifacts or invoke Core tombstone.
 
-- generate a closure-complete export,
-- revoke provider-side credentials,
-- purge local SMTP/provider secrets,
-- anonymize or hard-delete product data,
-- delete generated product artifacts,
-- choose retention/grace durations,
-- define backup ageing/restoration semantics,
-- invoke Core organization delete/tombstone,
-- expose a state that can falsely certify later destructive cleanup complete or tombstone-ready.
+**Accepted OL08-B technical boundary:** closure export is an organization/execution-scoped product phase with an explicit policy-conditioned disposition model:
 
-The staged commercial closure sequence remains the target ordering, but every still-open phase requires its own accepted policy before runtime implementation:
+```text
+required
+not_required
+```
+
+Missing/unknown disposition fails closed. `not_required` requires durable evidence from a separately accepted policy source; no such policy is currently accepted, therefore runtime must not use `not_required` to satisfy an export obligation.
+
+The accepted first-version export contract requires:
+
+- a versioned manifest bound to one organization + closure execution + export identity,
+- explicit included/excluded/deferred structured-data classes,
+- mandatory completeness-registry coverage for FAIR CRM customer-portable structured business data,
+- hard exclusion of reusable authentication/provider secrets,
+- Core identity remaining outside FAIR CRM export ownership,
+- generated/binary artifacts deferred to OL08-E,
+- SYSTEM/operator-only control initially,
+- no export planner/package state opening an irreversible cleanup/tombstone gate until package lifecycle and remaining policy are separately accepted/certified.
+
+Before export planning is trusted, OL08-02 must certify closure quiescence against the existing OL-07 runtime. After OL08-02 is green, OL08-B authorizes only bounded OL08-03A manifest/completeness-planner work. Persistent/downloadable package materialization, package retention/expiry, customer-facing handover, `not_required` success and `integrity_verified` as an irreversible gate remain blocked.
+
+The staged commercial closure sequence remains the target ordering:
 
 ```text
 closure approved
   -> Core SUSPENDED / OL-07 quiescence
   -> durable FAIR CRM closure execution (OL08-A / OL08-01)
-  -> export if separately accepted policy/user right requires it
-  -> revoke/disable provider credentials under separately accepted policy
+  -> OL08-02 closure quiescence certification
+  -> bounded export manifest/completeness planning (OL08-B / OL08-03A)
+  -> future package generation/delivery only after its artifact/policy gates are accepted
+  -> revoke/disable provider credentials under separately accepted OL08-C policy
   -> apply separately accepted product retention/anonymization/deletion policy
-  -> handle generated files/artifacts under separately accepted policy
-  -> preserve audit/security evidence under separately accepted policy
+  -> handle generated files/artifacts under separately accepted OL08-E policy
+  -> preserve audit/security evidence under separately accepted OL08-F policy
   -> reconcile backup ageing/restoration under accepted OL-10 policy
   -> verify every required product phase complete
   -> Core organization tombstone/soft-delete LAST
 ```
 
-Cross-repository product cleanup is orchestrated through public product/Core contracts. Core must not directly manipulate FAIR CRM tables. The current Core delete endpoint has no product-offboarding-complete prerequisite, so it remains unsafe as a closure start action and must not be invoked by OL08-01.
+Cross-repository product cleanup is orchestrated through public product/Core contracts. Core must not directly manipulate FAIR CRM tables. The current Core delete endpoint has no product-offboarding-complete prerequisite and remains unsafe as a closure start action.
 
 ### 11. Retention and legal-data policy remain decision blockers — OPEN
 
@@ -267,7 +281,7 @@ These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be
 | OL-05 | Self-service suspend/delete authority | SYSTEM scope | Execution Platform SuperAdmin only; optional closure-request flow later; transitions auditable | **ACCEPTED 2026-09-03 / DONE** |
 | OL-06 | Reactivation | Domain transition exists; API missing on certified baseline | Platform SuperAdmin-only SYSTEM action; only `SUSPENDED -> ACTIVE`; explicit Core API + audit | **ACCEPTED 2026-09-03 / DONE 2026-09-04** |
 | OL-07 | Suspension job/provider behavior | Previously queued/running product work and outbound mail could outlive Core suspension without deterministic product re-checks | Lifecycle-gate queued/running/provider boundaries; preserve credentials; no implicit restart/resend on reactivation | **ACCEPTED / DONE 2026-09-07** |
-| OL-08 | Closure/export/retention/delete sequence | Core tombstone exists but no product closure orchestration or completion gate | OL08-A accepts FAIR CRM durable closure execution with Core `SUSPENDED` precondition and tombstone-last; later destructive/export phases remain separately gated | **PARTIALLY ACCEPTED — OL08-A / OL08-01 AUTHORIZED 2026-09-07** |
+| OL-08 | Closure/export/retention/delete sequence | Core tombstone exists; OL08-01 durable closure orchestration is now implemented | OL08-A accepts closure orchestration; OL08-B partially accepts versioned policy-conditioned export technical contract; destructive/provider/artifact/retention/backup phases remain gated | **PARTIALLY ACCEPTED — OL08-A + OL08-B TECHNICAL CONTRACT 2026-09-07** |
 | OL-09 | Retention/grace durations | Not defined | Business/legal decision required | **OPEN CHOICE** |
 | OL-10 | Backup restore implications | Not defined | Must be explicit before destructive closure | **OPEN CHOICE** |
 
@@ -281,7 +295,9 @@ OL-06 is accepted and its implementation/certification is complete, tracked in [
 
 OL-07 is accepted and its cross-repository suspension/provider/reactivation implementation/certification is complete, tracked in [P0_2_OL_07_IMPLEMENTATION.md](../P0_2_OL_07_IMPLEMENTATION.md). FAIR CRM PRs #249–#254 are the certified product runtime evidence, ending with PR #254 merge `18b0b638ba946c2910698e1df7c4ab5283c4958f` after Development Standard Gate #700 and Prod-Path E2E #264 passed the final head.
 
-OL08-A is accepted and authorizes OL08-01 non-destructive closure execution/state-machine implementation in FAIR CRM, tracked in [P0_2_OL_08_IMPLEMENTATION.md](../P0_2_OL_08_IMPLEMENTATION.md). OL08-B through OL08-G remain gated until separately accepted. OL-09 and OL-10 remain open choices. No accepted OL08-01 runtime work may perform closure export, provider credential destruction, product-data/artifact destruction or Core tombstone.
+OL08-A is accepted and OL08-01 is complete, tracked in [P0_2_OL_08_IMPLEMENTATION.md](../P0_2_OL_08_IMPLEMENTATION.md). FAIR CRM PR #255 final head `aa34cd3e5d00ec6f7d6b7adaad4afa950319830e` passed Development Standard Gate #707 and Prod-Path E2E #270 before merge `e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`; Platform PR #36 then completed cross-repository certification.
+
+OL08-B partially accepts the technical export contract in [P0_2_OL_08_B_EXPORT_DECISION.md](../P0_2_OL_08_B_EXPORT_DECISION.md). The next authorized work is **OL08-02 closure-quiescence certification**. If OL08-02 is green, bounded **OL08-03A export manifest/completeness planner** implementation is authorized. Persistent/downloadable package lifecycle, `not_required` policy authority and every irreversible phase remain gated. OL08-C through OL08-G remain gated until separately accepted; OL-09 and OL-10 remain open choices.
 
 Implementation ownership remains:
 
@@ -308,8 +324,10 @@ Implementation ownership remains:
 - existing Super Admin user-management UX compatibility plus optional setup-link mode,
 - product first-value onboarding after authentication,
 - certified OL-07 product lifecycle behavior for suspension, provider handoff and reactivation/resumption,
-- accepted OL08-01 durable product closure execution/state, SYSTEM-controlled start/status/retry and idempotency/audit behavior,
-- later closure export/provider/data/artifact behavior only after the corresponding OL08-B through OL08-G and OL-09/10 decisions are accepted.
+- certified OL08-01 durable product closure execution/state, SYSTEM-controlled start/status/retry and idempotency/audit behavior,
+- OL08-02 closure-quiescence certification against the existing lifecycle runtime,
+- bounded OL08-03A export manifest/completeness planning after OL08-02 is green,
+- later closure package/provider/data/artifact behavior only after the corresponding remaining OL08/OL-09/OL-10 decisions are accepted.
 
 ### Platform-owned
 
@@ -346,9 +364,10 @@ This ADR's accepted decisions:
 - preserve SYSTEM-only destructive organization authority and do not authorize self-service destructive organization action,
 - preserve SYSTEM-only organization reactivation authority and limit the Core action to `SUSPENDED -> ACTIVE`,
 - define deterministic FAIR CRM suspension/provider/reactivation runtime semantics through accepted OL-07 without granting implicit restart/resend behavior,
-- define OL08-A closure execution as FAIR CRM-owned durable orchestration beginning from canonical Core `SUSPENDED`, with Core tombstone reserved as the final cross-repository lifecycle mutation.
+- define OL08-A closure execution as FAIR CRM-owned durable orchestration beginning from canonical Core `SUSPENDED`, with Core tombstone reserved as the final cross-repository lifecycle mutation,
+- define OL08-B's accepted technical export contract as versioned, organization/execution-scoped, policy-conditioned and secret-free, while keeping `not_required` policy authority and persistent package lifecycle gated.
 
-The ADR remains Proposed overall until the remaining OL08-B through OL08-G, OL-09 and OL-10 decisions required by the chosen commercial lifecycle are resolved.
+The ADR remains Proposed overall until the unresolved OL08-B package/policy gates, OL08-C through OL08-G, OL-09 and OL-10 decisions required by the chosen commercial lifecycle are resolved.
 
 ## Related
 
@@ -358,6 +377,7 @@ The ADR remains Proposed overall until the remaining OL08-B through OL08-G, OL-0
 - [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../P0_2_OL_07_IMPLEMENTATION.md)
 - [P0.2 OL-08 Organization Offboarding Decision Readiness](../P0_2_OL_08_DECISION_READINESS.md)
 - [P0.2 OL-08 Organization Offboarding Implementation Tracker](../P0_2_OL_08_IMPLEMENTATION.md)
+- [P0.2 OL-08B Closure Export Contract Decision](../P0_2_OL_08_B_EXPORT_DECISION.md)
 - [P0.2 Organization Lifecycle Runtime Audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md)
 - [KYROX SaaS Readiness Roadmap](../SAAS_ROADMAP.md)
 - [ADR-0002: Core and product separation](0002-core-product-separation.md)
