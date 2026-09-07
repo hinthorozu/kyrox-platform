@@ -17,7 +17,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 |------|--------|
 | Tenant isolation / SaaS P0.1 | **Certified DONE (2026-08-26)** — TI-01 through TI-09 complete across API, repository, worker, export/download and Platform Super Admin boundaries |
 | Identity / SaaS onboarding P0.2 | **Approved onboarding/credential slice DONE (2026-08-29)** — Core identity runtime, thin FAIR CRM bridge, public signup/activation/recovery, login integration, authenticated password change, Super Admin compatibility and production-shaped cross-repository lifecycle certification are complete |
-| Organization suspension runtime / OL-07 | **IN PROGRESS — OL07-03 through OL07-07 complete; next reactivation/resumption semantics** — lifecycle authority, queued/running cancellation, pre-handoff blocking and in-flight provider ambiguity handling are implemented; deterministic product-side resumption after Core reactivation and final cross-repository closure remain open |
+| Organization suspension runtime / OL-07 | **Certified DONE (2026-09-07)** — lifecycle authority, queued/running cancellation, pre-handoff blocking, durable in-flight provider semantics and deterministic reactivation/resumption behavior are implemented/certified; OL-08 through OL-10 remain separate lifecycle/offboarding scope |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -53,7 +53,7 @@ CRM-UI-04 certified that `/admin/system/users` still preserves the existing oper
 
 Final FAIR CRM PR #92 added a production-shaped cross-repository certification without changing application runtime. It runs FAIR CRM against real KYROX Core and Core's real SMTP adapter with an in-process memory-only SMTP sink. The certified lifecycle is signup → activation → login → forgot/reset → login → password change → login. Activation/reset one-time replay is rejected, old passwords fail after credential changes, and pre-change access/refresh sessions are rejected. Development Standard Gate #306 and Prod-Path E2E #151 passed the final head before merge.
 
-This completion applies only to the approved P0.2 identity/onboarding subset. ADR-0006 closure, retention/export, billing/entitlement and still-open lifecycle-policy decisions remain separately gated and are not declared complete here.
+This completion applies only to the approved P0.2 identity/onboarding subset. ADR-0006 closure/export/retention/delete, retention/grace, billing/entitlement and backup-policy decisions remain separately gated and are not declared complete here.
 
 ## OL-07 suspension runtime state
 
@@ -67,11 +67,13 @@ OL07-04 is complete through FAIR CRM PR #250: queued/pending organization-owned 
 
 **OL07-07 is DONE as of 2026-09-07.** FAIR CRM PR #253 final head `c94be579f071deb7de8ed340690c4d88d5d71c93` passed Development Standard Gate #696 and Prod-Path E2E #261, then merged to `main` as `4f52961341bc4d80c4a576fa85525aa511d68b82`. The mail worker now persists `SENDING` durably before provider handoff. If that checkpoint commit fails, no provider call occurs, the SQLAlchemy session is recovered for worker bookkeeping and the failure remains safely retryable because no external side effect started. Once provider/SMTP handoff has started, ambiguous outcomes are terminal non-auto-retry to prevent duplicate sends; known provider acceptance remains success even if only later close/QUIT cleanup fails. Real-session commit-failure recovery and uncertain-handoff regressions are covered.
 
-The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). OL-07 overall remains open only for deterministic product-side resumption after reactivation and final cross-repository certification/ADR-roadmap closure. OL07-07 does not authorize OL-08 closure/export/retention/delete behavior.
+**Final reactivation/resumption certification is DONE as of 2026-09-07.** FAIR CRM PR #254 final head `e17593e49ecb25a3aef736b0ceaa1fafa14c7e77` passed Development Standard Gate #700 and Prod-Path E2E #264, then squash-merged to `main` as `18b0b638ba946c2910698e1df7c4ab5283c4958f`. Core `SUSPENDED -> ACTIVE` restores eligibility for fresh/new product work without resurrecting previously suspension-cancelled jobs/runs or mail operations. Work deferred only because lifecycle authority was temporarily unavailable remains non-terminal and may proceed once authority returns `ACTIVE`. Provider account configuration/credentials remain preserved through suspension and require no lifecycle re-enable mutation. Ambiguous provider handoff remains terminal/non-auto-retry after reactivation.
+
+The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 identity/onboarding bridge and OL07-03/04/05/06/07 lifecycle runtime work required no FAIR CRM schema migration.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 identity/onboarding bridge and OL07-03/04/05/06/07 lifecycle runtime/certification work required no FAIR CRM schema migration.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 

@@ -47,7 +47,7 @@ Completion evidence:
 - FAIR CRM current-main verification found no alternate product-owned suspend/delete authority that widens the Core boundary. The organization-management UI consumes Core organization APIs; UI permission gating is UX and Core backend authorization remains authoritative.
 - Canonical completion tracker: [../../ecosystem/P0_2_OL_05_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_05_IMPLEMENTATION.md).
 
-**Scope boundary:** OL-05 certifies destructive lifecycle **authority only**. Core delete remains a Core soft-delete/tombstone. OL-06 reactivation, OL-07 suspension job/provider behavior, OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
+**Scope boundary:** OL-05 certifies destructive lifecycle **authority only**. Core delete remains a Core soft-delete/tombstone. OL-06 reactivation and OL-07 suspension job/provider behavior are now separately certified; OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
 
 ### P0.2 OL-06 organization reactivation — DONE 2026-09-04
 
@@ -61,7 +61,23 @@ Completion evidence:
 - FAIR CRM current-main verification found no alternate product-owned organization reactivation/suspension authority. No FAIR CRM runtime change was required for OL-06.
 - Canonical completion tracker: [../../ecosystem/P0_2_OL_06_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_06_IMPLEMENTATION.md).
 
-**Scope boundary:** OL-06 restores only canonical Core organization lifecycle state. It does not resume queued/running product jobs, re-enable provider credentials, restart outbound mail or define other product side effects. Those semantics are the next decision gate, **OL-07**.
+**Scope boundary:** OL-06 restores only canonical Core organization lifecycle state. Product-side suspension/reactivation job/provider semantics are defined and certified by OL-07; closure/offboarding behavior remains OL-08 through OL-10 scope.
+
+### P0.2 OL-07 suspension job/provider behavior — DONE 2026-09-07
+
+OL-07 is accepted and cross-repository certified. FAIR CRM consumes the Core-owned product lifecycle snapshot and deterministically handles queued work, running work, outbound provider handoff, ambiguous in-flight mail outcomes and later organization reactivation.
+
+Completion evidence:
+
+- **OL07-03:** Core PR #25 + FAIR CRM PR #249 established the public lifecycle snapshot contract and fail-closed FAIR CRM lifecycle guard.
+- **OL07-04:** FAIR CRM PR #250 terminalizes suspension-blocked queued/pending organization-owned work before start.
+- **OL07-05:** FAIR CRM PR #251 cooperatively stops already-running covered work at safe checkpoints and terminalizes it as cancelled.
+- **OL07-06:** FAIR CRM PR #252 re-checks lifecycle immediately before real SMTP/provider handoff, preventing new external side effects after suspension is observed while preserving encrypted provider configuration.
+- **OL07-07:** FAIR CRM PR #253 durably persists `SENDING` before provider handoff, safely recovers the SQLAlchemy session on checkpoint-commit failure before any provider call, and makes ambiguous provider/SMTP handoff outcomes terminal non-auto-retry.
+- **Final reactivation/resumption certification:** FAIR CRM PR #254 proves Core `SUSPENDED -> ACTIVE` does not resurrect suspension-cancelled jobs/runs/mail, permits fresh/new work, permits non-terminal work deferred only by lifecycle-authority outage once authority returns `ACTIVE`, preserves provider credentials without lifecycle re-enable, and keeps ambiguous provider handoff non-auto-retry. Development Standard Gate #700 and Prod-Path E2E #264 passed the final head before merge.
+- Canonical completion tracker: [../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md).
+
+**Scope boundary:** OL-07 does not authorize closure/export/retention/anonymization/delete sequencing, provider credential revocation for closure, retention/grace periods or backup restore policy. Those remain OL-08 through OL-10 decision scope.
 
 ## Active product-quality track
 
