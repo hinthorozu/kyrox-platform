@@ -7,7 +7,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Last verified | **2026-09-07** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
-| Migration head in `main` | `0076_import_analyze_matchable_fields_optional` |
+| Migration head in `main` | `0077_organization_closure_executions` |
 | Current work queue | [ROADMAP.md](ROADMAP.md) |
 | Shared standards | [../../standards/README.md](../../standards/README.md) |
 
@@ -17,7 +17,8 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 |------|--------|
 | Tenant isolation / SaaS P0.1 | **Certified DONE (2026-08-26)** — TI-01 through TI-09 complete across API, repository, worker, export/download and Platform Super Admin boundaries |
 | Identity / SaaS onboarding P0.2 | **Approved onboarding/credential slice DONE (2026-08-29)** — Core identity runtime, thin FAIR CRM bridge, public signup/activation/recovery, login integration, authenticated password change, Super Admin compatibility and production-shaped cross-repository lifecycle certification are complete |
-| Organization suspension runtime / OL-07 | **Certified DONE (2026-09-07)** — lifecycle authority, queued/running cancellation, pre-handoff blocking, durable in-flight provider semantics and deterministic reactivation/resumption behavior are implemented/certified; OL-08 through OL-10 remain separate lifecycle/offboarding scope |
+| Organization suspension runtime / OL-07 | **Certified DONE (2026-09-07)** — lifecycle authority, queued/running cancellation, pre-handoff blocking, durable in-flight provider semantics and deterministic reactivation/resumption behavior are implemented/certified |
+| Organization closure orchestration / OL08-01 | **IMPLEMENTED (2026-09-07), Platform certification pending** — durable FAIR CRM-owned non-destructive closure execution, SYSTEM start/status/retry, live Core `SUSPENDED` precondition, idempotency/race controls, blocked/retry evidence and append-only local audit evidence are merged; later OL08-B..G / OL-09 / OL-10 phases remain gated |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -69,11 +70,21 @@ OL07-04 is complete through FAIR CRM PR #250: queued/pending organization-owned 
 
 **Final reactivation/resumption certification is DONE as of 2026-09-07.** FAIR CRM PR #254 final head `e17593e49ecb25a3aef736b0ceaa1fafa14c7e77` passed Development Standard Gate #700 and Prod-Path E2E #264, then squash-merged to `main` as `18b0b638ba946c2910698e1df7c4ab5283c4958f`. Core `SUSPENDED -> ACTIVE` restores eligibility for fresh/new product work without resurrecting previously suspension-cancelled jobs/runs or mail operations. Work deferred only because lifecycle authority was temporarily unavailable remains non-terminal and may proceed once authority returns `ACTIVE`. Provider account configuration/credentials remain preserved through suspension and require no lifecycle re-enable mutation. Ambiguous provider handoff remains terminal/non-auto-retry after reactivation.
 
-The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
+The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated except for the narrowly accepted/implemented OL08-A / OL08-01 non-destructive orchestration slice below.
+
+## OL08-01 non-destructive closure orchestration
+
+**OL08-01 runtime is implemented as of 2026-09-07 through FAIR CRM PR #255.** Final head `aa34cd3e5d00ec6f7d6b7adaad4afa950319830e` passed Development Standard Gate #707 / run `34155567277` and Prod-Path E2E #270 / run `34155567315`, then merged to FAIR CRM `main` as `e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`.
+
+The implementation adds migration `0077_organization_closure_executions` plus a FAIR CRM-owned durable closure execution/event model. Start/status/retry is SYSTEM-authorized using the existing Core destructive organization authority boundary; start and retry re-check live Core lifecycle and require `SUSPENDED`. Same-key starts converge, conflicting open executions are rejected, database constraints close duplicate-start races, blocked/retry transitions remain on the same execution, and local append-only event evidence records actor/organization/execution/state/phase/timestamp transactionally. The module is registered in the canonical tenant-isolation evidence registry with cross-organization denial coverage.
+
+OL08-01 remains intentionally non-destructive. It does not generate closure export, revoke/purge provider credentials, delete/anonymize product data or artifacts, choose retention periods, define backup restore behavior, expose cleanup-complete/tombstone-ready state or call Core organization delete. Platform cross-repository certification/docs sync is the remaining OL08-01 step; after that, OL08-B closure export policy is the next decision gate and remains unaccepted.
+
+Canonical tracker: [P0.2 OL-08 Organization Offboarding Implementation Tracker](../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md).
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 identity/onboarding bridge and OL07-03/04/05/06/07 lifecycle runtime/certification work required no FAIR CRM schema migration.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0077_organization_closure_executions`; recent migration history includes cost-catalog tables/categories, import-matching/decision stabilization and the OL08-01 durable closure execution/event schema.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 
