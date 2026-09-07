@@ -147,7 +147,7 @@ Operational meaning:
 Implementation/certification evidence:
 
 - KYROX Core PR #21 added explicit audit evidence for successful suspend/delete transitions and certified anonymous denial, organization-user denial, cross-organization spoof denial, Platform SuperAdmin success and no mutation on rejected requests.
-- KYROX Core PR #22 added the direct regression proving a SYSTEM-scope lifecycle permission cannot be assigned to an organization-role template, even by Platform SuperAdmin, and that no role-permission association is persisted after the rejected request.
+- KYROX Core PR #22 added the direct regression proving a SYSTEM-scope lifecycle permission cannot be assigned to an organization-role template, even by Platform Superadmin, and that no role-permission association is persisted after the rejected request.
 - Current FAIR CRM integration does not expose an alternate product-owned lifecycle authority that widens the Core SYSTEM boundary; organization lifecycle mutations remain Core-authoritative.
 - The canonical completion record is [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md).
 
@@ -382,6 +382,6 @@ The ADR remains Proposed overall until the unresolved OL08-B package/policy gate
 - [KYROX SaaS Readiness Roadmap](../SAAS_ROADMAP.md)
 - [ADR-0002: Core and product separation](0002-core-product-separation.md)
 - [ADR-0003: Identity security strategy](0003-identity-security-strategy.md)
-- [ADR-0005: Role template and permission governance](0005-role-template-permission-governance.md)
+- [ADR-0005: Role template and permission governance](0005-role-template-and-permission-governance.md)
 - [Core Organization as Tenant Concept](../../projects/kyrox-core/decisions/0003-organization-as-tenant-concept.md)
 - [Core Product Integration Guide](../../projects/kyrox-core/integrations/PRODUCT_INTEGRATION_GUIDE.md)
