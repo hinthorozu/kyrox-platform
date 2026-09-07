@@ -4,7 +4,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-09-06** |
+| Last verified | **2026-09-07** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
 | Migration head in `main` | `0076_import_analyze_matchable_fields_optional` |
@@ -17,7 +17,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 |------|--------|
 | Tenant isolation / SaaS P0.1 | **Certified DONE (2026-08-26)** — TI-01 through TI-09 complete across API, repository, worker, export/download and Platform Super Admin boundaries |
 | Identity / SaaS onboarding P0.2 | **Approved onboarding/credential slice DONE (2026-08-29)** — Core identity runtime, thin FAIR CRM bridge, public signup/activation/recovery, login integration, authenticated password change, Super Admin compatibility and production-shaped cross-repository lifecycle certification are complete |
-| Organization suspension runtime / OL-07 | **IN PROGRESS — OL07-03/04/05 complete; next OL07-06** — Core lifecycle authority contract is consumed by FAIR CRM; queued work is cancelled before start and covered running work cooperatively cancels at safe checkpoints; provider/in-flight semantics remain open |
+| Organization suspension runtime / OL-07 | **IN PROGRESS — OL07-03/04/05/06 complete; next OL07-07** — Core lifecycle authority contract is consumed by FAIR CRM; queued work is cancelled before start, covered running work cooperatively cancels at safe checkpoints, and new outbound provider handoff is blocked at the final central lifecycle checkpoint; already-handed-off/in-flight and reactivation-resumption semantics remain open |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -63,11 +63,13 @@ OL07-04 is complete through FAIR CRM PR #250: queued/pending organization-owned 
 
 **OL07-05 is DONE as of 2026-09-06.** FAIR CRM PR #251 final head `523f2274a37b3876b092c34b6f761573bd13eedd` passed Backend Quality Check, Feature Contract / Applicability, Frontend Tests / Build / UI Governance and Prod-Path E2E, then squash-merged to `main` as `3b7b1552fc42e596dd5890eeef627d0e4159a968`. Already-running covered import, scraper/adapter-test/enrichment and data-operation work now observes Core lifecycle at safe checkpoints. Suspension/non-active state stops before the next safe unit, owned open transactions are rolled back where applicable, and the running job/run is terminalized as cancelled.
 
-The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). OL-07 overall remains open: outbound provider/in-flight behavior, credential-side suspension/resumption semantics and final cross-repository certification are later OL-07 steps. OL07-05 does not authorize OL-08 closure/export/retention/delete behavior.
+**OL07-06 is DONE as of 2026-09-07.** FAIR CRM PR #252 final head `d8b79e0883b2ac24f52e6c89d1a33654f211d580` passed Backend Quality Check, Feature Contract / Applicability, Frontend Tests / Build / UI Governance and Prod-Path E2E, then squash-merged to `main` as `1215d3817acedd17392a036e7227d94fe330e680`. The central `EmailDeliveryService` now performs the final Core lifecycle check immediately before real SMTP/provider dispatch. If suspension/non-active state is observed after queue claim but before provider handoff, no provider call is emitted and the claimed/synchronous mail work is terminalized as cancelled. If Core lifecycle authority is unavailable/invalid at that boundary, delivery fails closed without falsely recording explicit suspension cancellation. Provider account configuration remains active/configured and persisted secrets remain encrypted; suspension does not delete or lifecycle-deactivate credentials.
+
+The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). OL-07 overall remains open: already-handed-off/in-flight provider behavior, deterministic provider-side resumption after reactivation and final cross-repository certification are later OL-07 steps. OL07-06 does not authorize OL-08 closure/export/retention/delete behavior.
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 identity/onboarding bridge and OL07-03/04/05 lifecycle runtime work required no FAIR CRM schema migration.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0076_import_analyze_matchable_fields_optional`; recent migration history includes cost-catalog tables/categories and further import-matching/decision stabilization. The P0.2 identity/onboarding bridge and OL07-03/04/05/06 lifecycle runtime work required no FAIR CRM schema migration.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 
