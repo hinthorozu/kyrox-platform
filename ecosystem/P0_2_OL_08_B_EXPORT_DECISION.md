@@ -1,15 +1,27 @@
-# P0.2 OL-08B — Closure Export Decision Proposal
+# P0.2 OL-08B — Closure Export Contract Decision
 
-**Status:** PROPOSED — NOT ACCEPTED / NO RUNTIME AUTHORIZED  
+**Status:** PARTIALLY ACCEPTED 2026-09-07 — technical export contract accepted; package materialization/delivery and `not_required` policy source remain gated  
 **Date:** 2026-09-07  
 **Parent tracker:** `ecosystem/P0_2_OL_08_IMPLEMENTATION.md`  
-**Decision source if accepted:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
+**Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
-## Purpose
+## Decision summary
 
-Define the decision boundary for a complete FAIR CRM organization-closure export without treating existing feature exports as a closure-complete package and without authorizing destructive cleanup.
+OL08-B accepts the **technical closure-export contract** without inventing a universal legal/business export obligation.
 
-This proposal does **not** authorize OL08-03 runtime, does not choose a retention/expiry duration, does not define provider credential disposition, does not delete/anonymize any product data or artifacts, and does not permit the Core organization tombstone.
+Accepted architecture:
+
+- closure export is owned by one FAIR CRM closure execution and one organization,
+- export disposition is modeled as `required` / `not_required`, with missing/unknown disposition failing closed,
+- `not_required` is **not currently executable** because no accepted policy source exists yet,
+- the first implementation must enumerate customer-portable structured data classes explicitly,
+- generated/binary artifacts are deferred to OL08-E,
+- reusable secrets/credentials are always excluded,
+- Core identity remains outside FAIR CRM export ownership,
+- initial export control remains Platform SuperAdmin / SYSTEM/operator only,
+- no export phase may unblock irreversible cleanup or Core tombstone until the complete package, artifact-lifecycle and policy requirements are separately accepted and certified.
+
+This acceptance authorizes only the narrow non-destructive implementation slice described below. It does **not** authorize a closure-complete downloadable package, provider revoke/secret purge, product-data/artifact deletion/anonymization, retention durations, backup reconciliation or Core tombstone.
 
 ## Verified baseline
 
@@ -20,72 +32,40 @@ The current product already has tenant-safe feature-level export/download primit
 - managed quote-template logos are served through organization-scoped authenticated routing,
 - quote rendering is organization-scoped and depends on owned customer/fair/template/content data,
 - P0.1 TI-07 certified these export/download/artifact ownership boundaries,
-- none of these paths provides one closure snapshot, a completeness manifest, an integrity proof, or a decision that an export is required before irreversible cleanup.
+- none of these paths provides one closure snapshot, a completeness manifest, an integrity proof, or a durable closure-execution export decision.
 
-Therefore existing UI/API exports must not be composed informally and called a closure export.
+Existing UI/API exports therefore remain feature exports and must not be composed informally and called a closure-complete package.
 
-## Decision options
+## Accepted OL08-B architecture
 
-### Option A — Always generate a closure export
+### 1. Policy-conditioned disposition is the accepted model
 
-Every closure execution must produce and verify a complete export package before later irreversible phases may proceed.
-
-Advantages:
-- simplest sequencing invariant,
-- strongest operator recovery/data-handover posture,
-- no per-closure ambiguity about whether export was required.
-
-Costs/risks:
-- creates a new sensitive copy for every closure even when nobody needs it,
-- introduces storage/delivery/expiry obligations,
-- expiry duration still depends on OL-09 / artifact policy,
-- large organizations may make closure slower and more operationally expensive.
-
-### Option B — Explicitly requested export only
-
-Closure export is generated only when requested by an authorized operator/customer workflow.
-
-Advantages:
-- avoids unnecessary sensitive copies,
-- lower storage and processing burden.
-
-Costs/risks:
-- an operator-only toggle cannot safely stand in for future legal/policy requirements,
-- later destructive phases need durable evidence explaining why export was not required.
-
-### Option C — Policy-conditioned export
-
-Each closure execution carries an authoritative export disposition:
-
-- `required`, or
-- `not_required` with durable policy/reason evidence.
-
-If `required`, later irreversible phases cannot advance until the package is complete and integrity-verified. If `not_required`, the execution records the decision without fabricating an export.
-
-This is the **recommended contract shape** because it does not hard-code an unverified universal legal/business rule and still makes sequencing deterministic. It requires the source of the disposition to be an accepted policy/authorized SYSTEM workflow; an arbitrary normal-user flag is not authority.
-
-## Proposed OL08-B contract
-
-If accepted, OL08-B should establish the following invariants.
-
-### 1. Export is a closure-execution phase, not a normal feature export
-
-The export belongs to one durable OL08 closure execution and one organization. It has a stable export id and cannot be reused as evidence for another organization/execution.
-
-### 2. Export disposition is explicit
-
-Each closure execution that reaches the export phase must record one of:
+The accepted contract shape is:
 
 ```text
 required
 not_required
 ```
 
-`not_required` must retain non-secret policy/reason evidence. A missing/unknown disposition fails closed and cannot be interpreted as export complete.
+A missing/unknown disposition fails closed.
 
-### 3. Required export is a prerequisite for later irreversible phases
+`not_required` requires durable non-secret policy evidence from a separately accepted policy source. An arbitrary normal-user flag or ad-hoc operator toggle is not authority.
 
-When disposition is `required`:
+**Current runtime rule:** because no accepted `not_required` policy source exists yet, implementation must not expose or persist a successful `not_required` disposition. That path remains gated.
+
+### 2. Export belongs to the closure execution
+
+A closure export plan belongs to exactly one:
+
+- organization,
+- closure execution,
+- stable export identity / schema version.
+
+Evidence from one organization/execution cannot satisfy another.
+
+### 3. Required export remains a prerequisite, but no completion gate is authorized yet
+
+The future full required-export state model is expected to converge on:
 
 ```text
 pending
@@ -94,55 +74,63 @@ pending
   -> integrity_verified
 ```
 
-A required export that is failed/incomplete/unverified blocks advancement to later destructive cleanup or Core tombstone readiness.
+However the currently authorized implementation slice must **not** expose `integrity_verified`, `export_complete`, `cleanup_complete` or `ready_for_tombstone` as a gate-opening state.
 
-Retries must converge on the same logical export for the same closure execution or create a clearly versioned replacement while invalidating the superseded candidate as completion evidence.
+Until package materialization/delivery and artifact lifetime are separately accepted, export evidence may be prepared and validated but cannot authorize later irreversible phases.
 
-### 4. Package is organization-scoped and versioned
+### 4. Versioned manifest contract is accepted
 
-Recommended package form:
-
-```text
-closure-export-<organization>-<execution>.zip
-  manifest.json
-  data/*.jsonl or *.csv
-  artifacts/...              only accepted portable customer-owned artifacts
-```
-
-The exact serialization may evolve by schema version, but the manifest must identify:
+The manifest schema must identify at minimum:
 
 - export schema/version,
 - organization id,
 - closure execution id,
 - export id,
-- generation timestamp,
-- included data classes,
-- excluded/non-portable data classes with reason,
-- per-file record count where applicable,
-- per-file byte size,
-- per-file cryptographic digest,
-- package-level digest or equivalent integrity evidence,
-- completion state.
+- planning/generation timestamp where applicable,
+- included portable data classes,
+- excluded/deferred data classes with durable reason codes,
+- record counts for structured classes,
+- canonical content fingerprints/digests where produced,
+- completion/planning state,
+- secret-exclusion classification.
 
-### 5. Export must be complete against an explicit data-class contract
+The manifest is authoritative evidence of what the exporter considers in scope; silent omission is forbidden.
 
-The first implementation must enumerate product-owned classes rather than run an unreviewed database dump. At minimum the completeness contract must classify:
+### 5. First-version portable structured data classes
+
+The accepted v1 structured-data completeness registry must classify the following FAIR CRM product data as customer-portable where present:
 
 - customers and customer communications,
 - contacts,
 - fairs and participations,
-- activities/todos/follow-ups,
-- quotes and portable quote/template/content data,
+- activities, todos and follow-up/task records,
+- quotes plus portable quote-template/template-content source data,
 - cost-catalog product data,
-- import metadata/results that are customer-portable,
-- scraper/enrichment result data that is customer-portable,
-- operation/automation definitions and customer-portable result data,
-- mail history/customer communication records that are customer-portable,
-- customer-owned uploads/generated artifacts when OL08-E says they are part of export.
+- import/data-integration metadata and structured results needed to explain/reproduce customer data,
+- scraper/enrichment run metadata and normalized customer-owned structured result data,
+- operation/automation definitions, run metadata and customer-portable structured results,
+- mail templates plus normalized customer communication/mail-send history and status records.
 
-The manifest must also explicitly classify excluded categories rather than silently omit them.
+The first implementation must classify every registry entry as included, excluded or deferred with a stable reason; it must not silently ignore a category.
 
-### 6. Secrets and security credentials are excluded
+### 6. Explicit first-version exclusions/deferred classes
+
+The following are not part of the initial portable structured package contract:
+
+- generated/binary files, uploads and artifacts — **deferred to OL08-E**,
+- raw scraper/operation artifact files — **deferred to OL08-E**,
+- managed quote/logo binary assets — **deferred to OL08-E**,
+- reusable provider/SMTP credentials or encrypted secret payloads — **always excluded**,
+- provider-side credential lifecycle/revocation evidence — **OL08-C**,
+- raw provider webhook payloads/signatures and internal provider diagnostics — excluded unless a later accepted portability rule says otherwise,
+- Core identity/password/session/token data — outside FAIR CRM ownership,
+- system-admin database backups/restores — OL-10 / operations scope,
+- derived dashboard views that can be reproduced from underlying exported data,
+- internal closure orchestration event payloads beyond non-secret manifest/audit references.
+
+Non-secret provider account descriptors may be classified later under OL08-C; they are not required for the first OL08-B completeness baseline.
+
+### 7. Secrets and security credentials are excluded
 
 Closure export must never contain reusable authentication/provider secrets, including:
 
@@ -156,65 +144,84 @@ Closure export must never contain reusable authentication/provider secrets, incl
 - raw bearer credentials,
 - internal database connection secrets.
 
-Historical non-secret identifiers may be exported only when part of the accepted portable-data contract.
+Secret exclusion is a hard certification property, not a best-effort filter.
 
-### 7. Core identity remains a separate ownership boundary
+### 8. Core identity remains a separate ownership boundary
 
-FAIR CRM closure export must not directly read Core databases or duplicate Core credential authority. If future commercial policy requires identity/account metadata in a customer export, that requires an explicit public Core export contract or a separately accepted cross-repository contract.
+FAIR CRM closure export must not directly read Core databases or duplicate Core credential authority.
 
-OL08-B must not authorize direct cross-database reads.
+If future commercial policy requires identity/account metadata in a customer handover, that requires an explicit public Core export contract or separately accepted cross-repository contract.
 
-### 8. Tenant isolation remains mandatory
+### 9. Initial control/delivery authority is SYSTEM/operator-only
 
-Generation, status, download and retry must all be bound to the target organization and closure execution. Foreign organization ids/artifact ids cannot be used to read or replace another organization's closure package.
+The first implementation remains under Platform SuperAdmin / SYSTEM authority and is bound to the existing OL08 closure execution.
 
-Platform SuperAdmin/SYSTEM execution authority remains the OL-05/OL08-A exception; it does not weaken repository-level organization predicates.
+No customer-facing self-service handover/download flow is authorized by this decision. A future customer-facing flow requires its own authorization/delivery contract.
 
-### 9. Audit evidence must not store payloads/secrets
+### 10. Tenant isolation and audit remain mandatory
 
-Audit/closure events should record export id, execution id, organization id, state transition, schema version, digest/reference metadata and actor/timestamp. They must not copy the exported business payload or credentials into audit records.
+Planning, generation, status, retry and future download/materialization operations must remain bound to the target organization and closure execution.
 
-### 10. Artifact lifetime is intentionally not chosen here
+Audit/closure evidence may record export id, execution id, organization id, state transition, schema version, digest/reference metadata and actor/timestamp, but must not copy business payloads or secrets into audit events.
 
-OL08-B may define ownership and integrity of the closure export artifact, but it must **not invent an expiry duration**. Artifact retention/expiry must be aligned with OL08-E and applicable OL-09 policy before production cleanup can rely on it.
+## Resolved acceptance questions
 
-Until that policy is accepted, OL08-03 implementation may generate/verify export evidence only if its storage lifecycle is explicitly non-destructive and cannot be mistaken for a final retention decision.
+1. **Disposition model:** Option C / policy-conditioned `required` / `not_required` is accepted.
+2. **v1 portable classes:** the structured FAIR CRM business-data categories enumerated above are mandatory completeness-registry entries.
+3. **Generated files/artifacts:** deferred to OL08-E; they must be explicitly marked deferred/excluded in the manifest rather than silently omitted.
+4. **Delivery authority:** SYSTEM/operator-only initially; no customer-facing handover flow in this slice.
+5. **`not_required` authority:** no accepted source exists yet. Therefore runtime must not allow `not_required` to satisfy export obligation. A later accepted policy must provide durable policy code/version/reason evidence before that path can exist.
 
-## Proposed implementation slice after acceptance
+## Authorized implementation boundary
 
-If OL08-B is accepted, authorize **OL08-03 — closure export contract/runtime** as a non-destructive phase attached to the existing OL08-01 execution.
+Before any package-producing export runtime, complete **OL08-02 closure-quiescence certification** against the already-certified OL-07 lifecycle behavior.
 
-Suggested independently reviewable work:
+After OL08-02 is green, OL08-B authorizes only the first non-destructive OL08-03 slice:
 
-1. durable closure-export record/state + manifest schema,
-2. SYSTEM-only export start/status/download bound to closure execution,
-3. organization-scoped data-class exporters,
-4. deterministic manifest/count/digest generation,
-5. failure/retry/idempotency behavior,
-6. tenant-isolation and secret-exclusion adversarial tests,
-7. integration into closure execution phase evidence,
-8. Platform certification.
+### OL08-03A — Export manifest / completeness planner
 
-Still prohibited after OL08-B/OL08-03 alone:
+Authorized:
 
+- durable export-plan identity tied to one closure execution and organization,
+- versioned manifest schema,
+- explicit structured-data completeness registry,
+- organization-scoped record counting / planning,
+- deterministic canonical fingerprints/digests where safe without retaining package payload,
+- explicit included/excluded/deferred reason evidence,
+- hard secret-exclusion validation,
+- SYSTEM-only plan/status/retry semantics,
+- idempotency and tenant-isolation tests,
+- append-only non-secret audit/closure evidence.
+
+Not authorized in OL08-03A:
+
+- persistent/downloadable closure package materialization,
+- package retention/expiry policy,
+- `not_required` success state,
+- `integrity_verified` as an irreversible-phase gate,
+- customer-facing download/handover,
 - provider credential revoke/purge,
-- organization-wide data anonymization/delete,
-- artifact destruction,
-- retention/grace duration choice,
-- backup ageing/restore reconciliation,
+- organization-wide data/artifact deletion/anonymization,
 - `cleanup_complete` / `ready_for_tombstone`,
-- Core tombstone invocation.
+- Core tombstone.
 
-## Acceptance questions
+## Why package materialization remains gated
 
-Before changing this proposal to ACCEPTED, maintainers must explicitly resolve:
+A persistent/downloadable closure package creates a new sensitive artifact with storage, access, expiry and deletion obligations. OL08-E and applicable OL-09 policy have not yet defined that artifact lifecycle.
 
-1. Is the disposition model `policy-conditioned required/not_required` accepted, or must every closure always export?
-2. Which first-version product data classes are customer-portable and mandatory for completeness?
-3. Are generated files/artifacts included now or deferred until OL08-E?
-4. Is export delivery SYSTEM/operator-only initially, or must a customer-facing handover flow be part of OL08-B?
-5. What accepted policy supplies `not_required` evidence so that an operator cannot silently bypass a mandatory export obligation?
+Therefore this decision accepts the export contract and completeness planner first, while keeping package materialization/delivery outside the authorized slice until artifact-lifecycle policy is explicit.
 
-## Current recommendation
+## Remaining gates
 
-Adopt **Option C — policy-conditioned export** as the architecture, but do not implement OL08-03 until the five acceptance questions above are explicitly resolved and ADR-0006 / the OL-08 tracker record OL08-B as accepted.
+- **OL08-02:** certify closure quiescence against real OL-07 runtime before export planning is trusted.
+- **OL08-03A:** implement/certify manifest + completeness planner after OL08-B acceptance.
+- **OL08-C:** provider credential disposition remains OPEN.
+- **OL08-D:** product-data disposition remains OPEN / depends on OL-09.
+- **OL08-E:** generated artifact disposition remains OPEN and is required before persistent closure-package lifecycle is accepted.
+- **OL08-F:** audit/security retention remains OPEN.
+- **OL08-G / OL-10:** backup/restore reconciliation remains OPEN.
+- **OL-09:** retention/grace durations remain OPEN CHOICE.
+
+## Hard prohibition
+
+OL08-B acceptance does not make the closure execution cleanup-complete or tombstone-ready. No later irreversible phase may treat an export plan/manifest as equivalent to a delivered, retained or integrity-verified closure package.
