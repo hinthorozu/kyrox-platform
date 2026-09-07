@@ -47,7 +47,7 @@ Completion evidence:
 - FAIR CRM current-main verification found no alternate product-owned suspend/delete authority that widens the Core boundary. The organization-management UI consumes Core organization APIs; UI permission gating is UX and Core backend authorization remains authoritative.
 - Canonical completion tracker: [../../ecosystem/P0_2_OL_05_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_05_IMPLEMENTATION.md).
 
-**Scope boundary:** OL-05 certifies destructive lifecycle **authority only**. Core delete remains a Core soft-delete/tombstone. OL-06 reactivation and OL-07 suspension job/provider behavior are now separately certified; OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated.
+**Scope boundary:** OL-05 certifies destructive lifecycle **authority only**. Core delete remains a Core soft-delete/tombstone. OL-06 reactivation and OL-07 suspension job/provider behavior are separately certified; later closure/export/retention/delete semantics remain OL-08 through OL-10 scope.
 
 ### P0.2 OL-06 organization reactivation — DONE 2026-09-04
 
@@ -78,6 +78,32 @@ Completion evidence:
 - Canonical completion tracker: [../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md).
 
 **Scope boundary:** OL-07 does not authorize closure/export/retention/anonymization/delete sequencing, provider credential revocation for closure, retention/grace periods or backup restore policy. Those remain OL-08 through OL-10 decision scope.
+
+### P0.2 OL08-01 non-destructive closure orchestration — IMPLEMENTED / CERTIFICATION PENDING 2026-09-07
+
+OL08-A is accepted narrowly and authorizes only the non-destructive closure execution/state-machine slice. FAIR CRM PR #255 implements that runtime and has merged; Platform cross-repository certification/docs sync remains the final OL08-01 step.
+
+Delivered runtime:
+
+- FAIR CRM-owned durable organization closure execution and append-only event evidence,
+- migration `0077_organization_closure_executions`,
+- SYSTEM-authorized start/status/retry using the existing Core destructive organization authority boundary,
+- live Core `SUSPENDED` precondition for start/retry,
+- same-key idempotency plus DB-enforced one-open-execution race protection,
+- explicit blocked/retry evidence on the same execution,
+- cross-organization denial registered in the canonical tenant-isolation registry,
+- no closure-complete/tombstone-ready state and no Core delete call.
+
+Verification evidence:
+
+- FAIR CRM PR #255 final head `aa34cd3e5d00ec6f7d6b7adaad4afa950319830e`,
+- Development Standard Gate #707 / run `34155567277`: success,
+- Prod-Path E2E #270 / run `34155567315`: success,
+- merged to FAIR CRM `main` as `e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`.
+
+Canonical tracker: [../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md).
+
+**Next gate after OL08-01 certification:** **OL08-B — closure export obligation/contract.** OL08-B remains OPEN and must be explicitly accepted before export work begins. OL08-C through OL08-G, OL-09 retention/grace and OL-10 backup/restore also remain gated. No provider secret destruction, product-data/artifact deletion/anonymization or Core tombstone is authorized by OL08-01.
 
 ## Active product-quality track
 
