@@ -8,7 +8,7 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
 | Implementation repos | `kyrox-core`, `fair-crm` |
-| Last ecosystem sync | **2026-09-06** |
+| Last ecosystem sync | **2026-09-07** |
 
 ## SaaS readiness
 
@@ -26,7 +26,7 @@ FAIR CRM then delivered CRM-BE-01/02 through PRs #86/#87, public auth and login 
 
 Final FAIR CRM PR #92 (`d498245c4c60bd36b9b3a8aeffed4912e198123b`) added CI-only cross-repository lifecycle certification and merged as `2f9f159a303ffd055121547de51dcaefc15fc6a9`. Development Standard Gate #306 / run `33246959509` and Prod-Path E2E #151 / run `33246959442` passed the same final head. The Prod-Path run first passed the existing production-shaped gate with **35 passed, 0 failed**, then certified signup → activation → login → forgot/reset → login → password change → login through real FAIR CRM + real KYROX Core. Core's real SMTP adapter delivered activation/reset email into an in-process memory-only SMTP sink; activation/reset replay was rejected and pre-credential-change access/refresh sessions were rejected after reset/change. The certification PR changed no FAIR CRM/Core application runtime or schema behavior.
 
-**OL-07 suspension runtime implementation is now IN PROGRESS.** OL07-03 established the Core-owned product lifecycle snapshot contract and FAIR CRM fail-closed lifecycle guard. OL07-04 then made queued/pending organization-owned FAIR CRM work cancel before start when Core reports a non-active lifecycle state. OL07-05 is **DONE as of 2026-09-06**: FAIR CRM PR #251 adds cooperative cancellation of already-running import, scraper/enrichment and data-operation work at safe checkpoints, with owned transactions rolled back before terminal cancellation state is persisted. The canonical implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](P0_2_OL_07_IMPLEMENTATION.md). OL-07 as a whole remains open because provider/in-flight side-effect and resumption semantics are not yet completed.
+**OL-07 suspension runtime implementation is now IN PROGRESS.** OL07-03 established the Core-owned product lifecycle snapshot contract and FAIR CRM fail-closed lifecycle guard. OL07-04 then made queued/pending organization-owned FAIR CRM work cancel before start when Core reports a non-active lifecycle state. OL07-05 completed cooperative cancellation of already-running covered work at safe checkpoints. OL07-06 is **DONE as of 2026-09-07**: FAIR CRM PR #252 adds a final Core lifecycle check at the central outbound delivery boundary so a suspension/non-active state observed after queue claim but before SMTP/provider handoff cannot emit a new provider side effect. Explicit lifecycle blocks terminalize claimed/synchronous mail work as cancelled; Core lifecycle authority outage fails closed without being mislabeled as suspension cancellation. Provider account configuration and encrypted credentials are preserved rather than deleted or lifecycle-deactivated. The canonical implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](P0_2_OL_07_IMPLEMENTATION.md). OL-07 as a whole remains open because already-handed-off/in-flight provider semantics, reactivation/resumption behavior and final cross-repository certification are not yet completed.
 
 ## KYROX Core
 
@@ -48,7 +48,7 @@ FAIR CRM remains the active M4 product. Existing implementation includes the CRM
 
 The approved P0.2 product integration is complete: thin Core auth bridge, public signup/activation/password-recovery, login entry links, authenticated security/password change, preserved Super Admin manual user provisioning and final cross-repository lifecycle certification. Credential authority and password/token logic remain entirely in Core. No unsupported setup-link mode was added.
 
-FAIR CRM also now consumes the Core lifecycle snapshot at execution time for the completed OL07-03/04/05 slices: queued work is blocked/cancelled before start and already-running covered work cooperatively stops at safe checkpoints after suspension/non-active lifecycle is observed. Provider/in-flight behavior remains the next OL-07 boundary and must not be inferred from these completed slices.
+FAIR CRM also now consumes the Core lifecycle snapshot at execution time for the completed OL07-03/04/05/06 slices: queued work is blocked/cancelled before start, already-running covered work cooperatively stops at safe checkpoints, and the central outbound mail/provider gateway re-checks lifecycle immediately before real SMTP/provider handoff. Suspended/non-active organizations cannot initiate a new handoff after that checkpoint, while configured encrypted provider credentials remain preserved. Already-handed-off/in-flight behavior and deterministic reactivation/resumption remain the next OL-07 boundaries and must not be inferred from these completed slices.
 
 The current documentation/quality focus is to keep Platform as the single human/AI knowledge source and to ensure permission-controlled UI surfaces consistently follow effective permissions and the shared CRUD/UI authorization standard.
 
