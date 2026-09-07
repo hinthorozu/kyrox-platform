@@ -1,14 +1,14 @@
 # P0.2 OL-07 — Suspension Job / Provider Behavior Implementation Tracker
 
-**Status:** IN PROGRESS — OL07-03, OL07-04, OL07-05 and OL07-06 complete  
-**Current resume point:** OL07-07  
+**Status:** IN PROGRESS — OL07-03 through OL07-07 complete  
+**Current resume point:** deterministic reactivation/resumption semantics  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`
 
 ## Scope
 
 OL-07 defines deterministic FAIR CRM behavior when the Core-owned organization lifecycle no longer allows product work. The lifecycle authority remains KYROX Core; FAIR CRM consumes the public lifecycle contract and owns product-job/provider behavior.
 
-OL-07 is not complete yet. This tracker records only implemented and verified substeps and must not be read as approval of still-open in-flight/provider-resumption semantics.
+OL-07 is not complete yet. This tracker records only implemented and verified substeps and must not be read as approval of still-open reactivation/resumption semantics.
 
 ## Completed implementation sequence
 
@@ -49,6 +49,17 @@ OL-07 is not complete yet. This tracker records only implemented and verified su
   - FAIR CRM squash-merge commit: `1215d3817acedd17392a036e7227d94fe330e680`.
   - **OL07-06 completed 2026-09-07.**
 
+- [x] **OL07-07 — Define in-flight provider handoff semantics**
+  - FAIR CRM PR #253 made the claimed mail operation's `SENDING` state durable before external provider handoff begins.
+  - If the durable checkpoint commit fails, no provider call is attempted; the SQLAlchemy session is rolled back/recovered before worker failure bookkeeping and the pre-handoff failure remains retryable as `handoff_checkpoint_commit_failed`.
+  - MailerSend and SMTP outcomes that become ambiguous after handoff starts are terminalized as non-auto-retry uncertain failures so an unknown provider acceptance cannot cause a duplicate send.
+  - SMTP/provider acceptance remains successful even if only later connection close/QUIT cleanup fails.
+  - Provider error policy cannot re-enable automatic retry for `provider_handoff_uncertain`, `smtp_handoff_uncertain`, `smtp_timeout`, or stale `sending_timeout` outcomes.
+  - Regression coverage includes real SQLAlchemy commit-failure session recovery, provider-not-called on checkpoint failure, MailerSend/SMTP ambiguous handoff, acceptance-after-close failure, and no-auto-retry behavior.
+  - PR #253 final head `c94be579f071deb7de8ed340690c4d88d5d71c93` passed Development Standard Gate #696 and Prod-Path E2E #261 before merge.
+  - FAIR CRM merge commit: `4f52961341bc4d80c4a576fa85525aa511d68b82`.
+  - **OL07-07 completed 2026-09-07.**
+
 ## Current certified behavior
 
 ```text
@@ -56,6 +67,7 @@ Core lifecycle ACTIVE
   -> queued work may start
   -> running work may continue
   -> outbound SMTP/provider handoff may proceed
+  -> reactivation/resumption of previously cancelled product work is not yet implied
 
 Core lifecycle SUSPENDED / non-active
   -> queued work is cancelled before start
@@ -65,6 +77,8 @@ Core lifecycle SUSPENDED / non-active
   -> new outbound SMTP/provider handoff is blocked at the central delivery boundary
   -> claimed/synchronous mail work blocked at that boundary is terminalized as cancelled
   -> provider account configuration and encrypted credentials are preserved
+  -> an already-started provider handoff is never synthetically recalled
+  -> ambiguous in-flight provider outcomes are terminal failed/non-auto-retry
 
 Core lifecycle unavailable / invalid
   -> fail closed
@@ -75,14 +89,13 @@ Core lifecycle unavailable / invalid
 
 ## Still open in OL-07
 
-OL07-06 does **not** complete OL-07. The following provider lifecycle behavior remains separately gated:
+OL07-07 does **not** complete OL-07. The following lifecycle behavior remains separately gated:
 
-- OL07-07+ in-flight provider-call semantics where an already handed-off SMTP/provider action cannot necessarily be recalled,
-- deterministic provider-side resumption behavior after organization reactivation,
+- deterministic product-side resumption behavior after organization reactivation,
 - final OL-07 cross-repository certification and canonical ADR/roadmap closure.
 
 No OL-08 closure/export/retention/delete behavior is authorized by this tracker.
 
 ## Resume point
 
-**Next: OL07-07.** OL07-06 provider-handoff prevention is complete and merged; do not broaden it into already-handed-off provider recall or reactivation-resumption semantics.
+**Next: deterministic reactivation/resumption semantics.** OL07-07 in-flight provider-handoff behavior is complete and merged. Do not infer automatic restart/resend from Core `SUSPENDED -> ACTIVE`; resumption must be specified explicitly per product work type, and uncertain provider handoffs must remain non-auto-retry.
