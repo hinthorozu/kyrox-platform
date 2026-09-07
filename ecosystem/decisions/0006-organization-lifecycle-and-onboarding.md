@@ -1,6 +1,6 @@
 # ADR-0006: Organization lifecycle and SaaS onboarding contract
 
-- **Status:** Proposed — OL-01 through OL-06 accepted and implementation/certification complete; OL-07 through OL-10 unresolved
+- **Status:** Proposed — OL-01 through OL-07 accepted and implementation/certification complete; OL-08 through OL-10 unresolved
 - **Date:** 2026-08-26
 - **Deciders:** KYROX ecosystem maintainers
 - **Roadmap gate:** P0.2 — Organization lifecycle contract and SaaS onboarding decisions
@@ -9,9 +9,9 @@
 
 P0.1 tenant-isolation certification is complete. The next SaaS-readiness gate is to define how a commercial KYROX account is created, administered, suspended, reactivated and eventually closed without duplicating Core capabilities or leaking lifecycle semantics across repositories.
 
-The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27 and completed on 2026-08-29. OL-05 destructive organization authority was accepted and implementation-certified on 2026-09-03. OL-06 reactivation was accepted on 2026-09-03 and implementation-certified on 2026-09-04 through KYROX Core PR #23. Suspension job/provider behavior, closure/offboarding sequencing, retention and backup implications remain open, so the ADR as a whole remains Proposed.
+The current implementation has evolved beyond older membership-oriented documentation. This ADR records the verified current architecture first, then defines or proposes lifecycle decisions. The identity/onboarding subset was explicitly approved for implementation on 2026-08-27 and completed on 2026-08-29. OL-05 destructive organization authority was accepted and implementation-certified on 2026-09-03. OL-06 reactivation was accepted on 2026-09-03 and implementation-certified on 2026-09-04 through KYROX Core PR #23. OL-07 suspension/job/provider/reactivation product semantics were implementation-certified on 2026-09-07 through FAIR CRM PRs #249–#254. Closure/offboarding sequencing, retention and backup implications remain open, so the ADR as a whole remains Proposed.
 
-The canonical implementation checklist for the approved onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). OL-05 completion evidence is retained in [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md). OL-06 completion evidence is retained in [P0.2 OL-06 Organization Reactivation Implementation Tracker](../P0_2_OL_06_IMPLEMENTATION.md).
+The canonical implementation checklist for the approved onboarding subset is [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md). OL-05 completion evidence is retained in [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md). OL-06 completion evidence is retained in [P0.2 OL-06 Organization Reactivation Implementation Tracker](../P0_2_OL_06_IMPLEMENTATION.md). OL-07 completion evidence is retained in [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../P0_2_OL_07_IMPLEMENTATION.md).
 
 ## Verified current implementation
 
@@ -47,21 +47,13 @@ The canonical implementation checklist for the approved onboarding subset is [P0
 
 ### Cross-repository lifecycle reality
 
-Core and FAIR CRM use separate persistence. Suspending or soft-deleting an organization in Core does not automatically:
+Core and FAIR CRM use separate persistence. Suspending or soft-deleting an organization in Core does not automatically manipulate FAIR CRM tables or provider state. Cross-repository effects therefore require explicit public lifecycle contracts and product-owned orchestration.
 
-- cancel or drain FAIR CRM background jobs,
-- revoke or disable FAIR CRM provider credentials,
-- export, retain, anonymize or delete FAIR CRM business data,
-- expire product-generated files/artifacts,
-- define backup ageing behavior for deleted organization data.
-
-Those effects require an explicit lifecycle contract and product orchestration; they cannot be inferred from Core database cascades.
-
-The [P0.2 lifecycle runtime audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md) verifies the current suspension execution split in detail: Core blocks new normal permission-protected work after suspension, while already queued/running FAIR CRM scraper, enrichment, import and outbound-mail work generally proceeds from previously established organization-scoped job context without re-checking Core organization lifecycle state. Import background execution explicitly trusts queue-time authorization, and email delivery checks product email-account activity rather than Core organization status. This is an OL-07 lifecycle-policy gap, not a P0.1 tenant-isolation regression.
+OL-07 now defines the certified suspension/reactivation runtime split: Core remains lifecycle authority; FAIR CRM checks that authority at queued-work start, running-work safe checkpoints and immediately before outbound provider handoff. Explicit suspension terminalizes covered queued/running work according to the certified state machines, blocks new provider handoff, preserves provider configuration/credentials, and never fabricates provider recall after handoff starts. Reactivation restores eligibility for fresh/new work and safely deferred non-terminal work but does not resurrect suspension-cancelled work or auto-resend ambiguous provider outcomes.
 
 ## Decision state
 
-OL-01 through OL-06 are accepted and their implementation/certification workstreams are complete. OL-07 through OL-10 remain proposals/open choices until separately accepted.
+OL-01 through OL-07 are accepted and their implementation/certification workstreams are complete. OL-08 through OL-10 remain proposals/open choices until separately accepted.
 
 ### 1. Keep Organization as the only account boundary — APPROVED
 
@@ -172,33 +164,45 @@ Operational meaning:
 - soft-deleted/tombstoned organizations are not revived through this action,
 - rejected reactivation attempts do not mutate organization lifecycle state or create successful-reactivation audit evidence,
 - successful reactivation creates audit evidence identifying actor, target organization, transition and timestamp,
-- reactivation restores the Core organization lifecycle state only; it does **not** define queued/running job restart, provider credential re-enable, outbound mail resumption or other product side effects.
+- Core reactivation restores canonical organization lifecycle state; product-side resumption then follows the separately certified OL-07 rules rather than an implicit restart contract.
 
 Implementation/certification evidence:
 
 - KYROX Core PR #23 added `identity.organizations.reactivate` as a SYSTEM-scoped, non-assignable permission, `POST /organizations/{organization_id}/reactivate`, existing-domain-transition reuse, `identity.organization.reactivated` audit evidence, authorization/source-state/soft-delete coverage and migration install/repair/downgrade coverage.
 - Core PR #23 final head `655b61155e0ad799d7381d21858c9fd1d5b3a0f7` passed CI #88 and was squash-merged to Core `main` as `f24089cbb29f38b42270d0d9edb2235aa7815719`.
-- FAIR CRM current-main verification found no alternate product-owned organization reactivation/suspension authority and OL-06 added no product job/provider/mail resumption behavior.
 - The canonical completion record is [P0.2 OL-06 Organization Reactivation Implementation Tracker](../P0_2_OL_06_IMPLEMENTATION.md).
 
-**Scope boundary:** OL-06 restores only the canonical Core organization state. Queued/running job behavior, provider credentials, outbound side effects and deterministic product resumption remain OL-07 scope.
+**Scope boundary:** OL-06 restores only the canonical Core organization state. Deterministic FAIR CRM suspension/reactivation job/provider behavior is defined and certified by OL-07; closure/export/retention/delete behavior remains OL-08+ scope.
 
-### 9. Suspension must have cross-repository product semantics — OPEN DETAIL
+### 9. Suspension must have cross-repository product semantics — ACCEPTED / DONE 2026-09-07
 
-Core suspension already causes normal permission checks to fail because authorization requires an active organization. P0.2 must additionally define product-side behavior.
+**Suspension and reactivation have deterministic FAIR CRM execution semantics. Core remains lifecycle authority; FAIR CRM owns product-job/provider behavior and fails closed when lifecycle authority cannot be trusted.**
 
-Proposed semantics:
+Operational meaning:
 
-- deny new normal user product requests immediately,
-- block creation/start of new organization-owned background work,
-- deterministically cancel, pause or drain already-running product jobs according to each job type,
-- prevent new outbound mail/provider side effects,
-- keep provider secrets encrypted but unusable while suspended,
-- preserve data for reactivation until the retention/closure policy says otherwise,
-- preserve Platform Super Admin diagnostic/support access according to the canonical bypass model,
-- record the transition and resulting orchestration in audit evidence.
+- new normal user product requests remain blocked by active-organization authorization semantics,
+- queued/pending organization-owned FAIR CRM work is lifecycle-gated before start and explicit suspension terminalizes covered queued work as cancelled,
+- already-running covered work observes lifecycle at safe checkpoints and suspension stops before the next safe unit with owned transaction rollback where applicable,
+- a final lifecycle checkpoint immediately before real SMTP/provider dispatch prevents new outbound side effects after suspension,
+- provider account configuration and encrypted credentials are preserved through suspension rather than lifecycle-deactivated or deleted,
+- once provider handoff starts, FAIR CRM does not synthesize recall; ambiguous MailerSend/SMTP handoff outcomes are terminal non-auto-retry to prevent duplicate sends,
+- the claimed mail operation is durably `SENDING` before external handoff; checkpoint commit failure touches no provider and recovers the SQLAlchemy session before safe retry bookkeeping,
+- Core `SUSPENDED -> ACTIVE` restores eligibility for fresh/new work and non-terminal work deferred only by temporary lifecycle-authority outage,
+- reactivation does **not** resurrect suspension-cancelled queued/running work,
+- reactivation does **not** auto-resend cancelled mail or ambiguous provider-handoff outcomes,
+- newly created outbound work after reactivation may use the same preserved configured provider account without a lifecycle credential re-enable mutation.
 
-Exact job drain/cancel semantics must be specified per product capability; no generic Core job assumption may silently overwrite FAIR CRM behavior.
+Implementation/certification evidence:
+
+- KYROX Core PR #25 and FAIR CRM PR #249 established the dedicated product lifecycle snapshot contract and fail-closed consumer guard.
+- FAIR CRM PR #250 certified pre-start cancellation of queued work.
+- FAIR CRM PR #251 certified cooperative cancellation of already-running work at safe checkpoints.
+- FAIR CRM PR #252 certified the final pre-provider lifecycle checkpoint and provider credential preservation.
+- FAIR CRM PR #253 certified durable `SENDING`, real-session checkpoint commit recovery and ambiguous in-flight provider no-auto-retry semantics; final head `c94be579f071deb7de8ed340690c4d88d5d71c93` passed Development Standard Gate #696 and Prod-Path E2E #261 and merged as `4f52961341bc4d80c4a576fa85525aa511d68b82`.
+- FAIR CRM PR #254 certified deterministic reactivation/resumption across terminalized queued work, lifecycle-authority outage deferral, mail worker selection and preserved provider credentials; final head `e17593e49ecb25a3aef736b0ceaa1fafa14c7e77` passed Development Standard Gate #700 and Prod-Path E2E #264 and squash-merged as `18b0b638ba946c2910698e1df7c4ab5283c4958f`.
+- The canonical completion record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../P0_2_OL_07_IMPLEMENTATION.md).
+
+**Scope boundary:** OL-07 certifies suspension and reactivation runtime behavior only. Organization closure/export/retention/anonymization/delete sequencing, retention/grace periods and backup ageing/restoration remain OL-08 through OL-10.
 
 ### 10. Organization deletion is the final step of an offboarding workflow, not the first step — PROPOSED
 
@@ -244,8 +248,8 @@ These policy values feed P1.5 Data Lifecycle / KVKK-GDPR readiness and cannot be
 | OL-03 | User ↔ organization model | Direct single `organization_id`; memberships removed | Keep single-org model for M4 | **APPROVED 2026-08-27 / DONE** |
 | OL-04 | Team/user onboarding | Direct manual user create exists; activation/reset absent | Generic Core activation/set-password + reset/change; keep manual Super Admin create | **APPROVED 2026-08-27 / DONE** |
 | OL-05 | Self-service suspend/delete authority | SYSTEM scope | Execution Platform SuperAdmin only; optional closure-request flow later; transitions auditable | **ACCEPTED 2026-09-03 / DONE** |
-| OL-06 | Reactivation | Domain transition exists; API missing on certified baseline | Platform SuperAdmin-only SYSTEM action; only `SUSPENDED -> ACTIVE`; explicit Core API + audit; product resumption stays OL-07 | **ACCEPTED 2026-09-03 / DONE 2026-09-04** |
-| OL-07 | Suspension job/provider behavior | New protected starts are denied, but queued/running scraper, enrichment, import and mail work generally does not re-check Core lifecycle state; outbound delivery relies on product account activity | Block new work; explicitly cancel/pause/drain existing work; disable side effects | **OPEN DETAIL** |
+| OL-06 | Reactivation | Domain transition exists; API missing on certified baseline | Platform SuperAdmin-only SYSTEM action; only `SUSPENDED -> ACTIVE`; explicit Core API + audit | **ACCEPTED 2026-09-03 / DONE 2026-09-04** |
+| OL-07 | Suspension job/provider behavior | Previously queued/running product work and outbound mail could outlive Core suspension without deterministic product re-checks | Lifecycle-gate queued/running/provider boundaries; preserve credentials; no implicit restart/resend on reactivation | **ACCEPTED / DONE 2026-09-07** |
 | OL-08 | Closure/export/retention/delete sequence | Not defined cross-repo | Staged offboarding before Core tombstone | **PENDING ACCEPTANCE** |
 | OL-09 | Retention/grace durations | Not defined | Business/legal decision required | **OPEN CHOICE** |
 | OL-10 | Backup restore implications | Not defined | Must be explicit before destructive closure | **OPEN CHOICE** |
@@ -256,9 +260,11 @@ The OL-01 through OL-04 onboarding/credential subset is complete and tracked in 
 
 OL-05 is accepted and its destructive-authority implementation/certification is complete, tracked in [P0_2_OL_05_IMPLEMENTATION.md](../P0_2_OL_05_IMPLEMENTATION.md).
 
-OL-06 is accepted and its implementation/certification is complete, tracked in [P0_2_OL_06_IMPLEMENTATION.md](../P0_2_OL_06_IMPLEMENTATION.md). Core PR #23 / CI #88 is the certified runtime implementation evidence. The next lifecycle decision gate is OL-07.
+OL-06 is accepted and its implementation/certification is complete, tracked in [P0_2_OL_06_IMPLEMENTATION.md](../P0_2_OL_06_IMPLEMENTATION.md). Core PR #23 / CI #88 is the certified runtime implementation evidence.
 
-Runtime work for OL-07 through OL-10 remains gated until the relevant decisions are accepted. Completion of OL-06 must not be misread as acceptance of suspension job/provider semantics, closure/offboarding sequencing, retention or backup behavior.
+OL-07 is accepted and its cross-repository suspension/provider/reactivation implementation/certification is complete, tracked in [P0_2_OL_07_IMPLEMENTATION.md](../P0_2_OL_07_IMPLEMENTATION.md). FAIR CRM PRs #249–#254 are the certified product runtime evidence, ending with PR #254 merge `18b0b638ba946c2910698e1df7c4ab5283c4958f` after Development Standard Gate #700 and Prod-Path E2E #264 passed the final head.
+
+Runtime work for OL-08 through OL-10 remains gated until the relevant decisions are accepted. Completion of OL-07 must not be misread as acceptance of closure/offboarding sequencing, retention or backup behavior.
 
 Implementation ownership remains:
 
@@ -283,7 +289,8 @@ Implementation ownership remains:
 - signup/activation/forgot/reset/change-password UX,
 - existing Super Admin user-management UX compatibility plus optional setup-link mode,
 - product first-value onboarding after authentication,
-- product lifecycle behavior for still-open suspension/closure decisions.
+- certified OL-07 product lifecycle behavior for suspension, provider handoff and reactivation/resumption,
+- product lifecycle behavior for still-open closure/offboarding decisions only after OL-08+ acceptance.
 
 ### Platform-owned
 
@@ -318,15 +325,17 @@ This ADR's accepted decisions:
 - keep ADR-0005 `OrganizationAdmin` role governance intact,
 - supersede membership-specific implementation wording in ADR-0005 because Core migration 0057 removed memberships,
 - preserve SYSTEM-only destructive organization authority and do not authorize self-service destructive organization action,
-- preserve SYSTEM-only organization reactivation authority and limit the action to `SUSPENDED -> ACTIVE` without inferring OL-07 product resumption semantics.
+- preserve SYSTEM-only organization reactivation authority and limit the Core action to `SUSPENDED -> ACTIVE`,
+- define deterministic FAIR CRM suspension/provider/reactivation runtime semantics through accepted OL-07 without granting implicit restart/resend behavior.
 
-The ADR remains Proposed overall until the remaining lifecycle decisions are resolved.
+The ADR remains Proposed overall until OL-08 through OL-10 are resolved.
 
 ## Related
 
 - [P0.2 Identity / SaaS Onboarding Implementation Tracker](../P0_2_IDENTITY_ONBOARDING_IMPLEMENTATION.md)
 - [P0.2 OL-05 Destructive Organization Authority Implementation Tracker](../P0_2_OL_05_IMPLEMENTATION.md)
 - [P0.2 OL-06 Organization Reactivation Implementation Tracker](../P0_2_OL_06_IMPLEMENTATION.md)
+- [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../P0_2_OL_07_IMPLEMENTATION.md)
 - [P0.2 Organization Lifecycle Runtime Audit](../P0_2_LIFECYCLE_RUNTIME_AUDIT.md)
 - [KYROX SaaS Readiness Roadmap](../SAAS_ROADMAP.md)
 - [ADR-0002: Core and product separation](0002-core-product-separation.md)
