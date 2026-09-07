@@ -1,9 +1,9 @@
 # P0.2 OL-08 — Organization Offboarding Implementation Tracker
 
-**Status:** IN PROGRESS — OL08-01 DONE; OL08-B technical export contract accepted; OL08-02 is the active resume point  
+**Status:** IN PROGRESS — OL08-01, OL08-02 and OL08-03A DONE; OL08-B technical export contract remains partially accepted; OL08-C is the next decision gate  
 **Decision:** OL08-A ACCEPTED 2026-09-07; OL08-B technical contract PARTIALLY ACCEPTED 2026-09-07  
 **Started:** 2026-09-07  
-**Current resume point:** OL08-02 — closure quiescence certification  
+**Current resume point:** OL08-C — provider credential disposition decision; no runtime authorized yet  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **Readiness source:** `ecosystem/P0_2_OL_08_DECISION_READINESS.md`  
 **OL08-B decision:** `ecosystem/P0_2_OL_08_B_EXPORT_DECISION.md`
@@ -117,58 +117,69 @@ Explicitly deferred/excluded in the first version:
 - derived dashboard views,
 - raw provider webhook/signature/security payloads unless separately accepted later.
 
-## OL08-02 — Closure quiescence certification — AUTHORIZED / NEXT
+## OL08-02 — Closure quiescence certification — DONE 2026-09-08
 
-Before export planning is trusted, certify that the existing OL-07 runtime is sufficient for an OL08 closure execution that has started from canonical Core `SUSPENDED`.
+FAIR CRM PR #256 certified that an open OL08 closure execution does not bypass the already-certified OL-07 suspension/runtime guards.
 
-Required evidence:
+Certified behavior:
 
-- covered queued/pending organization work cannot start,
-- covered running work stops at the already-certified safe checkpoints,
-- new outbound provider handoff is blocked,
+- covered queued/pending organization work cannot start once Core reports non-active lifecycle,
+- covered running work stops at the existing safe checkpoints,
+- new outbound provider handoff is blocked at the final lifecycle checkpoint,
 - ambiguous already-started provider handoff remains terminal/non-auto-retry,
 - suspension-cancelled work is not resurrected,
 - lifecycle-authority outage fails closed,
-- closure execution itself does not bypass these guards,
-- no new generic cancellation framework is introduced if existing OL-07 behavior already satisfies the requirement.
+- closure execution does not introduce a parallel cancellation framework or bypass OL-07 guards.
 
-OL08-02 may be certification-only if no runtime gap is found.
+The certification also exposed and fixed one real OL08-01 transactional integrity defect: the parent closure execution is now flushed before its append-only start event so the existing FK cannot be violated, while both writes remain in one transaction with no intermediate commit.
 
-## OL08-03A — Export manifest / completeness planner — AUTHORIZED AFTER OL08-02
+Exact implementation evidence:
 
-After OL08-02 is green, OL08-B authorizes only a non-destructive planner slice.
+- FAIR CRM PR #256 final head `bae0e7f720e29b688765999fff12deda8624dad7`,
+- Development Standard Gate #711 / run `34160597160`: SUCCESS,
+- Prod-Path E2E #273 / run `34160597182`: SUCCESS,
+- FAIR CRM merge `00f7219c45a5c761df0861e7b30a89ad2a67652d`.
 
-Authorized:
+Therefore OL08-02 is complete and OL08-03A became executable within the already accepted OL08-B boundary.
 
-- durable export-plan identity tied to one organization + closure execution,
-- versioned manifest schema,
-- structured-data completeness registry,
-- organization-scoped record planning/counting,
-- deterministic canonical fingerprints/digests where safe without retaining package payload,
+## OL08-03A — Export manifest / completeness planner — DONE 2026-09-08
+
+FAIR CRM PR #257 implements the bounded, non-destructive export manifest/completeness planner authorized by OL08-B after OL08-02 certification.
+
+Delivered runtime:
+
+- durable export-plan identity tied to one organization + closure execution + schema version,
+- migration `0078_closure_export_plans`,
+- successful durable state limited by DB constraints to `required` + `planned`,
+- SYSTEM-only POST planning and GET metadata/status endpoints,
+- live Core `SUSPENDED` precondition for planning,
+- explicit v1 structured-data completeness registry,
+- organization-scoped record counts,
+- deterministic record-ID-only fingerprints,
 - explicit included/excluded/deferred reason evidence,
-- hard secret-exclusion validation,
-- SYSTEM-only plan/status/retry,
-- idempotency and tenant-isolation tests,
-- non-secret audit/closure evidence.
+- hard secret-source exclusion for reusable SMTP/provider credential tables,
+- idempotent repeat planning through organization/execution/schema-version uniqueness,
+- append-only non-secret closure/audit evidence,
+- tenant-isolation and foreign-organization denial coverage,
+- no package/download endpoint and no customer-facing handover route.
 
-Still blocked:
+The planner does **not** persist or expose a closure-complete package, `not_required` success, `integrity_verified`, credential revoke/purge, product-data/artifact destruction, `cleanup_complete`, `ready_for_tombstone` or Core tombstone.
 
-- persistent/downloadable closure package materialization,
-- customer-facing handover/download,
-- package retention/expiry,
-- `not_required` successful disposition,
-- `integrity_verified` as an irreversible-phase gate,
-- provider revoke/secret purge,
-- organization-wide data/artifact delete/anonymize,
-- `cleanup_complete` / `ready_for_tombstone`,
-- Core tombstone.
+Exact implementation evidence:
+
+- FAIR CRM PR #257 final head `6927dabea1cf46e1ee70b726d3c8ccd1ae247dcd`,
+- Development Standard Gate #715 / run `34163087279`: SUCCESS,
+- Prod-Path E2E #276 / run `34163087299`: SUCCESS,
+- FAIR CRM merge `eac3a0793a6ea0382e3b82169a1e3c18c0accfc9`.
+
+Therefore the currently authorized OL08-B engineering slice is complete. OL08-B itself remains only partially accepted because package lifecycle and `not_required` policy authority are still unresolved.
 
 ## Still-gated OL-08 decisions
 
 | Decision | Status | Runtime boundary |
 | --- | --- | --- |
-| OL08-B — closure export technical contract | **PARTIALLY ACCEPTED** | Planner authorized after OL08-02; package lifecycle and `not_required` policy remain gated. |
-| OL08-C — provider credential disposition | **OPEN** | No provider revoke or local secret purge authorized. |
+| OL08-B — closure export technical contract | **PARTIALLY ACCEPTED / OL08-03A DONE** | Manifest/completeness planner is implemented; persistent/downloadable package lifecycle and `not_required` policy remain gated. |
+| OL08-C — provider credential disposition | **OPEN / NEXT DECISION** | No provider revoke or local secret purge authorized. |
 | OL08-D — product-data disposition matrix | **OPEN / depends on OL-09** | No organization-wide anonymize/hard-delete authorized. |
 | OL08-E — generated artifact disposition | **OPEN** | No closure-driven artifact purge or persistent closure-package lifecycle authorized. |
 | OL08-F — audit/security evidence retention | **OPEN / policy required** | No retention duration chosen. |
@@ -193,6 +204,6 @@ Until separately accepted, OL-08 work must not:
 
 ## Current resume point
 
-Execute **OL08-02 closure quiescence certification** in FAIR CRM against the existing OL-07 lifecycle runtime.
+The next unresolved gate is **OL08-C — provider credential disposition**.
 
-If OL08-02 proves the existing guards sufficient, no application behavior change is required. After OL08-02 certification, proceed to the bounded **OL08-03A export manifest/completeness planner**. All package-lifecycle and destructive phases remain gated.
+No OL08-C runtime is authorized by the existing decisions. The next safe step is decision-readiness / policy acceptance for provider credential disable/revoke/local-secret disposition, preserving the current prohibition on provider revoke and local secret purge until that decision is explicit. OL08-D through OL08-G, OL-09 and OL-10 remain separately gated.
