@@ -119,43 +119,49 @@ Accepted:
 
 Detailed decision: [../../ecosystem/P0_2_OL_08_B_EXPORT_DECISION.md](../../ecosystem/P0_2_OL_08_B_EXPORT_DECISION.md).
 
-#### Active next step — OL08-02 closure quiescence certification
+#### OL08-02 closure quiescence certification — DONE 2026-09-08
 
-Before any export planner is trusted, certify that existing OL-07 behavior remains sufficient once an OL08 closure execution has started from canonical Core `SUSPENDED`:
+FAIR CRM PR #256 certified that an open closure execution remains governed by the existing OL-07 queued/running/provider/lifecycle guards. The certification also fixed the closure start parent/event FK flush ordering without adding an intermediate commit or new cancellation framework.
 
-- covered queued/pending work cannot start,
-- covered running work stops at certified safe checkpoints,
-- new provider handoff is blocked,
-- ambiguous in-flight provider outcomes remain terminal/non-auto-retry,
-- suspension-cancelled work is not resurrected,
-- lifecycle-authority outage fails closed,
-- closure execution itself does not bypass lifecycle guards.
+#### OL08-03A export manifest/completeness planner — DONE 2026-09-08
 
-This may be certification-only if no runtime gap is found.
+FAIR CRM PR #257 implemented the bounded non-destructive planner authorized by OL08-B after OL08-02:
 
-#### Next after OL08-02 — bounded OL08-03A export manifest/completeness planner
-
-Authorized only after OL08-02 is green:
-
-- durable export-plan identity tied to organization + closure execution,
-- versioned manifest schema,
+- durable export-plan identity tied to organization + closure execution + schema version,
+- versioned manifest metadata,
 - explicit structured-data class registry,
 - organization-scoped record planning/counting,
-- deterministic canonical fingerprints/digests where safe without retaining package payload,
+- deterministic record-ID-only fingerprints,
 - included/excluded/deferred reason evidence,
-- secret-exclusion validation,
-- SYSTEM-only plan/status/retry,
+- hard secret-source exclusion,
+- SYSTEM-only planning/status metadata API,
 - idempotency, tenant-isolation and audit evidence.
+
+No persistent/downloadable package, customer-facing handover, `not_required` success, `integrity_verified` irreversible gate, provider revoke/secret purge, organization-wide data/artifact deletion/anonymization, cleanup-complete/tombstone-ready state or Core tombstone was added.
+
+#### Active next decision gate — OL08-C provider credential disposition
+
+OL08-C remains **OPEN**. No provider revoke, provider-side credential lifecycle action or local SMTP/provider secret purge is authorized yet.
+
+The next safe lifecycle work is decision-readiness and explicit policy acceptance for:
+
+- which provider/account descriptors remain as non-secret evidence,
+- whether closure disables provider accounts before any revoke,
+- when provider-side revoke is required versus not applicable,
+- when local encrypted provider/SMTP secret material may be purged,
+- failure/retry semantics for external revocation,
+- audit evidence that may be retained without copying secrets.
+
+This roadmap entry does **not** authorize runtime changes. Runtime implementation may begin only after the provider credential disposition policy is explicitly accepted.
 
 Still blocked:
 
-- persistent/downloadable closure package,
-- package retention/expiry,
-- customer-facing handover,
+- persistent/downloadable closure package and its retention/expiry lifecycle,
 - `not_required` success without accepted policy,
-- `integrity_verified` as an irreversible gate,
-- provider revoke/secret purge,
+- provider credential revoke or local secret purge,
 - organization-wide data/artifact deletion/anonymization,
+- retention/grace duration selection,
+- backup ageing/restore reconciliation,
 - `cleanup_complete` / `ready_for_tombstone`,
 - Core tombstone.
 
