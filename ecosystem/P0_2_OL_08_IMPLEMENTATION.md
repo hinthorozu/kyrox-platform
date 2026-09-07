@@ -1,9 +1,9 @@
 # P0.2 OL-08 — Organization Offboarding Implementation Tracker
 
-**Status:** IN PROGRESS — OL08-A accepted; OL08-01 authorized as non-destructive closure orchestration only  
+**Status:** IN PROGRESS — OL08-01 runtime implemented/merged; cross-repository certification pending  
 **Decision:** OL08-A ACCEPTED 2026-09-07  
 **Started:** 2026-09-07  
-**Current resume point:** OL08-01 — closure execution contract/state machine  
+**Current resume point:** OL08-01I — cross-repository certification / docs sync  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **Readiness source:** `ecosystem/P0_2_OL_08_DECISION_READINESS.md`
 
@@ -27,7 +27,7 @@ Operationally:
 
 ## Why the product owns closure execution state
 
-Core and FAIR CRM use separate persistence. Core's current `DELETE /organizations/{organization_id}` only sets `organizations.deleted_at` and does not perform product cleanup. FAIR CRM already consumes Core lifecycle through a read-only lifecycle snapshot and does not persist or own Core lifecycle status.
+Core and FAIR CRM use separate persistence. Core's current `DELETE /organizations/{organization_id}` only sets `organizations.deleted_at` and does not perform product cleanup. FAIR CRM consumes Core lifecycle through a read-only lifecycle snapshot and does not persist or own Core lifecycle status.
 
 Putting closure progress into Core `OrganizationStatus` would mix product-specific offboarding phases into the reusable lifecycle authority. Using the Core tombstone as the start signal would also destroy the canonical organization lookup before product cleanup has proven complete. The accepted split therefore is:
 
@@ -49,65 +49,90 @@ Core: final tombstone only after certified product completion
   - OL08-A accepted as the narrow non-destructive closure-orchestration slice.
   - OL08-B through OL08-G, OL-09 and OL-10 remain unresolved and are not implicitly accepted.
 
-- [ ] **OL08-01B — Durable FAIR CRM execution model**
-  - Add an organization-scoped closure execution record owned by FAIR CRM.
-  - Persist stable execution id, target organization id, status/current phase, idempotency identity, actor/audit references and timestamps.
-  - Enforce at most one open execution per organization.
+- [x] **OL08-01B — Durable FAIR CRM execution model**
+  - FAIR CRM PR #255 adds durable organization-scoped closure execution and append-only closure event records.
+  - Migration `0077_organization_closure_executions` persists execution id, organization id, idempotency key, state/phase, actor references, failure evidence and timestamps.
+  - Database constraints enforce one open execution per organization and unique organization + idempotency identity.
 
-- [ ] **OL08-01C — SYSTEM-authorized start/status/retry contract**
-  - Expose only the minimum public product contract needed to start, inspect and retry closure execution.
-  - Reuse canonical Platform SuperAdmin / SYSTEM authority; do not create organization-role destructive authority.
-  - Cross-organization and ordinary-user attempts fail closed without mutation.
+- [x] **OL08-01C — SYSTEM-authorized start/status/retry contract**
+  - Public product contract is limited to start, status and retry under `/api/v1/system-admin/organizations/{organization_id}/closure-executions`.
+  - It reuses Core `identity.organizations.delete` SYSTEM authority; no assignable FAIR CRM destructive permission was introduced.
+  - Cross-organization context mismatch and ordinary/non-SYSTEM authority fail closed before mutation.
 
-- [ ] **OL08-01D — Core lifecycle precondition**
-  - Start/retry re-checks canonical Core lifecycle authority.
-  - New closure execution requires the target organization to be `SUSPENDED` and non-deleted.
-  - Core lifecycle outage, malformed response, wrong organization or any state other than `SUSPENDED` fails closed.
-  - No local cached lifecycle value becomes authority.
+- [x] **OL08-01D — Core lifecycle precondition**
+  - Start and retry perform a live Core lifecycle snapshot check.
+  - The target must be canonical Core `SUSPENDED`; any other lifecycle state is rejected.
+  - Lifecycle authority outage/invalid response fails closed; no local cached lifecycle value becomes authority.
 
-- [ ] **OL08-01E — Idempotency / failure / restart semantics**
-  - Duplicate start with the same idempotency identity returns/converges on the same execution.
-  - A conflicting second open closure execution is rejected.
-  - Partial internal failure is persisted as explicit execution evidence rather than silently advancing.
-  - Retry resumes the same logical execution and cannot duplicate a future externally visible phase.
+- [x] **OL08-01E — Idempotency / failure / restart semantics**
+  - Duplicate start with the same idempotency identity converges on the same execution.
+  - A conflicting second open closure execution is rejected, including through the database race constraint.
+  - Blocked state retains explicit failure code/message evidence.
+  - Retry resumes the same logical execution and increments attempt evidence rather than creating a replacement execution.
 
-- [ ] **OL08-01F — Audit evidence**
-  - Start, meaningful phase/status transition and retry/recovery actions produce auditable evidence.
-  - Evidence identifies actor, organization, execution and transition without retaining raw credentials/tokens.
+- [x] **OL08-01F — Audit evidence**
+  - FAIR CRM stores transactional append-only local closure event evidence for start/block/retry state changes.
+  - Evidence includes actor, organization, execution, transition/phase and timestamp without raw credentials/tokens.
+  - Core audit remains supplementary/best-effort and cannot erase the local transactional evidence requirement.
 
-- [ ] **OL08-01G — Tombstone safety contract**
-  - OL08-01 contains no call to Core organization delete.
-  - No OL08-01 state can be interpreted as proof that export/provider/data/artifact/backup obligations are complete.
-  - Final tombstone remains blocked until the later required OL-08/09/10 phases are accepted and certified.
+- [x] **OL08-01G — Tombstone safety contract**
+  - OL08-01 contains no Core organization delete/tombstone call.
+  - Public API exposes no complete/delete/tombstone transition.
+  - Current state machine contains no `cleanup_complete` or `ready_for_tombstone` semantic state.
 
-- [ ] **OL08-01H — Adversarial / tenant-isolation certification**
-  - ordinary organization user denied,
-  - OrganizationAdmin denied,
-  - foreign organization target denied,
-  - lifecycle spoof/cached local state cannot bypass Core authority,
-  - duplicate-start race cannot create two open executions,
-  - retry after failure remains idempotent,
-  - lifecycle authority outage fails closed,
-  - tombstoned/missing organization cannot start or resume closure execution as if valid.
+- [x] **OL08-01H — Adversarial / tenant-isolation certification**
+  - ordinary/organization-role authority is denied,
+  - foreign organization path context is denied before mutation,
+  - lifecycle authority outage and non-`SUSPENDED` state fail closed,
+  - duplicate-start races cannot create two open executions,
+  - retry remains on the same execution and re-checks live lifecycle authority,
+  - `organization_closure` is registered in the canonical FAIR CRM tenant-isolation evidence registry.
 
 - [ ] **OL08-01I — Cross-repository certification / docs sync**
-  - FAIR CRM runtime/tests green on exact final head,
-  - production-shaped lifecycle integration evidence green where applicable,
-  - Platform tracker/ADR/status synchronized,
-  - no merge without explicit authorization.
+  - FAIR CRM PR #255 final head `aa34cd3e5d00ec6f7d6b7adaad4afa950319830e` passed Development Standard Gate #707 / run `34155567277`.
+  - The same head passed Prod-Path E2E #270 / run `34155567315`, including DB prepare/migration and real Core + FAIR CRM startup.
+  - PR #255 merged to FAIR CRM `main` as `e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`.
+  - Platform tracker/status synchronization is in progress on the dedicated certification PR.
+  - OL08-01I becomes complete only after that Platform certification PR merges.
+
+## FAIR CRM implementation evidence
+
+FAIR CRM PR #255 (`feat(ol08): add non-destructive closure execution state machine`) is the OL08-01 runtime implementation.
+
+Certified exact head:
+
+`aa34cd3e5d00ec6f7d6b7adaad4afa950319830e`
+
+Merge commit:
+
+`e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`
+
+Exact-head CI:
+
+- Development Standard Gate #707 / run `34155567277`: **SUCCESS**
+  - Feature Contract / Applicability: success
+  - Frontend Tests / Build / UI Governance: success through the backend-only N/A path
+  - Backend Quality Check: success
+- Prod-Path E2E #270 / run `34155567315`: **SUCCESS**
+  - DB prepare and Alembic migration: success
+  - KYROX Core startup: success
+  - FAIR CRM startup: success
+  - production-shaped gate and existing lifecycle regressions: success
+
+The first full-suite run exposed one governance omission rather than a runtime defect: the new `organization_closure` module had not yet been registered in FAIR CRM's canonical tenant-isolation evidence registry. The final head fixes that omission and the full backend suite then passed.
 
 ## OL08-01 state-machine constraints
 
-The runtime may choose concrete internal names during implementation, but the following semantic states are mandatory:
+The implemented OL08-01 runtime uses the accepted semantics:
 
 ```text
 no execution
-  -> open/in-progress          only if Core == SUSPENDED and SYSTEM-authorized
-  -> blocked/failed            explicit recoverable evidence
-  -> open/in-progress          idempotent retry of same execution
+  -> in_progress              only if Core == SUSPENDED and SYSTEM-authorized
+  -> blocked                  explicit recoverable evidence
+  -> in_progress              idempotent retry of the same execution
 ```
 
-OL08-01 intentionally has **no terminal "cleanup complete" or "ready for tombstone" transition**. Those meanings depend on later policy/implementation phases that are still blocked.
+OL08-01 intentionally has **no terminal `cleanup_complete` or `ready_for_tombstone` transition**. Those meanings depend on later policy/implementation phases that are still blocked.
 
 ## Still-blocked OL-08 decisions
 
@@ -117,18 +142,19 @@ OL08-01 intentionally has **no terminal "cleanup complete" or "ready for tombsto
 | OL08-C — provider credential disposition | **OPEN** | No provider revoke or local secret purge authorized. |
 | OL08-D — product-data disposition matrix | **OPEN / depends on OL-09** | No organization-wide anonymize/hard-delete authorized. |
 | OL08-E — generated artifact disposition | **OPEN** | No closure-driven artifact purge authorized. |
-| OL08-F — audit/security evidence retention | **OPEN / policy required** | OL08-01 may create audit evidence but does not choose retention duration. |
+| OL08-F — audit/security evidence retention | **OPEN / policy required** | OL08-01 creates audit evidence but does not choose retention duration. |
 | OL08-G — backup/restore interaction | **OPEN / depends on OL-10** | No backup ageing or restore reconciliation semantics authorized. |
 | OL-09 — retention/grace durations | **OPEN CHOICE** | No duration or grace window may be invented. |
 | OL-10 — backup restore implications | **OPEN CHOICE** | Destructive closure cannot be certified until restore behavior is explicit. |
 
 ## Certified/current baseline carried into OL08-01
 
-- OL-07 already provides deterministic quiescence while Core is non-active: covered queued work is cancelled before start, covered running work stops at safe checkpoints, and new provider handoff is blocked.
+- OL-07 provides deterministic quiescence while Core is non-active: covered queued work is cancelled before start, covered running work stops at safe checkpoints, and new provider handoff is blocked.
 - Core organization delete is a soft tombstone (`deleted_at`), not FAIR CRM product-data deletion.
 - The current Core delete endpoint has no product-offboarding-complete prerequisite; OL-08 therefore must not use it until the later final tombstone gate is implemented.
 - Core lifecycle snapshot exposes current canonical lifecycle state and allows product work only for `ACTIVE` organizations.
 - FAIR CRM lifecycle consumption is read-only/fail-closed and deliberately does not persist Core lifecycle authority.
+- OL08-01 now supplies the missing FAIR CRM-owned durable non-destructive closure execution state, but it deliberately does not advance into destructive/export phases.
 
 ## Scope boundary / non-goals
 
@@ -147,4 +173,4 @@ OL08-01 does **not** authorize or implement:
 
 ## Current resume point
 
-Implement **OL08-01B through OL08-01H in FAIR CRM** as one or more independently reviewable runtime PRs. Keep every destructive/off-platform phase blocked until its governing decision is separately accepted.
+Complete **OL08-01I cross-repository certification/docs sync**. After that, the next lifecycle decision gate is **OL08-B — closure export obligation/contract**. OL08-B remains **OPEN** until separately accepted; do not implement export or any destructive phase merely because OL08-01 is complete.
