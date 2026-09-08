@@ -89,7 +89,7 @@ While suspended, webhook ingress must not:
 - create a backlog for later reactivation,
 - use a retained signing secret merely because physical purge has not yet completed.
 
-The exact HTTP acknowledgement/rejection shape for post-suspension provider deliveries is an implementation detail, but it must be fail-closed and must not permit tenant-state mutation from an unverifiable event.
+The exact HTTP acknowledgement/rejection shape for post-suspension provider deliveries is an implementation detail. Whatever response policy is later implemented, post-suspension requests must be inert with respect to tenant state and must not regain authority from a secret whose effective lifetime has ended.
 
 ## Reactivation semantics
 
