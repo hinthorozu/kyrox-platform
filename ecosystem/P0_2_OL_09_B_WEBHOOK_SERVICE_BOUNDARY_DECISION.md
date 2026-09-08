@@ -57,6 +57,8 @@ From the authoritative `SUSPENDED` boundary onward:
 
 Because Core and FAIR CRM are separate runtime boundaries, this policy does not claim impossible cross-service same-millisecond transactional deletion. It defines the **effective security/lifecycle boundary** at the successful Core `SUSPENDED` transition: even if physical zeroization is still retrying because of process or infrastructure failure, the retained bytes are not authorized for webhook processing.
 
+This is what "simultaneous with suspension" means in the contract: **no additional retention period starts after suspension**. The security boundary is immediate; physical persistence cleanup must converge to that decision without creating a temporary service allowance.
+
 ## Webhook behavior while suspended
 
 After the authoritative `SUSPENDED` transition, no MailerSend webhook event may mutate tenant state.
