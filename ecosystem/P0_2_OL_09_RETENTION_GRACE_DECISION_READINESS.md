@@ -1,18 +1,20 @@
 # P0.2 OL-09 — Retention / Grace Decision Readiness
 
-**Status:** PARTIALLY ACCEPTED — OL09-A ACCEPTED; OL09-B through OL09-E OPEN  
+**Status:** PARTIALLY ACCEPTED — OL09-A ACCEPTED; OL09-B1 ACCEPTED; OL09-B2 + OL09-C through OL09-E OPEN  
 **Prepared:** 2026-09-08  
 **OL09-A accepted:** 2026-09-08 — 30-day closure grace  
+**OL09-B1 accepted:** 2026-09-08 — suspended webhook service boundary / minimum protective processing  
 **Parent lifecycle ADR:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **OL-08 tracker:** `ecosystem/P0_2_OL_08_IMPLEMENTATION.md`  
 **OL09-A decision:** `ecosystem/P0_2_OL_09_A_CLOSURE_GRACE_DECISION.md`  
+**OL09-B decision:** `ecosystem/P0_2_OL_09_B_WEBHOOK_SERVICE_BOUNDARY_DECISION.md`  
 **Related accepted credential contract:** `ecosystem/P0_2_OL_08_C_PROVIDER_CREDENTIAL_DECISION.md`
 
 ## Purpose
 
 Track the OL-09 retention/grace policy choices that block later organization-closure phases.
 
-OL09-A is now accepted narrowly. The remaining OL09-B through OL09-E choices are still open and must not be inferred from OL09-A.
+OL09-A and the OL09-B1 suspended-service boundary are now accepted narrowly. OL09-B2 final receive-only expiry and OL09-C through OL09-E remain open and must not be inferred from those accepted slices.
 
 ## Accepted OL09-A — closure grace / reversibility
 
@@ -37,19 +39,42 @@ Therefore runtime must not use FAIR CRM closure creation time, first observation
 
 Pre-existing suspended organizations/closure executions without deterministic authoritative suspension time must not silently receive a retroactive destructive deadline.
 
-## Why OL-09 remains open after OL09-A
+## Accepted OL09-B1 — suspended webhook service boundary
 
-OL09-A answers only the **organization-level reversible grace window**. It does not answer other retention/drain clocks.
+The accepted behavior is:
+
+- the authoritative Core transition into `SUSPENDED` ends normal tenant-facing mail webhook service immediately,
+- the 30-day OL09-A grace is **not** 30 additional days of mail analytics/service,
+- during receive-only drain, only the minimum protective MailerSend event set may continue:
+  - `activity.unsubscribed`,
+  - `activity.spam_complaint`,
+  - `activity.hard_bounced`,
+- normal delivery/engagement events (`sent`, `delivered`, `soft_bounced`, `deferred`, `opened`, `opened_unique`, `clicked`, `clicked_unique`) are acknowledged and dropped on an early low-cost path,
+- dropped events do not perform provider-status/analytics work, create CRM activities, enqueue jobs or create a replay backlog,
+- suspended-period analytics are not backfilled after reactivation,
+- there is no tenant-wide scan, per-message scheduler or per-tenant polling loop.
+
+Canonical detailed decision: `ecosystem/P0_2_OL_09_B_WEBHOOK_SERVICE_BOUNDARY_DECISION.md`.
+
+### Runtime signal remains an implementation gate
+
+OL08-04A `receive_only_pending` is created when credential disposition starts; it is not itself the exact Core suspension-transition signal. The existing Core lifecycle guard is intentionally live/uncached and a network call per webhook would violate the accepted low-load goal.
+
+Therefore OL09-B1 accepts the service behavior but does not yet authorize a speculative synchronization mechanism. Before a runtime slice is authorized, the implementation must define a deterministic, fail-closed and low-cost way for webhook ingress to honor authoritative Core `SUSPENDED` without creating unbounded per-webhook Core traffic or fabricating local lifecycle authority.
+
+## Why OL-09 remains open
+
+OL09-A answers the **organization-level reversible grace window**. OL09-B1 answers **what webhook work may continue while suspended**. Neither decides the final receive-only secret expiry or the remaining retention clocks.
 
 Remaining policy still materially blocks or constrains:
 
-- **OL08-C4 / OL09-B:** final zeroization of webhook signing secrets after receive-only drain,
+- **OL08-C4 / OL09-B2:** final zeroization of webhook signing secrets after receive-only drain,
 - **OL08-D / OL09-C:** product-data anonymization/hard-delete timing,
 - **OL08-F / OL09-D:** closure/audit/security evidence retention,
 - **OL08-B + OL08-E / OL09-E:** future closure-package and generated-artifact expiry,
 - final sequencing before `cleanup_complete` / `ready_for_tombstone` can ever be considered.
 
-**OL08-G / backup ageing and restore reconciliation remain OL-10 scope.** OL09-A does not define backup behavior.
+**OL08-G / backup ageing and restore reconciliation remain OL-10 scope.** OL09 decisions do not define backup behavior.
 
 ## Verified current lifecycle facts
 
@@ -64,31 +89,37 @@ Certified/implemented slices currently provide:
 
 No organization-wide product-data deletion, generated-artifact purge, closure-package delivery/expiry, cleanup-complete state or Core tombstone is currently authorized.
 
-### 2. MailerSend token disposition has a separate non-time blocker
+### 2. Current MailerSend webhook path has a meaningful cost boundary
+
+Current MailerSend ingress is synchronous and DB-backed. For supported activity events, normal handling can resolve the email account, provider config/signing secret, mail-send operation and provider-status transition. `unsubscribed` / `spam_complaint` can additionally mutate communication consent and create an activity.
+
+OL09-B1 therefore intentionally prevents normal delivery/engagement events from reaching those tenant-service side effects while suspended.
+
+### 3. MailerSend token disposition has a separate non-time blocker
 
 OL08-04A classifies current-model MailerSend API tokens as `supported_unidentifiable` because deterministic exact-token targeting is not yet available.
 
-Waiting 30 days does not solve that blocker. OL09-A must never be interpreted as MailerSend revoke success.
+Waiting 30 days or completing webhook drain does not solve that blocker. OL09 must never be interpreted as MailerSend revoke success.
 
-### 3. Product-data disposition actions remain undecided
+### 4. Product-data disposition actions remain undecided
 
 OL08-D remains open. The 30-day grace says **when an accepted irreversible phase may become eligible**, not which FAIR CRM data classes are anonymized, hard-deleted or retained.
 
-### 4. Audit/security evidence retention remains separate
+### 5. Audit/security evidence retention remains separate
 
 Closure events, export-plan evidence and credential-disposition evidence are append-only/non-secret control evidence. OL08-F / OL09-D still need their own retention decision; they are not automatically deleted after 30 days.
 
-### 5. Backup/restore remains separate
+### 6. Backup/restore remains separate
 
 System backup/restore is database-level administration. Backup ageing, retention guarantees and restore reconciliation remain OL-10 decisions.
 
 ## Remaining decision dimensions
 
-### OL09-B — webhook receive-only drain criterion — OPEN
+### OL09-B2 — final webhook receive-only drain expiry — OPEN
 
-Decide how OL08-C4 leaves `receive_only_pending`.
+The allowed suspended-event set is now decided by OL09-B1. What remains is the criterion for leaving `receive_only_pending` and finally zeroizing the webhook signing secret.
 
-Possible policy shapes:
+Still-open policy shapes:
 
 - fixed maximum elapsed-time window,
 - provider-specific deterministic terminal-event criterion,
@@ -97,13 +128,13 @@ Possible policy shapes:
 
 Questions still open:
 
-1. Is the criterion provider-specific or ecosystem-wide?
-2. If time-based, what exact duration applies?
-3. What timestamp starts the drain clock?
-4. What happens to delayed webhooks after final secret purge?
-5. What happens when provider state remains ambiguous at expiry?
+1. If time-based, what exact duration applies?
+2. What authoritative timestamp starts that drain clock?
+3. What happens to delayed protective webhooks after final secret purge?
+4. What happens when provider state remains ambiguous at expiry?
+5. Is one ecosystem-wide rule sufficient or must some providers have bounded provider-specific rules?
 
-OL09-A's 30-day organization grace does **not** automatically set OL09-B to 30 days.
+OL09-A's 30-day organization grace does **not** automatically set OL09-B2 to 30 days.
 
 ### OL09-C — product-data retention timing — OPEN
 
@@ -156,13 +187,25 @@ Any time-based implementation must use:
 - [x] OL-10 boundary: no backup ageing/restore behavior defined.
 - [x] Runtime boundary: only grace clock/evidence/evaluation and safe closure-abort support; no destructive action authorized by time alone.
 
+## OL09-B1 acceptance checklist — CLOSED
+
+- [x] Normal tenant mail webhook service ends at authoritative Core `SUSPENDED`.
+- [x] Protective suspended set: unsubscribe, spam complaint, hard bounce only.
+- [x] Sent/delivery/soft-bounce/deferred/open/click processing is dropped while suspended.
+- [x] Dropped events create no analytics/status/activity/job/replay workload.
+- [x] No historical-message scan or per-tenant/per-message polling.
+- [x] No backfill of suspended-period analytics after reactivation.
+- [x] Final signing-secret expiry/duration remains explicitly open.
+- [x] Cheap authoritative lifecycle signal mechanism remains an implementation gate; no local lifecycle fabrication is accepted.
+
 ## Explicitly still not accepted
 
 This document does **not** accept or authorize:
 
-- any OL09-B webhook drain duration/criterion,
-- MailerSend revoke success for an unidentifiable token,
+- any OL09-B2 webhook signing-secret drain duration/expiry criterion,
+- a speculative local/cached lifecycle authority mechanism,
 - final webhook signing-secret purge,
+- MailerSend revoke success for an unidentifiable token,
 - product-data anonymization/hard delete,
 - generated-artifact purge,
 - closure-package creation/download/expiry runtime,
@@ -174,6 +217,6 @@ This document does **not** accept or authorize:
 
 ## Current resume point
 
-**OL09-A is accepted. Next decision discussion: OL09-B — webhook receive-only drain criterion.**
+**OL09-A is accepted. OL09-B1 suspended webhook service behavior is accepted. Next decision discussion: OL09-B2 — final receive-only signing-secret expiry/clock and the bounded low-cost lifecycle signal needed to enforce B1 safely.**
 
-Do not infer OL09-B's answer or duration from the 30-day OL09-A closure grace.
+Do not infer OL09-B2's answer or duration from the 30-day OL09-A closure grace.
