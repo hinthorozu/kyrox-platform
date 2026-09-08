@@ -1,236 +1,179 @@
 # P0.2 OL-09 — Retention / Grace Decision Readiness
 
-**Status:** DECISION READINESS — NOT ACCEPTED  
+**Status:** PARTIALLY ACCEPTED — OL09-A ACCEPTED; OL09-B through OL09-E OPEN  
 **Prepared:** 2026-09-08  
+**OL09-A accepted:** 2026-09-08 — 30-day closure grace  
 **Parent lifecycle ADR:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **OL-08 tracker:** `ecosystem/P0_2_OL_08_IMPLEMENTATION.md`  
+**OL09-A decision:** `ecosystem/P0_2_OL_09_A_CLOSURE_GRACE_DECISION.md`  
 **Related accepted credential contract:** `ecosystem/P0_2_OL_08_C_PROVIDER_CREDENTIAL_DECISION.md`
 
 ## Purpose
 
-Prepare the unresolved OL-09 retention/grace policy choices that now block later organization-closure phases.
+Track the OL-09 retention/grace policy choices that block later organization-closure phases.
 
-This document is **readiness only**. It does not select a number of hours/days, does not authorize a purge scheduler, does not authorize product-data/artifact destruction, and does not change Core organization lifecycle behavior.
+OL09-A is now accepted narrowly. The remaining OL09-B through OL09-E choices are still open and must not be inferred from OL09-A.
 
-## Why OL-09 is now the next safe decision gate
+## Accepted OL09-A — closure grace / reversibility
 
-The bounded OL08-A/B/C runtime has established non-destructive orchestration, quiescence, export completeness planning and credential-disposition evidence. The remaining irreversible work cannot safely infer time policy from implementation convenience.
+The accepted policy is:
 
-OL-09 now materially blocks or constrains:
+- a successful Core transition into the current `SUSPENDED` episode starts a **30-day grace period**,
+- `grace_deadline = suspended_at + 30 days` using an authoritative UTC suspension timestamp,
+- irreversible organization offboarding work is prohibited before that deadline,
+- Core `SUSPENDED -> ACTIVE` reactivation remains allowed under the existing Platform SuperAdmin / SYSTEM authority during grace,
+- reactivation invalidates the current closure progression and requires the corresponding FAIR CRM closure execution to be durably aborted/terminalized before stale closure work can continue,
+- a later new suspension starts a fresh 30-day clock,
+- expiry only makes separately accepted irreversible phases eligible; it does not execute or authorize them by itself,
+- live Core lifecycle and phase-specific gates still apply at the irreversible boundary.
 
-- **OL08-C4:** final zeroization of a webhook signing secret when the accepted receive-only drain criterion is time-based,
-- **OL08-D:** product-data anonymization/hard-delete timing,
-- **OL08-F:** retention of closure/audit/security evidence,
-- **OL08-B / OL08-E:** expiry/retention semantics for any future closure package and generated/binary artifacts,
-- final closure sequencing before `cleanup_complete` / `ready_for_tombstone` can ever be considered.
+Canonical detailed decision: `ecosystem/P0_2_OL_09_A_CLOSURE_GRACE_DECISION.md`.
 
-**OL08-G / backup ageing and restore reconciliation remain OL-10 scope.** OL-09 must not silently define backup behavior.
+### Authoritative time evidence requirement
+
+Current Core product lifecycle snapshot exposes organization id, lifecycle status and `work_allowed`, but not the suspension-transition timestamp.
+
+Therefore runtime must not use FAIR CRM closure creation time, first observation time, worker time, UI time or operator-entered time as a substitute. If the authoritative current-suspension timestamp cannot be established, grace completion fails closed.
+
+Pre-existing suspended organizations/closure executions without deterministic authoritative suspension time must not silently receive a retroactive destructive deadline.
+
+## Why OL-09 remains open after OL09-A
+
+OL09-A answers only the **organization-level reversible grace window**. It does not answer other retention/drain clocks.
+
+Remaining policy still materially blocks or constrains:
+
+- **OL08-C4 / OL09-B:** final zeroization of webhook signing secrets after receive-only drain,
+- **OL08-D / OL09-C:** product-data anonymization/hard-delete timing,
+- **OL08-F / OL09-D:** closure/audit/security evidence retention,
+- **OL08-B + OL08-E / OL09-E:** future closure-package and generated-artifact expiry,
+- final sequencing before `cleanup_complete` / `ready_for_tombstone` can ever be considered.
+
+**OL08-G / backup ageing and restore reconciliation remain OL-10 scope.** OL09-A does not define backup behavior.
 
 ## Verified current lifecycle facts
 
-### 1. No retention/grace duration is currently accepted
-
-ADR-0006 keeps OL-09 open. Existing OL08 contracts explicitly prohibit inventing hours/days in runtime.
-
-Therefore a duration appearing only in code, a worker schedule, an environment variable, provider documentation or an implementation default would **not** constitute accepted policy.
-
-### 2. Closure begins only from Core `SUSPENDED`
-
-The current FAIR CRM closure execution may start only while live Core lifecycle authority reports a non-deleted `SUSPENDED` organization.
-
-The closure execution is durable FAIR CRM state; Core remains lifecycle authority and Core tombstone remains the final cross-repository mutation.
-
-### 3. Current OL08 closure runtime is still intentionally non-destructive
+### 1. Closure runtime remains bounded
 
 Certified/implemented slices currently provide:
 
 - OL08-01 durable closure execution,
-- OL08-02 quiescence certification against OL-07 runtime guards,
-- OL08-03A export manifest/completeness planning only,
+- OL08-02 quiescence certification,
+- OL08-03A export manifest/completeness planning,
 - OL08-04A credential disposition state/evidence foundation.
 
-No organization-wide product-data deletion, artifact purge, closure-package delivery/expiry, cleanup-complete state or Core tombstone is authorized.
+No organization-wide product-data deletion, generated-artifact purge, closure-package delivery/expiry, cleanup-complete state or Core tombstone is currently authorized.
 
-### 4. Credential disposition has an explicit time-policy dependency
+### 2. MailerSend token disposition has a separate non-time blocker
 
-OL08-C accepts receive-only webhook handling after outbound disablement.
+OL08-04A classifies current-model MailerSend API tokens as `supported_unidentifiable` because deterministic exact-token targeting is not yet available.
 
-A webhook signing secret may remain `receive_only_pending` only to verify delayed events belonging to previously handed-off work. Final signing-secret zeroization is mandatory before full credential disposition can complete.
+Waiting 30 days does not solve that blocker. OL09-A must never be interpreted as MailerSend revoke success.
 
-If the drain criterion depends on elapsed time, **OL-09 must define that criterion/duration**. OL08-C deliberately did not invent one.
+### 3. Product-data disposition actions remain undecided
 
-### 5. Current-model MailerSend token disposition has a separate non-time blocker
+OL08-D remains open. The 30-day grace says **when an accepted irreversible phase may become eligible**, not which FAIR CRM data classes are anonymized, hard-deleted or retained.
 
-OL08-04A currently classifies MailerSend API tokens as `supported_unidentifiable` because the existing model does not have deterministic validated targeting for the exact provider token. That problem does **not** become solved by waiting a grace period.
+### 4. Audit/security evidence retention remains separate
 
-OL-09 must not turn an unresolved provider-targeting problem into time-based success.
+Closure events, export-plan evidence and credential-disposition evidence are append-only/non-secret control evidence. OL08-F / OL09-D still need their own retention decision; they are not automatically deleted after 30 days.
 
-### 6. Product-data disposition is not yet accepted
+### 5. Backup/restore remains separate
 
-OL08-D remains open. No current policy says which FAIR CRM data classes are anonymized, hard-deleted, retained, or retained for different periods after closure.
+System backup/restore is database-level administration. Backup ageing, retention guarantees and restore reconciliation remain OL-10 decisions.
 
-A grace duration therefore cannot by itself authorize product-data destruction; OL08-D must still define the class-level disposition matrix.
+## Remaining decision dimensions
 
-### 7. Audit/security evidence retention is a separate policy concern
-
-Closure execution events, export-plan evidence and credential-disposition evidence are intentionally append-only/non-secret control evidence. OL08-F remains open and no accepted retention duration currently exists for that evidence.
-
-Product-data retention and security/audit evidence retention must not be assumed to use the same duration.
-
-### 8. Backup/restore timing remains separate
-
-Existing system backup/restore capability is database-level administration, not organization closure export or tenant rollback.
-
-OL-09 may define live/product-store timing, but backup ageing, backup-retention guarantees and restoration reconciliation remain OL-10 decisions.
-
-## Decision dimensions that must be resolved
-
-### OL09-A — closure grace / reversibility policy
-
-Decide whether an accepted grace period exists between closure initiation and the first irreversible product-data/artifact phase.
-
-Questions:
-
-1. Is there a reversible grace window at all?
-2. If yes, what event starts the clock?
-   - Core transition to `SUSPENDED`,
-   - FAIR CRM closure-execution creation,
-   - a separately recorded closure-request/approval timestamp,
-   - another explicit lifecycle event.
-3. Which authority may cancel/abort closure during the grace window?
-4. Is Core `SUSPENDED -> ACTIVE` reactivation allowed while a closure execution is open?
-5. If reactivation is allowed, what durable transition closes/aborts the FAIR CRM closure execution and prevents later stale cleanup from running?
-6. If grace expires, does expiry merely make later phases **eligible**, or does it automatically execute them?
-
-**Recommended safety rule for decision:** elapsed time should only make an accepted phase eligible; it should not by itself bypass phase-specific authorization, lifecycle re-checks or failure evidence.
-
-### OL09-B — webhook receive-only drain criterion
+### OL09-B — webhook receive-only drain criterion — OPEN
 
 Decide how OL08-C4 leaves `receive_only_pending`.
 
-Possible policy shapes to choose between include:
+Possible policy shapes:
 
-- a fixed maximum elapsed-time window,
-- a provider-specific deterministic terminal-event criterion,
-- a hybrid criterion: terminal evidence **or** maximum elapsed-time ceiling,
-- an explicitly accepted no-drain case for credential classes where no signing secret exists.
+- fixed maximum elapsed-time window,
+- provider-specific deterministic terminal-event criterion,
+- hybrid terminal evidence or maximum elapsed-time ceiling,
+- accepted no-drain case when no signing secret exists.
 
-Questions:
+Questions still open:
 
 1. Is the criterion provider-specific or ecosystem-wide?
 2. If time-based, what exact duration applies?
 3. What timestamp starts the drain clock?
-4. Do delayed webhooks after the final purge become ignored, logged as unverifiable, or handled through another non-secret mechanism?
+4. What happens to delayed webhooks after final secret purge?
 5. What happens when provider state remains ambiguous at expiry?
 
-The criterion must not permit new outbound provider use.
+OL09-A's 30-day organization grace does **not** automatically set OL09-B to 30 days.
 
-### OL09-C — product-data retention/grace timing
+### OL09-C — product-data retention timing — OPEN
 
-Timing must be defined separately from OL08-D's class-level disposition action.
+Coordinate with OL08-D. For each future `anonymize` / `hard_delete` class, decide whether the action is eligible immediately after the accepted closure grace or follows another class-specific retention period.
 
-For each OL08-D class that eventually becomes `anonymize` or `hard_delete`, decide:
+No legal/compliance duration is assumed here.
 
-- immediate eligibility after accepted closure/grace conditions,
-- one common grace duration,
-- class-specific retention duration,
-- permanent/longer retention where separately justified by an accepted policy.
+### OL09-D — audit/security evidence retention — OPEN
 
-No legal/compliance duration is assumed by this readiness document. If KVKK/GDPR, tax, contractual or litigation requirements materially affect a class, the maintainer must supply/accept that requirement explicitly rather than the implementation inventing it.
-
-### OL09-D — audit/security evidence retention
-
-Decide whether control evidence follows a retention period distinct from customer/product data.
-
-Evidence classes include at least:
+Decide retention/transformation of:
 
 - closure execution/event evidence,
 - export completeness/disposition evidence,
 - credential-disposition evidence,
 - external invalidation evidence,
-- final cleanup/tombstone evidence when those phases are later accepted.
+- later cleanup/tombstone evidence if those phases are accepted.
 
-Questions:
+This period may differ from customer/product-data timing.
 
-1. How long is each evidence class retained?
-2. Is actor identity retained verbatim, reduced, pseudonymized or otherwise transformed after a period?
-3. Which non-secret identifiers must remain to prove closure correctness?
-4. Does evidence survive product-data deletion?
+### OL09-E — closure package / generated artifact expiry — OPEN
 
-### OL09-E — closure package / generated artifact expiry timing
+This is a timing dependency only. Package/artifact ownership and deletion actions remain OL08-B / OL08-E policy.
 
-This is only a timing dependency; package/artifact ownership and deletion actions remain OL08-B / OL08-E policy.
+A future acceptance must decide package/artifact clock origin and expiry semantics without silently creating package runtime.
 
-Questions:
+## Cross-cutting requirements for future time-based runtime
 
-1. If a future closure package is materialized, how long is it retrievable?
-2. Is package expiry measured from creation, successful handover, first download, or closure completion?
-3. Are generated/binary product artifacts deleted on the same schedule as structured product data or separately?
-4. How are failed/partial artifact deletions retried and evidenced?
+Any time-based implementation must use:
 
-OL-09 must not create a package lifecycle that OL08-B has not yet accepted.
+- authoritative durable timestamp/event,
+- UTC persistence/comparison,
+- explicit policy version,
+- idempotent restart behavior,
+- deterministic handling after missed schedules/downtime,
+- live lifecycle re-check before irreversible mutation,
+- no client/UI timer authority,
+- no success solely because time elapsed while another required obligation remains blocked.
 
-## Cross-cutting clock/state requirements
+## OL09-A acceptance checklist — CLOSED
 
-Any accepted time-based policy should define at minimum:
+- [x] Scope: organization closure grace/reversibility only.
+- [x] Clock start: successful Core transition into the current `SUSPENDED` episode.
+- [x] Duration: 30 days; exact UTC deadline = `suspended_at + 30 days`.
+- [x] Meaning: reversible grace before irreversible-phase eligibility.
+- [x] Authority: existing Platform SuperAdmin / SYSTEM lifecycle authority; no new organization-role authority.
+- [x] Reactivation: allowed during grace; invalidates current closure progression.
+- [x] Retry/restart: durable timestamp/deadline; process downtime does not reset clock.
+- [x] Evidence: policy version + authoritative suspension episode/time + deadline + lifecycle re-check.
+- [x] Pre-existing executions: fail closed if authoritative suspension timestamp is unavailable/unverified.
+- [x] OL-10 boundary: no backup ageing/restore behavior defined.
+- [x] Runtime boundary: only grace clock/evidence/evaluation and safe closure-abort support; no destructive action authorized by time alone.
 
-- authoritative timestamp/event that starts each clock,
-- UTC persistence and comparison semantics,
-- policy version recorded with durable execution/evidence,
-- idempotent restart behavior after process downtime,
-- behavior when the scheduled execution was missed,
-- lifecycle re-check immediately before an irreversible mutation,
-- no reliance on a client/UI timer,
-- no transition to success solely because a timer elapsed when another required obligation is blocked.
-
-Existing closure executions created before a policy version is accepted also require explicit migration/backfill semantics; they must not silently receive a retroactive destructive deadline.
-
-## Recommended decision decomposition
-
-OL-09 does not need to be accepted as one monolithic duration. A safer acceptance order is:
-
-1. **OL09-A — closure grace/reversibility and clock origin**,
-2. **OL09-B — webhook receive-only drain criterion**,
-3. **OL09-C — product-data retention timing**, coordinated with OL08-D,
-4. **OL09-D — audit/security evidence retention**, coordinated with OL08-F,
-5. **OL09-E — package/artifact expiry timing**, coordinated with OL08-B / OL08-E.
-
-This decomposition allows a narrow decision to unblock a narrow runtime without implicitly authorizing unrelated destructive behavior.
-
-## Acceptance checklist
-
-Before any OL-09 subsection becomes accepted, record explicitly:
-
-- [ ] exact policy scope/data or credential class,
-- [ ] clock-start event,
-- [ ] exact criterion or duration if time-based,
-- [ ] reversible vs irreversible meaning,
-- [ ] permitted authority/actor,
-- [ ] interaction with Core reactivation,
-- [ ] retry/restart semantics,
-- [ ] audit/evidence requirements,
-- [ ] treatment of pre-existing closure executions,
-- [ ] explicit boundary against OL-10 backups,
-- [ ] exact runtime slice authorized by that acceptance.
-
-## Explicitly not accepted by this readiness document
+## Explicitly still not accepted
 
 This document does **not** accept or authorize:
 
-- any specific hours/days/months/years,
-- automatic closure completion merely because time elapsed,
+- any OL09-B webhook drain duration/criterion,
 - MailerSend revoke success for an unidentifiable token,
 - final webhook signing-secret purge,
 - product-data anonymization/hard delete,
-- generated artifact purge,
+- generated-artifact purge,
 - closure-package creation/download/expiry runtime,
 - `not_required` export success,
+- audit/security evidence retention duration,
 - backup ageing/restore reconciliation,
 - `cleanup_complete` / `ready_for_tombstone`,
 - Core organization delete/tombstone.
 
-## Current recommendation
+## Current resume point
 
-The next policy action should be a **narrow OL09-A / OL09-B acceptance discussion**, because closure reversibility and webhook drain are the earliest timing questions already blocking accepted lifecycle semantics.
+**OL09-A is accepted. Next decision discussion: OL09-B — webhook receive-only drain criterion.**
 
-No retention/grace runtime should be implemented until the relevant subsection is explicitly accepted.
+Do not infer OL09-B's answer or duration from the 30-day OL09-A closure grace.
