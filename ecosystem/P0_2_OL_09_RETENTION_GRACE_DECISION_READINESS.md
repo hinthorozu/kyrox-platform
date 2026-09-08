@@ -63,6 +63,8 @@ The authoritative Core `SUSPENDED` transition is the **effective security/lifecy
 
 A temporarily still-present secret caused by purge failure must not be treated as authorization to continue webhook processing.
 
+"Simultaneous with suspension" therefore means there is **no additional post-suspension retention period**. The effective cutoff is the suspension boundary itself.
+
 ### Relationship to the 30-day grace
 
 OL09-A's 30-day grace remains independent:
