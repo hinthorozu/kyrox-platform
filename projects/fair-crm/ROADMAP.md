@@ -143,7 +143,7 @@ No persistent/downloadable package, customer-facing handover, `not_required` suc
 
 Platform PR #41 accepted the bounded credential-only contract. The accepted architecture separates outbound disablement, provider-side invalidation, local reusable send-secret zeroization and webhook signing-secret drain/final purge.
 
-#### OL08-04A credential disposition state/evidence foundation — IMPLEMENTED / PLATFORM CERTIFICATION PENDING 2026-09-08
+#### OL08-04A credential disposition state/evidence foundation — DONE / CERTIFIED 2026-09-08
 
 FAIR CRM PR #258 implements the first bounded runtime slice:
 
@@ -165,15 +165,25 @@ Evidence:
 - FAIR CRM PR #258 final head `ea12e43f0ba0066842630208217d27962fdde53c`,
 - Development Standard Gate #719 / run `34194802163`: success,
 - Prod-Path E2E #279 / run `34194802141`, final attempt 2: success,
-- FAIR CRM merge `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`.
+- FAIR CRM merge `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`,
+- Platform PR #42 final head `7d3de63c8072b908d8d3c2c38a3a386af22e3921`,
+- Platform Standards CI #116 / run `34196046348`: success,
+- Platform merge `144ee611c1f061d10ec36c4713b08262a1465bf1`.
 
 This is **not full OL08-C completion**. Current-model MailerSend credentials must remain fail-closed until deterministic exact-token targeting exists, and final webhook signing-secret zeroization remains dependent on an accepted drain criterion. Any time-based drain duration remains OL-09.
 
-#### Immediate lifecycle step — OL08-04A Platform certification/docs sync
+#### Active lifecycle decision-readiness — OL-09 retention / grace
 
-The current implementation is merged; the immediate non-runtime step is cross-repository Platform certification and documentation synchronization.
+The next safe lifecycle work is policy/readiness, not destructive runtime.
 
-After certification, do not infer authorization for OL08-D/E/F/G or Core tombstone. Any additional OL08-C runtime must remain inside the accepted credential-only boundary and must not bypass supported-but-unidentifiable or receive-only-pending states.
+Canonical readiness: [../../ecosystem/P0_2_OL_09_RETENTION_GRACE_DECISION_READINESS.md](../../ecosystem/P0_2_OL_09_RETENTION_GRACE_DECISION_READINESS.md).
+
+Recommended first decisions:
+
+- **OL09-A:** closure grace/reversibility and authoritative clock origin,
+- **OL09-B:** webhook receive-only drain criterion.
+
+Readiness alone does not select a duration and authorizes no runtime. No purge/delete worker or timer should be implemented until the applicable subsection is explicitly accepted.
 
 Still blocked:
 
@@ -182,7 +192,7 @@ Still blocked:
 - deterministic completion of current-model MailerSend credentials without exact targeting,
 - final webhook signing-secret purge before its accepted drain criterion,
 - organization-wide data/artifact deletion/anonymization,
-- retention/grace duration selection,
+- retention/grace duration execution,
 - backup ageing/restore reconciliation,
 - `cleanup_complete` / `ready_for_tombstone`,
 - Core tombstone.
