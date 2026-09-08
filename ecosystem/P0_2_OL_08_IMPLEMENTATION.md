@@ -1,12 +1,13 @@
 # P0.2 OL-08 — Organization Offboarding Implementation Tracker
 
-**Status:** IN PROGRESS — OL08-01, OL08-02 and OL08-03A DONE; OL08-B technical export contract remains partially accepted; OL08-C is the next decision gate  
-**Decision:** OL08-A ACCEPTED 2026-09-07; OL08-B technical contract PARTIALLY ACCEPTED 2026-09-07  
+**Status:** IN PROGRESS — OL08-01, OL08-02 and OL08-03A DONE; OL08-B technical export contract remains partially accepted; OL08-C credential-disposition contract ACCEPTED  
+**Decision:** OL08-A ACCEPTED 2026-09-07; OL08-B technical contract PARTIALLY ACCEPTED 2026-09-07; OL08-C ACCEPTED 2026-09-08  
 **Started:** 2026-09-07  
-**Current resume point:** OL08-C — provider credential disposition decision; no runtime authorized yet  
+**Current resume point:** OL08-04A — bounded credential disposition state/evidence foundation  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **Readiness source:** `ecosystem/P0_2_OL_08_DECISION_READINESS.md`  
-**OL08-B decision:** `ecosystem/P0_2_OL_08_B_EXPORT_DECISION.md`
+**OL08-B decision:** `ecosystem/P0_2_OL_08_B_EXPORT_DECISION.md`  
+**OL08-C decision:** `ecosystem/P0_2_OL_08_C_PROVIDER_CREDENTIAL_DECISION.md`
 
 ## Accepted OL08-A policy
 
@@ -111,7 +112,7 @@ Explicitly deferred/excluded in the first version:
 - scraper/operation artifact files — OL08-E,
 - quote/logo binary assets — OL08-E,
 - provider/SMTP reusable secrets — always excluded,
-- provider-side revoke/disposition behavior — OL08-C,
+- provider-side credential disposition behavior — OL08-C,
 - Core credential/session/token data — outside FAIR CRM ownership,
 - system database backups/restores — OL-10,
 - derived dashboard views,
@@ -174,12 +175,48 @@ Exact implementation evidence:
 
 Therefore the currently authorized OL08-B engineering slice is complete. OL08-B itself remains only partially accepted because package lifecycle and `not_required` policy authority are still unresolved.
 
+## OL08-C — Provider credential disposition — ACCEPTED 2026-09-08
+
+Canonical detailed decision: `ecosystem/P0_2_OL_08_C_PROVIDER_CREDENTIAL_DECISION.md`.
+
+Accepted contract:
+
+- outbound credential use is disabled before credential destruction,
+- provider-side invalidation, local reusable-secret zeroization and webhook-signing-secret drain are separate obligations,
+- deterministic provider invalidation is mandatory for `supported_identifiable` credentials,
+- `supported_unidentifiable` credentials fail closed and cannot be downgraded to not-applicable/operator-success,
+- generic/provider-specific SMTP invalidation may require explicit operator evidence and cannot be inferred from local password removal,
+- local reusable send secrets must become unrecoverable from FAIR CRM storage before the send-credential disposition can complete,
+- MailerSend/API send tokens and webhook verification secrets have different lifecycles,
+- a webhook signing secret may remain only in an explicit receive-only state for delayed signed events,
+- final signing-secret zeroization is mandatory, but any elapsed-time drain duration remains an OL-09 choice,
+- provider invalidation with an ambiguous external result fails closed and is reconciled rather than blindly auto-retried,
+- normal email-account soft delete is not credential-disposition completion evidence.
+
+### Authorized OL08-04A engineering boundary
+
+The first runtime slice may implement only:
+
+- durable organization + closure-execution + credential/account disposition state/evidence,
+- credential capability classification,
+- SYSTEM-only start/status/retry/reconcile surfaces,
+- live Core `SUSPENDED` fail-closed mutation precondition,
+- outbound-disabled evidence without deleting the email account,
+- provider capability interface and deterministic MailerSend token-target metadata/support,
+- external invalidation evidence/reconciliation semantics,
+- local **send-secret** zeroization after required external invalidation evidence,
+- receive-only webhook signing-secret state without inventing a final time-based purge duration,
+- append-only non-secret audit evidence,
+- tenant-isolation, idempotency, failure/restart and uncertain-result coverage.
+
+OL08-04A must not declare full OL08-C completion while any required webhook signing secret remains `receive_only_pending`.
+
 ## Still-gated OL-08 decisions
 
 | Decision | Status | Runtime boundary |
 | --- | --- | --- |
 | OL08-B — closure export technical contract | **PARTIALLY ACCEPTED / OL08-03A DONE** | Manifest/completeness planner is implemented; persistent/downloadable package lifecycle and `not_required` policy remain gated. |
-| OL08-C — provider credential disposition | **OPEN / NEXT DECISION** | No provider revoke or local secret purge authorized. |
+| OL08-C — provider credential disposition | **ACCEPTED / OL08-04A AUTHORIZED** | Bounded credential-only state/evidence, deterministic invalidation support and send-secret zeroization are authorized. Final signing-secret purge remains dependent on an accepted drain criterion; time-based duration, if needed, is OL-09. |
 | OL08-D — product-data disposition matrix | **OPEN / depends on OL-09** | No organization-wide anonymize/hard-delete authorized. |
 | OL08-E — generated artifact disposition | **OPEN** | No closure-driven artifact purge or persistent closure-package lifecycle authorized. |
 | OL08-F — audit/security evidence retention | **OPEN / policy required** | No retention duration chosen. |
@@ -193,8 +230,11 @@ Until separately accepted, OL-08 work must not:
 
 - claim a closure-complete delivered export package,
 - permit `not_required` without an accepted policy source,
-- revoke provider credentials,
-- purge SMTP/provider secrets,
+- treat local secret zeroization as provider-side invalidation evidence,
+- auto-mark supported-but-unidentifiable provider credentials complete,
+- blindly retry ambiguous provider invalidation side effects,
+- purge a required webhook signing secret before its accepted drain criterion,
+- invent a webhook drain/retention duration,
 - anonymize or hard-delete organization product data,
 - delete closure-driven generated files/artifacts,
 - choose retention/grace durations,
@@ -204,6 +244,6 @@ Until separately accepted, OL-08 work must not:
 
 ## Current resume point
 
-The next unresolved gate is **OL08-C — provider credential disposition**.
+The authorized next engineering slice is **OL08-04A — credential disposition state/evidence foundation**.
 
-No OL08-C runtime is authorized by the existing decisions. The next safe step is decision-readiness / policy acceptance for provider credential disable/revoke/local-secret disposition, preserving the current prohibition on provider revoke and local secret purge until that decision is explicit. OL08-D through OL08-G, OL-09 and OL-10 remain separately gated.
+This authorization is credential-only. It does not open OL08-D/E/F/G, persistent closure-package materialization, `not_required` export success, retention/grace choices, backup policy, cleanup/tombstone-ready state or Core tombstone.
