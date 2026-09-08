@@ -1,6 +1,6 @@
-# P0.2 OL-09B — Suspended Webhook Service Boundary Decision
+# P0.2 OL-09B — Suspended Webhook Cutoff / Signing-Secret Decision
 
-**Status:** PARTIALLY ACCEPTED — SUSPEND-TIME SERVICE BOUNDARY ACCEPTED; FINAL DRAIN EXPIRY OPEN  
+**Status:** ACCEPTED — ZERO-RETENTION WEBHOOK CUTOFF AT `SUSPENDED`  
 **Accepted:** 2026-09-08  
 **Parent readiness:** `ecosystem/P0_2_OL_09_RETENTION_GRACE_DECISION_READINESS.md`  
 **Related credential contract:** `ecosystem/P0_2_OL_08_C_PROVIDER_CREDENTIAL_DECISION.md`  
@@ -8,18 +8,60 @@
 
 ## Purpose
 
-Define what FAIR CRM may continue to do with delayed MailerSend webhooks after the organization enters Core `SUSPENDED`, without turning the receive-only drain into continued customer-facing mail service or unnecessary system load.
+Define the final FAIR CRM MailerSend webhook boundary when an organization enters authoritative Core `SUSPENDED`, including the lifecycle of the webhook signing secret.
 
-This decision deliberately separates two concerns:
+This decision supersedes the earlier partial OL09-B1 shape that allowed a protected receive-only webhook set while suspended. Under the final accepted policy there is **no suspended receive-only retention window**.
 
-1. **what may still be processed while suspended** — accepted here,
-2. **how long the signing secret is retained before final purge** — still open.
+## Decision
 
-## Verified current FAIR CRM facts
+The successful authoritative Core transition into the current `SUSPENDED` episode is simultaneously:
 
-The current MailerSend webhook ingress is synchronous and public (signature protected). It uses a global semaphore to bound DB concurrency and delegates processing to `MailerSendWebhookService`.
+1. the end of normal tenant-facing MailerSend webhook processing,
+2. the end of protective MailerSend webhook processing,
+3. the effective expiry boundary of the MailerSend webhook signing secret.
 
-The current provider-status policy recognizes these MailerSend event types:
+The accepted drain duration is therefore:
+
+```text
+webhook signing-secret retention after SUSPENDED = 0 days
+```
+
+There is no `SUSPENDED + N days` webhook-drain clock and no provider-terminal-event criterion.
+
+The separate OL09-A 30-day reversible organization closure grace remains unchanged. That grace does **not** extend webhook verification or signing-secret retention.
+
+## Exact lifecycle semantics
+
+The boundary is the successful authoritative Core transition into `SUSPENDED` for the current suspension episode.
+
+Not authoritative for this decision:
+
+- FAIR CRM closure-execution creation time,
+- first webhook received after suspension,
+- first time FAIR CRM happens to observe `SUSPENDED`,
+- worker start time,
+- operator-entered time,
+- OL09-A grace expiry.
+
+No deadline arithmetic is required for OL09-B. The policy is immediate at the suspension boundary.
+
+## Signing-secret semantics
+
+From the authoritative `SUSPENDED` boundary onward:
+
+- the webhook signing secret is no longer authorized for inbound verification,
+- the signing secret must be irreversibly zeroized from FAIR CRM secret-bearing storage through the accepted credential-disposition path,
+- no new `receive_only_pending` retention window is created for that suspension episode,
+- physical purge must be idempotent and retry-safe,
+- a purge failure must remain durably blocked/visible and must never re-authorize use of the secret.
+
+Because Core and FAIR CRM are separate runtime boundaries, this policy does not claim impossible cross-service same-millisecond transactional deletion. It defines the **effective security/lifecycle boundary** at the successful Core `SUSPENDED` transition: even if physical zeroization is still retrying because of process or infrastructure failure, the retained bytes are not authorized for webhook processing.
+
+## Webhook behavior while suspended
+
+After the authoritative `SUSPENDED` transition, no MailerSend webhook event may mutate tenant state.
+
+This includes all currently recognized events:
 
 - `activity.sent`
 - `activity.delivered`
@@ -33,134 +75,79 @@ The current provider-status policy recognizes these MailerSend event types:
 - `activity.unsubscribed`
 - `activity.spam_complaint`
 
-Current webhook processing normally resolves the email account, verifies the signing secret, resolves the mail-send operation by external message id and may update provider status.
+Therefore the earlier partial-B1 suspended protective exception for `activity.unsubscribed`, `activity.spam_complaint`, and `activity.hard_bounced` is superseded by this final decision.
 
-`activity.unsubscribed` and `activity.spam_complaint` additionally enforce CRM communication consent by setting the resolved contact/customer `email_allowed=False` and recording the consent activity.
+While suspended, webhook ingress must not:
 
-OL08-04A already provides durable credential-disposition evidence including `outbound_disabled_at`, `signing_secret_retained` and `receive_only_pending`, but that state is created when credential disposition starts; it is not itself proof that the exact Core suspension transition has just occurred.
-
-The existing Core lifecycle guard deliberately performs live, uncached reads and does not persist Core lifecycle state.
-
-## Accepted OL09-B1 — service boundary at suspension
-
-The semantic service boundary is the authoritative Core transition into `SUSPENDED`.
-
-From that boundary onward:
-
-- no new outbound mail/provider handoff is permitted under the existing OL-07/OL08-C rules,
-- delayed webhook traffic must **not** continue normal tenant-facing mail analytics or delivery-status service,
-- receive-only processing is limited to the minimum safety/compliance set below,
-- the 30-day OL09-A closure grace does not mean 30 more days of normal mail service.
-
-### Allowed minimum protective event set while suspended
-
-The accepted protective set is:
-
-- `activity.unsubscribed`
-- `activity.spam_complaint`
-- `activity.hard_bounced`
-
-Semantics:
-
-- `unsubscribed` and `spam_complaint` may perform the minimum consent/suppression mutation required to prevent future unwanted mail if the organization later reactivates,
-- `hard_bounced` may retain only minimum sender-safety/suppression evidence/status needed to avoid unsafe future delivery behavior,
-- these events must not be expanded into customer-facing analytics, engagement scoring, dashboard work or unrelated activity generation beyond the minimum accepted compliance/safety evidence.
-
-### Events that must be acknowledged and dropped while suspended
-
-The following currently supported events are treated as non-essential tenant mail service while suspended:
-
-- `activity.sent`
-- `activity.delivered`
-- `activity.soft_bounced`
-- `activity.deferred`
-- `activity.opened`
-- `activity.opened_unique`
-- `activity.clicked`
-- `activity.clicked_unique`
-
-For this dropped set, the suspended path must not:
-
-- perform mail-send-operation lookup solely to update provider analytics/status,
-- write provider-status progression,
+- update provider status,
+- mutate communication consent/suppression state,
 - create CRM activities,
-- enqueue background jobs,
-- update dashboards/engagement metrics,
-- create one durable audit row per dropped webhook,
-- scan historical messages or precompute a backlog.
+- update engagement/dashboard metrics,
+- enqueue replay/background work for the event,
+- create a backlog for later reactivation,
+- use a retained signing secret merely because physical purge has not yet completed.
 
-The endpoint may acknowledge the event successfully so the provider does not repeatedly retry an intentionally ignored tenant-service event.
-
-Unknown/unsupported provider events remain ignored under the existing provider contract.
-
-## Performance / load contract
-
-The accepted design goal is **O(incoming webhook)** with an early, bounded fail-fast path and no tenant-wide work.
-
-Required properties:
-
-- no scan of previously sent mail,
-- no per-tenant polling loop,
-- no per-message scheduler,
-- no replay queue for dropped analytics,
-- no per-event Core network round-trip on the steady-state suspended fast path,
-- no backfill of suspended-period analytics after later reactivation,
-- any later expiry cleanup must be batch/index driven rather than one timer/process per tenant or message.
-
-A 40,000-message pre-suspension send therefore does not cause FAIR CRM to iterate those 40,000 records after suspension. Only provider requests that actually arrive reach ingress, and non-protective events are expected to terminate on the cheapest safe path.
-
-## Lifecycle authority / implementation constraint
-
-Core remains the authoritative lifecycle owner. FAIR CRM must not invent suspension from local timestamps or operator input.
-
-At the same time, the existing lifecycle guard is a synchronous uncached Core read. Calling it once for every delayed webhook would directly conflict with the accepted low-load objective.
-
-Therefore this decision **does not yet authorize an implementation that guesses or locally fabricates Core lifecycle authority**. A bounded runtime slice must first define a deterministic, fail-closed way to make the authoritative `SUSPENDED` boundary cheaply available to webhook ingress without widening organization authority or introducing an unbounded per-webhook Core dependency.
-
-Possible implementation mechanisms must be evaluated against existing lifecycle ownership and reactivation semantics before runtime authorization. This decision accepts the service behavior, not a speculative synchronization mechanism.
+The exact HTTP acknowledgement/rejection shape for post-suspension provider deliveries is an implementation detail, but it must be fail-closed and must not permit tenant-state mutation from an unverifiable event.
 
 ## Reactivation semantics
 
-If Core transitions the organization back to `ACTIVE` within the OL09-A grace period:
+OL09-A continues to permit `SUSPENDED -> ACTIVE` during the accepted 30-day reversible closure grace under the existing lifecycle authority.
 
-- normal mail service may resume only through accepted reactivation/credential rules,
-- webhook analytics intentionally dropped during the suspended interval are **not backfilled**,
-- protective consent/safety effects recorded during suspension remain effective unless separately and lawfully changed by later user/operator action,
-- reactivation must not reinterpret the suspended interval as a period of paid/active service.
+Reactivation does **not** resurrect the deleted webhook signing secret and does not backfill webhook events ignored during suspension.
 
-## OL09-B2 — final receive-only drain expiry — STILL OPEN
+Before MailerSend webhook processing can resume after reactivation, a valid webhook verification configuration/signing secret must exist again through an accepted credential/configuration path. Reactivation alone must not reconstruct, restore, or infer previously zeroized secret material.
 
-This decision does **not** choose:
+## Performance / load contract
 
-- the final signing-secret retention duration,
-- the clock origin for that final purge,
-- a provider-terminal criterion,
-- a hybrid terminal/maximum-duration rule,
-- the exact post-expiry handling of late signed webhooks after the secret is gone.
+Zero-retention removes the need for a suspended receive-only drain worker, drain timer, provider-terminal scan, historical-message scan, replay backlog, per-message timer, or per-tenant polling loop.
 
-Until OL09-B2 is accepted, final webhook signing-secret zeroization remains gated by OL08-C4 / OL-09.
+Required properties remain:
 
-No cleanup timer, purge worker or expiry scheduler is authorized by this decision.
+- no scan of previously sent mail,
+- no backfill of suspended-period analytics,
+- no steady-state per-webhook Core network round-trip merely to preserve a receive-only mode,
+- deterministic lifecycle signal/orchestration for the `SUSPENDED` boundary,
+- idempotent retry of physical secret purge when infrastructure failure prevents immediate completion.
+
+## Lifecycle authority / implementation gate
+
+Core remains the authoritative lifecycle owner. FAIR CRM must not fabricate suspension from local timestamps or operator input.
+
+A bounded runtime implementation must therefore obtain a deterministic, fail-closed signal/evidence of the authoritative `SUSPENDED` transition. That mechanism is an implementation requirement; it does not change the accepted zero-retention policy.
+
+If authoritative suspension evidence is missing or ambiguous, the system must not fabricate a destructive timestamp. Existing/pre-policy suspended organizations without verifiable authoritative suspension evidence remain blocked until a deterministic Core-authoritative path exists.
+
+## Relationship to OL08-C4
+
+OL08-C4 allows a signing secret to remain temporarily recoverable **only while an explicitly accepted receive-only requirement exists**.
+
+OL09-B now decides that no such requirement exists after authoritative Core `SUSPENDED`.
+
+Therefore, for this policy:
+
+```text
+Core -> SUSPENDED
+  -> webhook verification authority ends
+  -> webhook signing secret purge required
+  -> no receive_only_pending retention interval
+```
+
+Final signing-secret purge remains credential-disposition work only. It does not by itself prove provider-token invalidation, product-data cleanup, artifact cleanup, audit-retention completion, backup reconciliation, `cleanup_complete`, tombstone readiness, or Core deletion.
 
 ## Explicitly not authorized
 
 This decision does not authorize:
 
-- final webhook signing-secret purge,
-- a 7-day, 30-day or other drain duration,
-- customer-facing mail analytics while suspended,
-- replay/backfill of ignored analytics,
-- new outbound mail/provider handoff while suspended,
 - MailerSend token revoke success for an unidentifiable token,
-- product-data or generated-artifact deletion,
+- product-data anonymization or hard delete,
+- generated-artifact deletion,
 - closure-package expiry,
 - audit/security evidence retention duration,
 - backup ageing/restore reconciliation,
 - `cleanup_complete` / `ready_for_tombstone`,
-- Core organization delete/tombstone.
+- Core organization delete/tombstone,
+- restoration of a purged signing secret during reactivation.
 
 ## Decision summary
 
-**Accepted:** suspension ends normal mail-service webhook processing immediately. During receive-only drain, only `unsubscribed`, `spam_complaint` and `hard_bounced` may receive minimum compliance/sender-safety handling; normal delivery/engagement events are acknowledged and dropped on an early low-cost path. Suspended-period analytics are never backfilled.
-
-**Still open:** the deterministic low-cost lifecycle signal used by runtime ingress and the final signing-secret drain expiry/clock. Those must be accepted before the corresponding runtime/final purge can be certified.
+**OL09-B is accepted with zero post-suspension signing-secret retention. The successful authoritative Core transition into `SUSPENDED` is the effective cutoff for all MailerSend webhook processing and for authorization to use the webhook signing secret. The secret must be zeroized through an idempotent fail-closed credential-disposition path; there is no 30-day webhook drain, no protective suspended-event exception, and no provider-terminal criterion. OL09-A's separate 30-day reversible organization grace remains unchanged.**
