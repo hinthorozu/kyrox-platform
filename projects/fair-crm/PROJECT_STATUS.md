@@ -7,7 +7,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Last verified | **2026-09-08** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
-| Migration head in `main` | `0078_closure_export_plans` |
+| Migration head in `main` | `0079_closure_credential_dispositions` |
 | Current work queue | [ROADMAP.md](ROADMAP.md) |
 | Shared standards | [../../standards/README.md](../../standards/README.md) |
 
@@ -21,6 +21,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Organization closure orchestration / OL08-01 | **Certified DONE (2026-09-07)** — durable FAIR CRM-owned non-destructive closure execution, SYSTEM start/status/retry, live Core `SUSPENDED` precondition, idempotency/race controls, blocked/retry evidence and append-only local audit evidence are merged and cross-repository certified |
 | Closure quiescence / OL08-02 | **Certified DONE (2026-09-08)** — closure execution is proven not to bypass OL-07 queued/running/provider/lifecycle guards; closure start parent/event FK ordering was fixed transactionally |
 | Closure export planner / OL08-03A | **Certified DONE (2026-09-08)** — durable versioned organization/execution-scoped completeness plan, explicit v1 data-class registry, organization-scoped counts, record-ID fingerprints, hard secret-source exclusions, SYSTEM metadata API, idempotency/audit/tenant-isolation evidence; no package/download or irreversible gate |
+| Closure credential disposition / OL08-04A | **IMPLEMENTED (2026-09-08), Platform certification pending** — durable credential disposition/evidence state, SYSTEM start/list/get/retry/reconcile, live `SUSPENDED` gate, outbound disablement, SMTP evidence-before-zeroization ordering, fail-closed MailerSend supported-unidentifiable handling and receive-only signing-secret state |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -72,9 +73,9 @@ OL07-04 is complete through FAIR CRM PR #250: queued/pending organization-owned 
 
 **Final reactivation/resumption certification is DONE as of 2026-09-07.** FAIR CRM PR #254 final head `e17593e49ecb25a3aef736b0ceaa1fafa14c7e77` passed Development Standard Gate #700 and Prod-Path E2E #264, then squash-merged to `main` as `18b0b638ba946c2910698e1df7c4ab5283c4958f`. Core `SUSPENDED -> ACTIVE` restores eligibility for fresh/new product work without resurrecting previously suspension-cancelled jobs/runs or mail operations. Work deferred only because lifecycle authority was temporarily unavailable remains non-terminal and may proceed once authority returns `ACTIVE`. Provider account configuration/credentials remain preserved through suspension and require no lifecycle re-enable mutation. Ambiguous provider handoff remains terminal/non-auto-retry after reactivation.
 
-The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated except for the accepted/implemented OL08-A / OL08-01 and bounded OL08-B engineering slices described below.
+The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated except for the accepted/implemented OL08-A / OL08-01 and bounded OL08-B/OL08-C engineering slices described below.
 
-## OL08 closure orchestration and export-planning state
+## OL08 closure orchestration, export planning and credential-disposition state
 
 **OL08-01 runtime is certified complete through FAIR CRM PR #255.** Final head `aa34cd3e5d00ec6f7d6b7adaad4afa950319830e` passed Development Standard Gate #707 / run `34155567277` and Prod-Path E2E #270 / run `34155567315`, then merged to FAIR CRM `main` as `e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`. Platform PR #36 completed the cross-repository certification.
 
@@ -84,13 +85,15 @@ The implementation adds migration `0077_organization_closure_executions` plus a 
 
 **OL08-03A export manifest/completeness planning is certified complete through FAIR CRM PR #257.** Final head `6927dabea1cf46e1ee70b726d3c8ccd1ae247dcd` passed Development Standard Gate #715 / run `34163087279` and Prod-Path E2E #276 / run `34163087299`, then merged as `eac3a0793a6ea0382e3b82169a1e3c18c0accfc9`. Migration `0078_closure_export_plans` adds durable plan identity bound to organization + closure execution + schema version. The SYSTEM-only planner re-checks live Core `SUSPENDED`, enumerates the accepted v1 structured-data registry, stores organization-scoped counts and record-ID-only fingerprints, records explicit included/excluded/deferred reason evidence, forbids reusable SMTP/provider credential tables as planner sources, and is idempotent and tenant-isolated.
 
-These slices remain intentionally non-destructive. They do not materialize/download a closure package, permit `not_required` without accepted policy evidence, revoke/purge provider credentials, delete/anonymize product data or artifacts, choose retention periods, define backup restore behavior, expose cleanup-complete/tombstone-ready state or call Core organization delete.
+**OL08-04A credential disposition state/evidence foundation is implemented through FAIR CRM PR #258 and awaits Platform cross-repository certification.** Final head `ea12e43f0ba0066842630208217d27962fdde53c` passed Development Standard Gate #719 / run `34194802163` and Prod-Path E2E #279 / run `34194802141` final attempt 2, then merged to FAIR CRM `main` as `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`. Migration `0079_closure_credential_dispositions` adds durable organization/execution/email-account disposition rows and append-only evidence. SYSTEM-only start/list/get/retry/reconcile re-check live Core `SUSPENDED`; start disables outbound eligibility without soft-delete; SMTP reusable passwords require explicit external invalidation evidence before local zeroization; current-model MailerSend credentials fail closed as `supported_unidentifiable` and cannot be completed by operator override; unverified MailerSend target metadata cannot authorize provider deletion/local token purge; webhook signing secrets may remain only in explicit receive-only pending state.
+
+These slices remain bounded. They do not materialize/download a closure package, permit `not_required` without accepted policy evidence, deterministically revoke current-model MailerSend tokens, final-purge a required webhook signing secret without its accepted drain criterion, delete/anonymize product data or artifacts, choose retention periods, define backup restore behavior, expose cleanup-complete/tombstone-ready state or call Core organization delete.
 
 Canonical tracker: [P0.2 OL-08 Organization Offboarding Implementation Tracker](../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md).
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0078_closure_export_plans`; recent migration history includes cost-catalog tables/categories, import-matching/decision stabilization, OL08-01 durable closure execution/event state and OL08-03A durable export-plan metadata.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0079_closure_credential_dispositions`; recent migration history includes cost-catalog tables/categories, import-matching/decision stabilization, OL08-01 durable closure execution/event state, OL08-03A durable export-plan metadata and OL08-04A durable credential-disposition evidence.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 
