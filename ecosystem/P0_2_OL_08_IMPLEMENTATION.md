@@ -1,9 +1,9 @@
 # P0.2 OL-08 — Organization Offboarding Implementation Tracker
 
-**Status:** IN PROGRESS — OL08-01, OL08-02 and OL08-03A DONE; OL08-B technical export contract remains partially accepted; OL08-C credential-disposition contract ACCEPTED  
+**Status:** IN PROGRESS — OL08-01, OL08-02 and OL08-03A DONE; OL08-04A runtime merged and cross-repository certification pending; OL08-B technical export contract remains partially accepted; OL08-C credential-disposition contract ACCEPTED  
 **Decision:** OL08-A ACCEPTED 2026-09-07; OL08-B technical contract PARTIALLY ACCEPTED 2026-09-07; OL08-C ACCEPTED 2026-09-08  
 **Started:** 2026-09-07  
-**Current resume point:** OL08-04A — bounded credential disposition state/evidence foundation  
+**Current resume point:** OL08-04A — cross-repository certification / docs sync  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **Readiness source:** `ecosystem/P0_2_OL_08_DECISION_READINESS.md`  
 **OL08-B decision:** `ecosystem/P0_2_OL_08_B_EXPORT_DECISION.md`  
@@ -211,12 +211,44 @@ The first runtime slice may implement only:
 
 OL08-04A must not declare full OL08-C completion while any required webhook signing secret remains `receive_only_pending`.
 
+## OL08-04A — Credential disposition state/evidence foundation — IMPLEMENTED / CERTIFICATION PENDING 2026-09-08
+
+FAIR CRM PR #258 implements the bounded credential-only foundation authorized by OL08-C.
+
+Delivered runtime:
+
+- migration `0079_closure_credential_dispositions`,
+- durable organization + closure-execution + email-account credential disposition rows,
+- append-only credential evidence events,
+- SYSTEM-only start/list/get/retry/reconcile surfaces under the existing closure router,
+- live Core `SUSPENDED` fail-closed precondition on start/retry/reconcile,
+- closure start disables outbound email-account eligibility without soft-deleting the account,
+- generic SMTP reusable password is classified `operator_required`,
+- local SMTP password zeroization occurs only after explicit non-secret external invalidation evidence,
+- current-model MailerSend API tokens are classified `supported_unidentifiable` and remain blocked,
+- operator evidence cannot override a supported-but-unidentifiable MailerSend credential,
+- MailerSend target IDs may be retained only as unverified metadata and do not enable provider invalidation or local token purge,
+- webhook signing secrets may remain explicitly `receive_only_pending`,
+- tenant-scoped repository identity and foreign-organization denial are covered,
+- disposition/audit evidence excludes secret plaintext and secret fingerprints.
+
+Exact implementation evidence:
+
+- FAIR CRM PR #258 final head `ea12e43f0ba0066842630208217d27962fdde53c`,
+- Development Standard Gate #719 / run `34194802163`: SUCCESS,
+- Prod-Path E2E #279 / run `34194802141`, final attempt 2: SUCCESS,
+- FAIR CRM merge `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`.
+
+This implementation does **not** call a MailerSend token-delete/pause API, does not claim deterministic MailerSend token invalidation from unverified metadata, does not final-purge a webhook signing secret, does not choose a webhook drain duration and does not open any product-data/artifact/retention/backup/tombstone phase.
+
+OL08-04A can be marked fully certified only after the Platform cross-repository certification/docs-sync PR merges. Even after that certification, **OL08-C itself remains incomplete** wherever a required credential is still blocked/unidentifiable or a webhook signing secret remains `receive_only_pending`.
+
 ## Still-gated OL-08 decisions
 
 | Decision | Status | Runtime boundary |
 | --- | --- | --- |
 | OL08-B — closure export technical contract | **PARTIALLY ACCEPTED / OL08-03A DONE** | Manifest/completeness planner is implemented; persistent/downloadable package lifecycle and `not_required` policy remain gated. |
-| OL08-C — provider credential disposition | **ACCEPTED / OL08-04A AUTHORIZED** | Bounded credential-only state/evidence, deterministic invalidation support and send-secret zeroization are authorized. Final signing-secret purge remains dependent on an accepted drain criterion; time-based duration, if needed, is OL-09. |
+| OL08-C — provider credential disposition | **ACCEPTED / OL08-04A IMPLEMENTED; CERTIFICATION PENDING** | Credential state/evidence foundation and guarded SMTP zeroization are implemented. Current-model MailerSend credentials fail closed as supported-but-unidentifiable; final webhook signing-secret purge remains dependent on an accepted drain criterion and any time-based duration remains OL-09. |
 | OL08-D — product-data disposition matrix | **OPEN / depends on OL-09** | No organization-wide anonymize/hard-delete authorized. |
 | OL08-E — generated artifact disposition | **OPEN** | No closure-driven artifact purge or persistent closure-package lifecycle authorized. |
 | OL08-F — audit/security evidence retention | **OPEN / policy required** | No retention duration chosen. |
@@ -244,6 +276,6 @@ Until separately accepted, OL-08 work must not:
 
 ## Current resume point
 
-The authorized next engineering slice is **OL08-04A — credential disposition state/evidence foundation**.
+Complete **OL08-04A cross-repository certification / docs sync** for FAIR CRM PR #258.
 
-This authorization is credential-only. It does not open OL08-D/E/F/G, persistent closure-package materialization, `not_required` export success, retention/grace choices, backup policy, cleanup/tombstone-ready state or Core tombstone.
+After certification, do not infer authorization for OL08-D/E/F/G or tombstone. Remaining OL08-C work must continue to fail closed for supported-but-unidentifiable MailerSend credentials and must not final-purge required webhook signing secrets until the accepted drain criterion exists. Any new destructive/data/artifact/retention/backup phase still requires its own accepted policy boundary.
