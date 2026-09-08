@@ -139,26 +139,48 @@ FAIR CRM PR #257 implemented the bounded non-destructive planner authorized by O
 
 No persistent/downloadable package, customer-facing handover, `not_required` success, `integrity_verified` irreversible gate, provider revoke/secret purge, organization-wide data/artifact deletion/anonymization, cleanup-complete/tombstone-ready state or Core tombstone was added.
 
-#### Active next decision gate — OL08-C provider credential disposition
+### P0.2 OL08-C provider credential disposition — ACCEPTED 2026-09-08
 
-OL08-C remains **OPEN**. No provider revoke, provider-side credential lifecycle action or local SMTP/provider secret purge is authorized yet.
+Platform PR #41 accepted the bounded credential-only contract. The accepted architecture separates outbound disablement, provider-side invalidation, local reusable send-secret zeroization and webhook signing-secret drain/final purge.
 
-The next safe lifecycle work is decision-readiness and explicit policy acceptance for:
+#### OL08-04A credential disposition state/evidence foundation — IMPLEMENTED / PLATFORM CERTIFICATION PENDING 2026-09-08
 
-- which provider/account descriptors remain as non-secret evidence,
-- whether closure disables provider accounts before any revoke,
-- when provider-side revoke is required versus not applicable,
-- when local encrypted provider/SMTP secret material may be purged,
-- failure/retry semantics for external revocation,
-- audit evidence that may be retained without copying secrets.
+FAIR CRM PR #258 implements the first bounded runtime slice:
 
-This roadmap entry does **not** authorize runtime changes. Runtime implementation may begin only after the provider credential disposition policy is explicitly accepted.
+- migration `0079_closure_credential_dispositions`,
+- durable organization + closure-execution + email-account credential disposition rows,
+- append-only non-secret credential evidence,
+- SYSTEM-only start/list/get/retry/reconcile,
+- live Core `SUSPENDED` fail-closed mutation precondition,
+- outbound account eligibility disabled before credential destruction,
+- generic SMTP reusable password classified `operator_required`,
+- local SMTP password zeroization only after explicit external invalidation evidence,
+- current-model MailerSend API tokens classified `supported_unidentifiable` and kept blocked,
+- operator evidence cannot override supported-but-unidentifiable MailerSend credentials,
+- unverified MailerSend target metadata cannot authorize provider deletion/local token purge,
+- webhook signing secret may remain explicitly `receive_only_pending`.
+
+Evidence:
+
+- FAIR CRM PR #258 final head `ea12e43f0ba0066842630208217d27962fdde53c`,
+- Development Standard Gate #719 / run `34194802163`: success,
+- Prod-Path E2E #279 / run `34194802141`, final attempt 2: success,
+- FAIR CRM merge `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`.
+
+This is **not full OL08-C completion**. Current-model MailerSend credentials must remain fail-closed until deterministic exact-token targeting exists, and final webhook signing-secret zeroization remains dependent on an accepted drain criterion. Any time-based drain duration remains OL-09.
+
+#### Immediate lifecycle step — OL08-04A Platform certification/docs sync
+
+The current implementation is merged; the immediate non-runtime step is cross-repository Platform certification and documentation synchronization.
+
+After certification, do not infer authorization for OL08-D/E/F/G or Core tombstone. Any additional OL08-C runtime must remain inside the accepted credential-only boundary and must not bypass supported-but-unidentifiable or receive-only-pending states.
 
 Still blocked:
 
 - persistent/downloadable closure package and its retention/expiry lifecycle,
 - `not_required` success without accepted policy,
-- provider credential revoke or local secret purge,
+- deterministic completion of current-model MailerSend credentials without exact targeting,
+- final webhook signing-secret purge before its accepted drain criterion,
 - organization-wide data/artifact deletion/anonymization,
 - retention/grace duration selection,
 - backup ageing/restore reconciliation,
