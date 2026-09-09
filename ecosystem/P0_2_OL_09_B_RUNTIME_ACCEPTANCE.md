@@ -73,21 +73,42 @@ Accepted behavior:
 7. This security-critical job does not become permanently terminal merely because an ordinary attempt bound is exhausted.
 8. Core's pending-job processing is wired to a continuous in-process dispatcher, so persisted delivery does not depend on a process restart.
 
-## 5. Distributed-boundary semantics
+## 5. FAIR CRM webhook ingress cutoff
+
+Merged FAIR CRM PR: `hinthorozu/fair-crm#265` — `fix(webhooks): enforce OL09-B lifecycle cutoff at ingress`.
+
+- exact PR head: `e3053814dfe0dd182947d31f482722a84a9d9017`
+- merged FAIR CRM `main`: `03df6e66bb525dca43df2720ce934b85b5758a23`
+- `Development Standard Gate` run `34382180187` / run #745 — **SUCCESS**
+- `Prod-Path E2E` run `34382180512` / run #294 — **SUCCESS**
+
+Accepted behavior:
+
+1. Normal MailerSend tenant webhook processing requires live Core `work_allowed` before FAIR reads provider configuration or the webhook signing secret.
+2. A SUSPENDED/non-active organization is acknowledged and permanently dropped before signing-secret access and before tenant mutation.
+3. Unavailable or malformed Core lifecycle authority fails closed and is likewise acknowledged/dropped; the event is not retained for replay after a later reactivation.
+4. The existing `webhook.test` probe remains a non-tenant test-signature path and does not require tenant lifecycle authority.
+5. Regression coverage explicitly proves the suspended and lifecycle-unavailable paths do not access provider configuration/signing-secret material.
+
+This ingress guard is the immediate authorization cutoff. Durable Core-to-FAIR signaling remains defense-in-depth for physical zeroization of any signing-secret bytes that existed at the suspension edge.
+
+## 6. Distributed-boundary semantics
 
 OL09-B does not require an impossible cross-database atomic delete between Core and FAIR.
 
 At the authoritative Core `SUSPENDED` transition:
 
 - Core work eligibility becomes non-active immediately;
+- normal FAIR tenant webhook ingress must re-check live Core work eligibility before provider-config/signing-secret access;
+- an event arriving while the organization is non-active, or while lifecycle authority is unavailable, is acknowledged and permanently dropped rather than deferred for replay;
 - the suspension transaction durably records the security-signal obligation;
-- FAIR accepts only the matching live suspension episode;
+- FAIR accepts a zeroization signal only for the matching live suspension episode;
 - physical signing-secret zeroization is idempotent and retry-safe;
 - a delayed signal cannot zeroize credentials created in a later reactivated/new lifecycle episode.
 
-Therefore a transient FAIR outage can delay physical byte removal, but it does not create an accepted post-suspension authorization/drain interval. The zero-retention policy remains the security contract, and delivery continues until the current episode is safely reconciled or becomes stale because lifecycle authority moved on.
+Therefore a transient FAIR outage can delay physical byte removal, but it does not create an accepted post-suspension authorization/drain interval. The secret is not authorized for normal tenant webhook verification after the Core suspension boundary, and delivery continues until the current episode is safely reconciled or becomes stale because lifecycle authority moved on.
 
-## 6. Acceptance result
+## 7. Acceptance result
 
 The OL09-B implementation conditions are satisfied on canonical `main`:
 
@@ -95,6 +116,8 @@ The OL09-B implementation conditions are satisfied on canonical `main`:
 - **purpose-separated authenticated Core → FAIR signal:** satisfied;
 - **durable/retry-safe suspension delivery:** satisfied;
 - **stale-signal protection:** satisfied;
+- **T0 webhook ingress lifecycle cutoff before signing-secret access:** satisfied;
+- **lifecycle-authority outage fail-closed/permanent-drop behavior:** satisfied;
 - **MailerSend signing-secret zeroization:** satisfied;
 - **receive-only retention path removed:** satisfied;
 - **MailerSend API-token blocker preserved:** satisfied;
@@ -102,8 +125,8 @@ The OL09-B implementation conditions are satisfied on canonical `main`:
 
 Therefore **P0.2 OL09-B webhook/signing-secret zero-retention is runtime-accepted**.
 
-## 7. Operational prerequisite
+## 8. Operational prerequisite
 
 This record accepts the merged runtime contract; it does not claim production deployment/configuration has already occurred.
 
-Before enabling the producer in an environment, FAIR must run the accepted consumer version and Core/FAIR must be configured with the same purpose-separated `FAIR_CRM_CORE_LIFECYCLE_SIGNAL_TOKEN`. Missing/invalid configuration must remain fail-closed.
+Before enabling the producer in an environment, FAIR must run the accepted zeroization consumer and webhook-ingress cutoff versions, and Core/FAIR must be configured with the same purpose-separated `FAIR_CRM_CORE_LIFECYCLE_SIGNAL_TOKEN`. Missing/invalid configuration must remain fail-closed.
