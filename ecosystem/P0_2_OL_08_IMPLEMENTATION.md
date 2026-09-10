@@ -1,6 +1,6 @@
 # P0.2 OL-08 — Organization Offboarding Implementation Tracker
 
-**Status:** IN PROGRESS — OL08-01, OL08-02, OL08-03A, OL08-04A, OL08-C2, OL08-E1 and OL08-E2 DONE / CERTIFIED; current-model credential plus canonical package/inventory/integrity and managed-artifact/package purge runtime are covered, while destructive product-data runtime remains open  
+**Status:** IN PROGRESS — OL08-01, OL08-02, OL08-03A, OL08-04A, OL08-C2, OL08-D, OL08-E1 and OL08-E2 DONE / CERTIFIED; current-model credential, canonical package/inventory/integrity, managed-artifact/package purge and product-data hard-delete runtimes are covered, while OL08-F evidence purge and terminal readiness remain open  
 **Started:** 2026-09-07  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **Readiness source:** `ecosystem/P0_2_OL_08_DECISION_READINESS.md`  
@@ -8,10 +8,12 @@
 **OL08-C decision:** `ecosystem/P0_2_OL_08_C_PROVIDER_CREDENTIAL_DECISION.md`  
 **OL08-C2 decision:** `ecosystem/P0_2_OL_08_C2_MAILERSEND_VERIFIABLE_INVALIDATION_DECISION.md`  
 **OL08-C2 runtime acceptance:** `ecosystem/P0_2_OL_08_C2_RUNTIME_ACCEPTANCE.md`  
+**OL08-D decision:** `ecosystem/P0_2_OL_08_D_PRODUCT_DATA_DISPOSITION_DECISION.md`  
+**OL08-D runtime acceptance:** `ecosystem/P0_2_OL_08_D_RUNTIME_ACCEPTANCE.md`  
 **OL08-E decision:** `ecosystem/P0_2_OL_08_E_ARTIFACT_PACKAGE_LIFECYCLE_DECISION.md`  
 **OL08-E1 runtime acceptance:** `ecosystem/P0_2_OL_08_E1_RUNTIME_ACCEPTANCE.md`  
 **OL08-E2 runtime acceptance:** `ecosystem/P0_2_OL_08_E2_RUNTIME_ACCEPTANCE.md`  
-**Current resume point:** OL08-D dependency-aware destructive product-data runtime after every accepted grace/export/credential/artifact gate is actually satisfied
+**Current resume point:** OL08-F retained minimal closure/audit/security evidence purge/de-identification after the accepted 12-month terminal-closure retention clock; terminal cleanup/tombstone readiness remains later and separately gated
 
 ## Current canonical policy/runtime truth
 
@@ -24,14 +26,15 @@ Canonical merged policy/runtime now establishes:
 - OL09-C: no additional generic product-data retention interval after the valid 30-day grace,
 - OL09-D: 12-month minimal non-secret closure/audit/security evidence retention from the separately accepted terminal closure milestone,
 - OL09-E: closure-package retention is 30 days from durable package readiness; download does not reset the clock,
-- OL08-D: current verified tenant-owned relational product data is accepted for dependency-aware hard delete after all applicable gates,
+- OL08-D policy: current verified tenant-owned relational product data is accepted for dependency-aware hard delete after all applicable gates,
+- OL08-D runtime: the current-model 19-class product-data hard-delete engine is implemented/certified with exact current-suspension episode/grace, export-plan/package identity, credential and artifact prerequisites; import embedded bytes are physically resolved through the authorized relational-delete path,
 - OL08-E: managed-artifact inventory, canonical closure package, integrity verification and strict managed-artifact purge policy are accepted,
 - OL08-E1 runtime: canonical package materialization, current-model artifact inventory, deterministic integrity verification, restart reconciliation and SYSTEM-only retrieval are implemented/certified,
-- OL08-E2 runtime: exact post-grace managed-file deletion, post-delete non-existence evidence, external-reference non-action and independent canonical package expiry/purge are implemented/certified; import embedded bytes remain deliberately coupled to OL08-D relational deletion,
+- OL08-E2 runtime: exact post-grace managed-file deletion, post-delete non-existence evidence, external-reference non-action and independent canonical package expiry/purge are implemented/certified,
 - OL08-C2: legacy MailerSend tokens may be reconciled by exact-secret invalidity proof without guessing provider token ids,
 - OL10: backup ageing/restore reconciliation policy and runtime are accepted, including FAIR CRM 30-day full-DB backup ageing and fail-closed Core lifecycle reconciliation.
 
-Timing/policy acceptance does not itself execute destructive closure work. Product-data hard-delete runtime still requires implementation and certification.
+Timing/policy acceptance does not itself authorize destructive work. OL08-D product-data hard delete is now runtime-covered, but each execution remains fail-closed on its live prerequisites. OL08-F evidence purge and later terminal cleanup/tombstone readiness remain separate runtime obligations.
 
 ## Accepted OL08-A policy
 
@@ -101,7 +104,7 @@ Exact evidence:
 - Prod-Path E2E #276 / run `34163087299`: SUCCESS,
 - FAIR CRM merge `eac3a0793a6ea0382e3b82169a1e3c18c0accfc9`.
 
-OL08-E1 materializes a required plan into a persistent canonical package and verifies real package membership/integrity. OL08-E2 provides the accepted managed-file cleanup and package-purge mechanics. `not_required` still has no accepted success authority.
+OL08-E1 materializes a required plan into a persistent canonical package and verifies real package membership/integrity. OL08-E2 provides the accepted managed-file cleanup and package-purge mechanics. OL08-D revalidates package-bound export identities before the first irreversible product-data delete. `not_required` still has no accepted success authority.
 
 ## OL08-C — Provider credential disposition
 
@@ -232,7 +235,41 @@ Exact evidence:
 - Prod-Path E2E #300 / run `34405415956`: SUCCESS,
 - FAIR CRM merge `791f11e1a19c4d316e340a2bf06413013c693505`.
 
-OL08-E current-model package/file-artifact mechanics are therefore runtime-covered through E1 + E2. The remaining import embedded-byte cleanup is intentionally completed by the OL08-D relational hard-delete phase rather than duplicated as an independent E2 mutation.
+OL08-E current-model package/file-artifact mechanics are therefore runtime-covered through E1 + E2. The remaining import embedded-byte dependency is now completed by the accepted OL08-D relational hard-delete runtime, which reconciles the corresponding artifact inventory to positive non-existence evidence.
+
+## OL08-D — Dependency-aware relational product-data hard delete — DONE / RUNTIME ACCEPTED 2026-09-10
+
+Canonical policy: `ecosystem/P0_2_OL_08_D_PRODUCT_DATA_DISPOSITION_DECISION.md`.
+
+Canonical runtime acceptance: `ecosystem/P0_2_OL_08_D_RUNTIME_ACCEPTANCE.md`.
+
+FAIR CRM PR #269 implements the accepted current-model product-data hard-delete boundary:
+
+- migration `0082_closure_product_cleanup`,
+- versioned explicit 19-class dependency plan with durable per-class evidence,
+- one destructive class per reconcile transaction for restart-safe progress,
+- live Core current `SUSPENDED` episode and exact 30-day grace re-evaluation before every destructive mutation,
+- canonical package integrity + E2 artifact-cleanup gate,
+- OL08-C credential-completion gate,
+- package-bound OL08-03A export identity/count revalidation before the first irreversible delete,
+- explicit child/parent ordering rather than relying on DB cascade as policy,
+- cross-organization isolation and organization-scoped deletes,
+- current email-account product-row deletion only after terminal credential evidence,
+- evidence-parent decoupling that retains only the non-secret account UUID rather than the live product row,
+- import `stored_file_content` destruction through the authorized relational delete and E2 inventory non-existence reconciliation,
+- fail-closed unknown persistent system-data-operation artifact handling,
+- bounded non-secret counts/status/failure evidence without copying deleted business content or reusable secrets,
+- no generic terminal cleanup declaration and no Core tombstone.
+
+Exact evidence:
+
+- FAIR CRM PR #269 final head `aec1b5d44206fa38b19f4289d3975da94c20a833`,
+- Development Standard Gate #760 / run `34418454313`: SUCCESS,
+- Prod-Path E2E #305 / run `34418454097`: SUCCESS,
+- FAIR CRM squash merge `210313886e2d9d6c0443367e22b9728baa041329`,
+- FAIR CRM `main` verified at `210313886e2d9d6c0443367e22b9728baa041329` after merge.
+
+OL08-D current-model product deletion is therefore runtime-covered. Operational execution can still remain blocked for a particular organization until every live grace/export/package/credential/artifact prerequisite actually passes.
 
 ## Current decision/runtime matrix
 
@@ -240,8 +277,8 @@ OL08-E current-model package/file-artifact mechanics are therefore runtime-cover
 | --- | --- | --- |
 | OL08-B — closure export technical contract | **PARTIALLY ACCEPTED / OL08-03A + E1 PACKAGE RUNTIME DONE** | Planner and required canonical package materialization/integrity are implemented. `not_required` still has no accepted success authority. |
 | OL08-C — provider credential disposition | **ACCEPTED / CURRENT-MODEL RUNTIME COVERED** | OL08-04A foundation, OL08-C2 MailerSend exact-secret reconciliation and OL09-B signing-secret zeroization are implemented. Individual credentials may remain blocked pending required external/operator evidence. |
-| OL08-D — product-data disposition | **POLICY ACCEPTED / RUNTIME OPEN** | Verified tenant-owned relational product data is hard-delete eligible only after valid grace and all phase gates. Destructive runtime is not yet implemented/certified; import embedded-byte destruction remains coupled to this phase. |
-| OL08-E — generated artifacts / closure package | **POLICY ACCEPTED / E1 + E2 CURRENT-MODEL RUNTIME ACCEPTED** | Canonical package/inventory/integrity, strict managed-file cleanup, external-reference non-action and package expiry/purge are implemented. Import embedded bytes deliberately remain dependent on OL08-D relational deletion. |
+| OL08-D — product-data disposition | **POLICY + CURRENT-MODEL RUNTIME ACCEPTED** | Dependency-aware 19-class tenant product-data hard delete is implemented behind live grace/export/package/credential/artifact gates. Import embedded-byte destruction is coupled and certified through this phase. |
+| OL08-E — generated artifacts / closure package | **POLICY ACCEPTED / E1 + E2 CURRENT-MODEL RUNTIME ACCEPTED** | Canonical package/inventory/integrity, strict managed-file cleanup, external-reference non-action and package expiry/purge are implemented. Import embedded-byte non-existence is now reconciled through OL08-D. |
 | OL08-F — audit/security evidence | **TIMING POLICY ACCEPTED / PURGE RUNTIME OPEN** | Minimal non-secret evidence retention is 12 months from the accepted terminal closure milestone; later purge/de-identification runtime remains separate. |
 | OL08-G — backup/restore interaction | **POLICY + RESTORE RUNTIME ACCEPTED VIA OL10** | FAIR full-DB 30-day ageing/pruning and fail-closed restore reconciliation are runtime-accepted; residual total-loss Core authority boundary remains fail-closed. |
 | OL09-A through OL09-E | **TIMING POLICY COMPLETE** | 30-day reversible grace, zero-day webhook-secret retention, product-data timing, 12-month evidence retention and 30-day package retention are accepted. OL09-B runtime is separately accepted. |
@@ -256,7 +293,7 @@ Until the applicable runtime is implemented and its gate conditions are satisfie
 - treat local secret zeroization as provider-side invalidation proof,
 - treat operator assertion as MailerSend C2 success without exact-secret `401` proof,
 - guess or heuristically select a MailerSend provider token id for deletion,
-- execute product-data hard delete merely because 30 days elapsed; all export/credential/artifact and other phase gates still apply,
+- execute an OL08-D product-data class merely because 30 days elapsed; all live export/credential/artifact/lifecycle and other applicable phase gates still apply,
 - delete managed artifact bytes without registered ownership, tenant scoping, package-integrity prerequisite and post-delete non-existence verification,
 - treat managed-file E2 success as proof that import `stored_file_content` is gone while its relational row still carries bytes,
 - remote-delete or remote-fetch external-reference logo URLs as though they were FAIR-owned bytes,
@@ -270,7 +307,7 @@ Until the applicable runtime is implemented and its gate conditions are satisfie
 
 Proceed with the next executable closure runtime in dependency order:
 
-1. **OL08-D runtime** — dependency-aware tenant product-data hard delete only after the valid OL09-A grace and required export/package, credential and artifact gates are satisfied. This phase must also physically eliminate import `stored_file_content` with its owning row or an explicitly coupled byte-clear immediately before row deletion, then reconcile the corresponding E2 artifact inventory evidence.
-2. Continue toward terminal cleanup/tombstone readiness only after OL08-D and all remaining runtime obligations are implemented and certified.
+1. **OL08-F runtime** — implement purge/de-identification of the retained minimal non-secret closure/audit/security evidence only after the accepted 12-month retention clock from the separately accepted durable terminal closure milestone. It must preserve the accepted evidence boundary, avoid retaining deleted product payloads or secret-derived oracles, and remain fail-closed before the retention deadline.
+2. Continue toward terminal cleanup/tombstone readiness only after OL08-F and every remaining closure obligation are implemented, satisfied and certified.
 
 No accepted timing decision by itself authorizes destructive execution.
