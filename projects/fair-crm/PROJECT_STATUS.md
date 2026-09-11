@@ -4,10 +4,10 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-09-08** |
+| Last verified | **2026-09-11** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
-| Migration head in `main` | `0079_closure_credential_dispositions` |
+| Migration head in `main` | `0083_terminal_closure` |
 | Current work queue | [ROADMAP.md](ROADMAP.md) |
 | Shared standards | [../../standards/README.md](../../standards/README.md) |
 
@@ -20,8 +20,13 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 | Organization suspension runtime / OL-07 | **Certified DONE (2026-09-07)** — lifecycle authority, queued/running cancellation, pre-handoff blocking, durable in-flight provider semantics and deterministic reactivation/resumption behavior are implemented/certified |
 | Organization closure orchestration / OL08-01 | **Certified DONE (2026-09-07)** — durable FAIR CRM-owned non-destructive closure execution, SYSTEM start/status/retry, live Core `SUSPENDED` precondition, idempotency/race controls, blocked/retry evidence and append-only local audit evidence are merged and cross-repository certified |
 | Closure quiescence / OL08-02 | **Certified DONE (2026-09-08)** — closure execution is proven not to bypass OL-07 queued/running/provider/lifecycle guards; closure start parent/event FK ordering was fixed transactionally |
-| Closure export planner / OL08-03A | **Certified DONE (2026-09-08)** — durable versioned organization/execution-scoped completeness plan, explicit v1 data-class registry, organization-scoped counts, record-ID fingerprints, hard secret-source exclusions, SYSTEM metadata API, idempotency/audit/tenant-isolation evidence; no package/download or irreversible gate |
-| Closure credential disposition / OL08-04A | **Certified DONE (2026-09-08), bounded foundation only** — durable credential disposition/evidence state, SYSTEM start/list/get/retry/reconcile, live `SUSPENDED` gate, outbound disablement, SMTP evidence-before-zeroization ordering, fail-closed MailerSend supported-unidentifiable handling and receive-only signing-secret state |
+| Closure export planner / OL08-03A | **Certified DONE (2026-09-08)** — durable versioned organization/execution-scoped completeness plan, explicit v1 data-class registry, organization-scoped counts, record-ID fingerprints, hard secret-source exclusions, SYSTEM metadata API, idempotency/audit/tenant-isolation evidence |
+| Closure credential disposition / OL08-C + C2 | **Current-model runtime covered (2026-09-09)** — OL08-04A durable disposition/evidence foundation plus exact-secret MailerSend invalidity verification; provider/operator evidence remains fail-closed until definitive proof and local reusable secret zeroization follows accepted evidence only |
+| Closure package / artifact lifecycle / OL08-E1 + E2 | **Runtime accepted (2026-09-09)** — canonical package/inventory/integrity, strict managed-file cleanup/non-existence evidence, external-reference non-action and independent package expiry/purge are implemented |
+| Product-data disposition / OL08-D | **Runtime accepted (2026-09-10)** — dependency-aware 19-class tenant product-data hard delete is implemented behind lifecycle/grace/export/package/credential/artifact gates |
+| Terminal closure / OL08-07 | **Runtime accepted (2026-09-11)** — final same-suspension-episode Core tombstone is implemented; authoritative Core `deleted_at` is mirrored exactly as FAIR `closed_at`, with restart-safe reconciliation |
+| Retained evidence expiry / OL08-F | **Runtime accepted (2026-09-11)** — Core audit evidence and FAIR closure evidence expire only after exact `T_terminal + 12 calendar months`, with Core-first fail-closed ordering, FK-safe FAIR purge and idempotent retry semantics |
+| Backup ageing / restore interaction / OL10 | **Policy + runtime accepted** — FAIR full-DB backup ageing/pruning and fail-closed restore reconciliation remain independently governed from OL08-F retained evidence |
 | Customers / fairs / participations | Implemented |
 | Contacts / activities / todos | Implemented |
 | Data integration / import engine | Implemented and actively hardened |
@@ -57,7 +62,7 @@ CRM-UI-04 certified that `/admin/system/users` still preserves the existing oper
 
 Final FAIR CRM PR #92 added a production-shaped cross-repository certification without changing application runtime. It runs FAIR CRM against real KYROX Core and Core's real SMTP adapter with an in-process memory-only SMTP sink. The certified lifecycle is signup → activation → login → forgot/reset → login → password change → login. Activation/reset one-time replay is rejected, old passwords fail after credential changes, and pre-change access/refresh sessions are rejected. Development Standard Gate #306 and Prod-Path E2E #151 passed the final head before merge.
 
-This completion applies only to the approved P0.2 identity/onboarding subset. ADR-0006 closure/export/retention/delete, retention/grace, billing/entitlement and backup-policy decisions remain separately gated and are not declared complete here.
+This completion applies to the approved P0.2 identity/onboarding subset. The later organization lifecycle/offboarding work is tracked separately under OL-05 through OL-10; the current-model required-export OL08 path is now certified through terminal Core tombstone and post-terminal retained-evidence expiry. Billing/entitlement remains outside that lifecycle completion claim.
 
 ## OL-07 suspension runtime state
 
@@ -73,9 +78,9 @@ OL07-04 is complete through FAIR CRM PR #250: queued/pending organization-owned 
 
 **Final reactivation/resumption certification is DONE as of 2026-09-07.** FAIR CRM PR #254 final head `e17593e49ecb25a3aef736b0ceaa1fafa14c7e77` passed Development Standard Gate #700 and Prod-Path E2E #264, then squash-merged to `main` as `18b0b638ba946c2910698e1df7c4ab5283c4958f`. Core `SUSPENDED -> ACTIVE` restores eligibility for fresh/new product work without resurrecting previously suspension-cancelled jobs/runs or mail operations. Work deferred only because lifecycle authority was temporarily unavailable remains non-terminal and may proceed once authority returns `ACTIVE`. Provider account configuration/credentials remain preserved through suspension and require no lifecycle re-enable mutation. Ambiguous provider handoff remains terminal/non-auto-retry after reactivation.
 
-The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** OL-08 closure/export/retention/delete sequencing, OL-09 retention/grace durations and OL-10 backup restore implications remain separately gated except for the accepted/implemented OL08-A / OL08-01 and bounded OL08-B/OL08-C engineering slices described below.
+The canonical OL-07 implementation record is [P0.2 OL-07 Suspension Job / Provider Behavior Implementation Tracker](../../ecosystem/P0_2_OL_07_IMPLEMENTATION.md). **OL-07 is complete.** The current-model required-export OL08 closure path and the accepted OL09/OL10 timing/backup dependencies are also now runtime-covered within their canonical boundaries; no additional lifecycle runtime is implied by the older sequencing text.
 
-## OL08 closure orchestration, export planning and credential-disposition state
+## OL08 current-model closure runtime
 
 **OL08-01 runtime is certified complete through FAIR CRM PR #255.** Final head `aa34cd3e5d00ec6f7d6b7adaad4afa950319830e` passed Development Standard Gate #707 / run `34155567277` and Prod-Path E2E #270 / run `34155567315`, then merged to FAIR CRM `main` as `e47d4ffced9f963fd06bc263996d2d5d95e7c5f2`. Platform PR #36 completed the cross-repository certification.
 
@@ -85,19 +90,31 @@ The implementation adds migration `0077_organization_closure_executions` plus a 
 
 **OL08-03A export manifest/completeness planning is certified complete through FAIR CRM PR #257.** Final head `6927dabea1cf46e1ee70b726d3c8ccd1ae247dcd` passed Development Standard Gate #715 / run `34163087279` and Prod-Path E2E #276 / run `34163087299`, then merged as `eac3a0793a6ea0382e3b82169a1e3c18c0accfc9`. Migration `0078_closure_export_plans` adds durable plan identity bound to organization + closure execution + schema version. The SYSTEM-only planner re-checks live Core `SUSPENDED`, enumerates the accepted v1 structured-data registry, stores organization-scoped counts and record-ID-only fingerprints, records explicit included/excluded/deferred reason evidence, forbids reusable SMTP/provider credential tables as planner sources, and is idempotent and tenant-isolated.
 
-**OL08-04A credential disposition state/evidence foundation is cross-repository certified through FAIR CRM PR #258 and Platform PR #42.** FAIR CRM final head `ea12e43f0ba0066842630208217d27962fdde53c` passed Development Standard Gate #719 / run `34194802163` and Prod-Path E2E #279 / run `34194802141` final attempt 2, then merged as `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`. Platform PR #42 final head `7d3de63c8072b908d8d3c2c38a3a386af22e3921` passed Platform Standards CI #116 / run `34196046348` and merged as `144ee611c1f061d10ec36c4713b08262a1465bf1`. Migration `0079_closure_credential_dispositions` adds durable organization/execution/email-account disposition rows and append-only evidence. SYSTEM-only start/list/get/retry/reconcile re-check live Core `SUSPENDED`; start disables outbound eligibility without soft-delete; SMTP reusable passwords require explicit external invalidation evidence before local zeroization; current-model MailerSend credentials fail closed as `supported_unidentifiable` and cannot be completed by operator override; unverified MailerSend target metadata cannot authorize provider deletion/local token purge; webhook signing secrets may remain only in explicit receive-only pending state.
+**OL08-04A credential disposition state/evidence foundation is cross-repository certified through FAIR CRM PR #258 and Platform PR #42.** FAIR CRM final head `ea12e43f0ba0066842630208217d27962fdde53c` passed Development Standard Gate #719 / run `34194802163` and Prod-Path E2E #279 / run `34194802141` final attempt 2, then merged as `f5fb4ad18165848ae632b71496a5e5d1cb7a403b`. Platform PR #42 final head `7d3de63c8072b908d8d3c2c38a3a386af22e3921` passed Platform Standards CI #116 / run `34196046348` and merged as `144ee611c1f061d10ec36c4713b08262a1465bf1`. Migration `0079_closure_credential_dispositions` adds durable organization/execution/email-account disposition rows and append-only evidence. SYSTEM-only start/list/get/retry/reconcile re-check live Core `SUSPENDED`; start disables outbound eligibility without soft-delete; SMTP reusable passwords require explicit external invalidation evidence before local zeroization.
 
-These slices remain bounded. They do not materialize/download a closure package, permit `not_required` without accepted policy evidence, deterministically revoke current-model MailerSend tokens, final-purge a required webhook signing secret without its accepted drain criterion, delete/anonymize product data or artifacts, choose retention periods, define backup restore behavior, expose cleanup-complete/tombstone-ready state or call Core organization delete.
+**OL08-C2 closes the current-model MailerSend invalidation gap through FAIR CRM PR #266.** Exact stored-token authentication is used only as a non-mutating verification path; definitive provider HTTP `401` proves the exact stored secret invalid. `200`/`403` remain blocked, ambiguous/provider-unavailable results remain safely reconcilable, operator assertion alone is insufficient, and local token zeroization follows only after accepted invalidity proof. OL09-B separately supplies immediate webhook ingress cutoff and signing-secret zeroization semantics.
 
-Canonical tracker: [P0.2 OL-08 Organization Offboarding Implementation Tracker](../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md).
+**OL08-E1/E2 provide the canonical closure package and artifact lifecycle through FAIR CRM PRs #267/#268.** Migration `0080_closure_packages` adds durable package/inventory state and deterministic integrity verification; migration `0081_closure_artifact_purge` adds strict tenant-owned managed-artifact cleanup, positive non-existence evidence and independent canonical package expiry/purge. External references are never treated as FAIR-owned remote bytes.
+
+**OL08-D product-data hard delete is runtime accepted through FAIR CRM PR #269.** Migration `0082_closure_product_cleanup` implements the explicit 19-class dependency-aware tenant cleanup plan with one destructive class per reconcile transaction, live Core/grace re-evaluation, export/package/credential/artifact prerequisites, explicit child/parent ordering and bounded non-secret evidence.
+
+**OL08-07 terminal closure is runtime accepted through FAIR CRM PR #270.** Migration `0083_terminal_closure` adds durable terminal `completed` closure state. Final Core tombstone uses the same-suspension-episode conditional contract, FAIR accepts success only after Core reports the durable tombstone, and FAIR `closed_at` mirrors exact authoritative Core `deleted_at`. Core-success / FAIR-write failure is restart-reconciled without a second delete.
+
+**OL08-F retained-evidence expiry is runtime accepted through Core PR #31 + FAIR CRM PR #271 + Platform PR #63.** The exact 12-calendar-month clock starts at `T_terminal = Core deleted_at = FAIR closed_at`. Core purges Core-owned organization audit evidence; FAIR calls Core first and only then deletes FAIR-owned closure evidence in explicit FK-safe order. Pre-deadline, authority mismatch and Core failure paths fail closed; repeated execution is idempotent.
+
+The required-export current-model closure path is therefore runtime-covered end-to-end through terminal tombstone and post-terminal retained-evidence expiry. The optional `not_required` export disposition still has no accepted policy authority and remains fail-closed; this is a policy boundary, not an unfinished implementation of the required-export path.
+
+Canonical tracker: [P0.2 OL-08 Organization Offboarding Implementation Tracker](../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md). OL08-F acceptance: [P0.2 OL-08F Runtime Acceptance](../../ecosystem/P0_2_OL_08_F_RUNTIME_ACCEPTANCE.md).
 
 ## Current lifecycle policy step
 
-**OL-09 retention/grace is in decision-readiness.** The canonical readiness record is [P0.2 OL-09 Retention / Grace Decision Readiness](../../ecosystem/P0_2_OL_09_RETENTION_GRACE_DECISION_READINESS.md). The first recommended decisions are closure grace/reversibility + clock origin and webhook receive-only drain criterion. No duration or purge runtime is accepted by readiness alone.
+The current-model required-export OL08 lifecycle/offboarding path is complete through OL08-F. OL09-A through OL09-E timing policy and OL10 backup ageing/restore behavior have accepted canonical contracts, and the applicable runtime obligations used by this closure path are implemented/certified.
+
+**No additional OL08 lifecycle runtime is currently sequenced or authorized.** A future `not_required` export authority, new retained-evidence class, new provider lifecycle case or changed backup/restore obligation requires a separate explicit policy/product decision before implementation.
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0079_closure_credential_dispositions`; recent migration history includes cost-catalog tables/categories, import-matching/decision stabilization, OL08-01 durable closure execution/event state, OL08-03A durable export-plan metadata and OL08-04A durable credential-disposition evidence.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0083_terminal_closure`; recent closure migration history includes `0077` durable closure execution/events, `0078` export-plan metadata, `0079` credential-disposition evidence, `0080` canonical package/inventory, `0081` artifact purge evidence, `0082` product cleanup and `0083` terminal closure state. OL08-F adds runtime behavior without a new FAIR migration.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 

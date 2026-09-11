@@ -90,7 +90,7 @@ Delivered runtime:
 - same-key idempotency + DB-enforced one-open-execution race protection,
 - explicit blocked/retry evidence on the same execution,
 - cross-organization denial in the canonical tenant-isolation registry,
-- no closure-complete/tombstone-ready state and no Core delete call.
+- no closure-complete/tombstone-ready state and no Core delete call in this initial slice.
 
 Evidence:
 
@@ -113,7 +113,7 @@ Accepted:
 - explicit v1 structured-data completeness registry,
 - hard exclusion of reusable provider/security credentials,
 - Core identity kept outside FAIR CRM export ownership,
-- generated/binary artifacts deferred to OL08-E,
+- generated/binary artifacts delegated to OL08-E,
 - initial control remains Platform SuperAdmin / SYSTEM/operator-only,
 - no export-planning state opens an irreversible cleanup/tombstone gate.
 
@@ -137,15 +137,15 @@ FAIR CRM PR #257 implemented the bounded non-destructive planner authorized by O
 - SYSTEM-only planning/status metadata API,
 - idempotency, tenant-isolation and audit evidence.
 
-No persistent/downloadable package, customer-facing handover, `not_required` success, `integrity_verified` irreversible gate, provider revoke/secret purge, organization-wide data/artifact deletion/anonymization, cleanup-complete/tombstone-ready state or Core tombstone was added.
+This initial slice did not add package materialization, customer-facing handover, `not_required` success or irreversible cleanup. Later accepted OL08-E/D/07 work supplies the required-export package, cleanup and terminal path without changing the fail-closed `not_required` boundary.
 
-### P0.2 OL08-C provider credential disposition — ACCEPTED 2026-09-08
+### P0.2 OL08-C provider credential disposition — ACCEPTED / CURRENT-MODEL RUNTIME COVERED
 
-Platform PR #41 accepted the bounded credential-only contract. The accepted architecture separates outbound disablement, provider-side invalidation, local reusable send-secret zeroization and webhook signing-secret drain/final purge.
+Platform PR #41 accepted the bounded credential-only contract. The accepted architecture separates outbound disablement, provider-side invalidation, local reusable send-secret zeroization and webhook signing-secret lifecycle.
 
 #### OL08-04A credential disposition state/evidence foundation — DONE / CERTIFIED 2026-09-08
 
-FAIR CRM PR #258 implements the first bounded runtime slice:
+FAIR CRM PR #258 implemented the first bounded runtime slice:
 
 - migration `0079_closure_credential_dispositions`,
 - durable organization + closure-execution + email-account credential disposition rows,
@@ -155,10 +155,10 @@ FAIR CRM PR #258 implements the first bounded runtime slice:
 - outbound account eligibility disabled before credential destruction,
 - generic SMTP reusable password classified `operator_required`,
 - local SMTP password zeroization only after explicit external invalidation evidence,
-- current-model MailerSend API tokens classified `supported_unidentifiable` and kept blocked,
+- initial current-model MailerSend API tokens classified `supported_unidentifiable`,
 - operator evidence cannot override supported-but-unidentifiable MailerSend credentials,
 - unverified MailerSend target metadata cannot authorize provider deletion/local token purge,
-- webhook signing secret may remain explicitly `receive_only_pending`.
+- webhook signing secret initially supported an explicit receive-only pending state.
 
 Evidence:
 
@@ -170,32 +170,27 @@ Evidence:
 - Platform Standards CI #116 / run `34196046348`: success,
 - Platform merge `144ee611c1f061d10ec36c4713b08262a1465bf1`.
 
-This is **not full OL08-C completion**. Current-model MailerSend credentials must remain fail-closed until deterministic exact-token targeting exists, and final webhook signing-secret zeroization remains dependent on an accepted drain criterion. Any time-based drain duration remains OL-09.
+The later accepted current-model path closes the initial MailerSend/signing-secret gaps without weakening those boundaries: FAIR CRM PR #266 accepts only definitive exact-secret provider `401` as invalidity proof before local token zeroization, while OL09-B provides immediate post-suspension webhook ingress cutoff and signing-secret zeroization. Individual legacy credentials may still remain operationally blocked until required operator/provider action plus definitive proof is obtained; that is fail-closed execution state rather than an unimplemented runtime contract.
 
-#### Active lifecycle decision-readiness — OL-09 retention / grace
+### P0.2 OL08 current-model required-export closure path — COMPLETE / CERTIFIED 2026-09-11
 
-The next safe lifecycle work is policy/readiness, not destructive runtime.
+The later OL08/OL09/OL10 decisions and runtimes are now implemented within the accepted current-model boundary:
 
-Canonical readiness: [../../ecosystem/P0_2_OL_09_RETENTION_GRACE_DECISION_READINESS.md](../../ecosystem/P0_2_OL_09_RETENTION_GRACE_DECISION_READINESS.md).
+- **OL08-C2:** legacy MailerSend exact-secret invalidity verification and local token zeroization after definitive proof — FAIR CRM PR #266.
+- **OL08-E1:** canonical persistent closure package, artifact inventory and deterministic integrity verification — FAIR CRM PR #267.
+- **OL08-E2:** strict managed-artifact cleanup/non-existence evidence and canonical package expiry/purge — FAIR CRM PR #268.
+- **OL08-D:** dependency-aware 19-class product-data hard-delete runtime — FAIR CRM PR #269.
+- **OL08-07:** final same-suspension-episode Core tombstone, with `Core deleted_at = FAIR closed_at` and restart reconciliation — Core PR #30 + FAIR CRM PR #270.
+- **OL08-F:** exact 12-calendar-month retained closure/audit/security evidence expiry, split by Core/FAIR ownership with Core-first fail-closed ordering — Core PR #31 + FAIR CRM PR #271.
+- **OL10:** backup ageing/restore reconciliation remains an independently accepted policy/runtime boundary and is not folded into OL08-F evidence retention.
 
-Recommended first decisions:
+Canonical OL08 tracker: [../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md](../../ecosystem/P0_2_OL_08_IMPLEMENTATION.md). OL08-F acceptance: [../../ecosystem/P0_2_OL_08_F_RUNTIME_ACCEPTANCE.md](../../ecosystem/P0_2_OL_08_F_RUNTIME_ACCEPTANCE.md).
 
-- **OL09-A:** closure grace/reversibility and authoritative clock origin,
-- **OL09-B:** webhook receive-only drain criterion.
+The required-export path is therefore covered from closure execution and quiescence through export/package integrity, credential disposition, artifact/product cleanup, terminal Core tombstone and post-terminal evidence expiry. `not_required` still has no accepted policy authority and remains fail-closed; it is not an open implementation item for the required-export path.
 
-Readiness alone does not select a duration and authorizes no runtime. No purge/delete worker or timer should be implemented until the applicable subsection is explicitly accepted.
+#### Lifecycle sequencing after closeout
 
-Still blocked:
-
-- persistent/downloadable closure package and its retention/expiry lifecycle,
-- `not_required` success without accepted policy,
-- deterministic completion of current-model MailerSend credentials without exact targeting,
-- final webhook signing-secret purge before its accepted drain criterion,
-- organization-wide data/artifact deletion/anonymization,
-- retention/grace duration execution,
-- backup ageing/restore reconciliation,
-- `cleanup_complete` / `ready_for_tombstone`,
-- Core tombstone.
+**No additional OL08 lifecycle runtime is currently sequenced or authorized.** Do not infer a new runtime from old OL08/OL09 numbering. A future `not_required` authority, new evidence class, provider lifecycle case or backup/restore obligation must first be promoted here through an explicit policy/product decision with scope and ownership.
 
 ## Active product-quality track
 
