@@ -1,6 +1,6 @@
 # P0.2 OL-08 — Organization Offboarding Implementation Tracker
 
-**Status:** IN PROGRESS — OL08-01, OL08-02, OL08-03A, OL08-04A, OL08-C2, OL08-D, OL08-E1 and OL08-E2 DONE / CERTIFIED; current-model credential, canonical package/inventory/integrity, managed-artifact/package purge and product-data hard-delete runtimes are covered, while OL08-F evidence purge and terminal readiness remain open  
+**Status:** IN PROGRESS — OL08-01, OL08-02, OL08-03A, OL08-04A, OL08-C2, OL08-D, OL08-E1, OL08-E2 and OL08-07 DONE / CERTIFIED; current-model credential, canonical package/inventory/integrity, managed-artifact/package purge, product-data hard-delete and terminal Core-tombstone runtimes are covered, while OL08-F retained-evidence purge/de-identification remains open  
 **Started:** 2026-09-07  
 **Canonical decision source:** `ecosystem/decisions/0006-organization-lifecycle-and-onboarding.md`  
 **Readiness source:** `ecosystem/P0_2_OL_08_DECISION_READINESS.md`  
@@ -13,7 +13,9 @@
 **OL08-E decision:** `ecosystem/P0_2_OL_08_E_ARTIFACT_PACKAGE_LIFECYCLE_DECISION.md`  
 **OL08-E1 runtime acceptance:** `ecosystem/P0_2_OL_08_E1_RUNTIME_ACCEPTANCE.md`  
 **OL08-E2 runtime acceptance:** `ecosystem/P0_2_OL_08_E2_RUNTIME_ACCEPTANCE.md`  
-**Current resume point:** OL08-F retained minimal closure/audit/security evidence purge/de-identification after the accepted 12-month terminal-closure retention clock; terminal cleanup/tombstone readiness remains later and separately gated
+**OL08-07 terminal decision:** `ecosystem/P0_2_OL_08_07_TERMINAL_CLOSURE_MILESTONE_DECISION.md`  
+**OL08-07 runtime acceptance:** `ecosystem/P0_2_OL_08_07_RUNTIME_ACCEPTANCE.md`  
+**Current resume point:** OL08-F retained minimal closure/audit/security evidence purge/de-identification after 12 calendar months from the certified authoritative terminal Core `deleted_at` / FAIR `closed_at` timestamp
 
 ## Current canonical policy/runtime truth
 
@@ -24,7 +26,7 @@ Canonical merged policy/runtime now establishes:
 - OL09-A: 30-day reversible organization grace from the authoritative current Core suspension episode,
 - OL09-B: zero-day post-suspension MailerSend webhook-signing-secret retention plus an immediate fail-closed webhook ingress cutoff,
 - OL09-C: no additional generic product-data retention interval after the valid 30-day grace,
-- OL09-D: 12-month minimal non-secret closure/audit/security evidence retention from the separately accepted terminal closure milestone,
+- OL09-D: 12-month minimal non-secret closure/audit/security evidence retention from the authoritative terminal Core tombstone timestamp,
 - OL09-E: closure-package retention is 30 days from durable package readiness; download does not reset the clock,
 - OL08-D policy: current verified tenant-owned relational product data is accepted for dependency-aware hard delete after all applicable gates,
 - OL08-D runtime: the current-model 19-class product-data hard-delete engine is implemented/certified with exact current-suspension episode/grace, export-plan/package identity, credential and artifact prerequisites; import embedded bytes are physically resolved through the authorized relational-delete path,
@@ -32,9 +34,10 @@ Canonical merged policy/runtime now establishes:
 - OL08-E1 runtime: canonical package materialization, current-model artifact inventory, deterministic integrity verification, restart reconciliation and SYSTEM-only retrieval are implemented/certified,
 - OL08-E2 runtime: exact post-grace managed-file deletion, post-delete non-existence evidence, external-reference non-action and independent canonical package expiry/purge are implemented/certified,
 - OL08-C2: legacy MailerSend tokens may be reconciled by exact-secret invalidity proof without guessing provider token ids,
+- OL08-07 runtime: final Core tombstone orchestration is implemented/certified; FAIR `closed_at` mirrors authoritative Core `deleted_at`, same-suspension-episode CAS is enforced, terminal prerequisites are revalidated, and Core-success/FAIR-write partial failure is restart-reconciled without a second delete,
 - OL10: backup ageing/restore reconciliation policy and runtime are accepted, including FAIR CRM 30-day full-DB backup ageing and fail-closed Core lifecycle reconciliation.
 
-Timing/policy acceptance does not itself authorize destructive work. OL08-D product-data hard delete is now runtime-covered, but each execution remains fail-closed on its live prerequisites. OL08-F evidence purge and later terminal cleanup/tombstone readiness remain separate runtime obligations.
+Timing/policy acceptance does not itself authorize destructive work. OL08-D product-data hard delete and OL08-07 terminal tombstone are runtime-covered, but each execution remains fail-closed on its live prerequisites. OL08-F is now a **post-terminal retention-maintenance runtime**: it may act only after the accepted 12-month deadline measured from the certified terminal timestamp.
 
 ## Accepted OL08-A policy
 
@@ -48,7 +51,7 @@ Operational invariants:
 - at most one open closure execution may exist per organization,
 - start/retry behavior is idempotent and restartable,
 - failure/block state and audit evidence are explicit,
-- Core tombstone remains prohibited until every required later phase is implemented, satisfied and certified.
+- Core tombstone may execute only through the certified OL08-07 terminal gate set after every required pre-terminal obligation is satisfied.
 
 ## OL08-01 — Non-destructive closure execution — DONE 2026-09-07
 
@@ -271,6 +274,34 @@ Exact evidence:
 
 OL08-D current-model product deletion is therefore runtime-covered. Operational execution can still remain blocked for a particular organization until every live grace/export/package/credential/artifact prerequisite actually passes.
 
+## OL08-07 — Terminal closure / final Core tombstone — DONE / RUNTIME ACCEPTED 2026-09-11
+
+Canonical policy: `ecosystem/P0_2_OL_08_07_TERMINAL_CLOSURE_MILESTONE_DECISION.md`.
+
+Canonical runtime acceptance: `ecosystem/P0_2_OL_08_07_RUNTIME_ACCEPTANCE.md`.
+
+FAIR CRM PR #270 implements the accepted terminal milestone:
+
+- migration `0083` adds durable terminal `completed` closure state,
+- final Core tombstone is guarded by the complete accepted FAIR closure prerequisite set,
+- same-suspension-episode CAS is enforced through Core's conditional tombstone contract,
+- terminal success is derived only after Core reports `is_deleted = true` with non-null authoritative `deleted_at`,
+- FAIR `closed_at` mirrors that exact Core timestamp,
+- Core-success / FAIR-write partial failure is restart-reconciled from Core state without a second delete,
+- repeated finalization is idempotent,
+- start/retry cannot reopen a tombstoned organization,
+- lifecycle/tombstone authority outage, episode drift or incomplete terminal evidence fails closed.
+
+Exact evidence:
+
+- FAIR CRM PR #270 final head `628c098ff2ddbfebaa5330aee94836089c54a304`,
+- Development Standard Gate #769 / run `34574144876`: SUCCESS,
+- Prod-Path E2E #313 / run `34574144891`: SUCCESS,
+- FAIR CRM squash merge `0c2f00649dccd217bd0affdb8fb95fc7de1ba462`,
+- FAIR CRM `main` verified at `0c2f00649dccd217bd0affdb8fb95fc7de1ba462` after merge.
+
+OL08-07 therefore supplies the certified runtime clock source required by OL09-D and OL08-F: `T_terminal = Core deleted_at = FAIR closed_at`.
+
 ## Current decision/runtime matrix
 
 | Decision | Current canonical status | Runtime boundary |
@@ -278,8 +309,9 @@ OL08-D current-model product deletion is therefore runtime-covered. Operational 
 | OL08-B — closure export technical contract | **PARTIALLY ACCEPTED / OL08-03A + E1 PACKAGE RUNTIME DONE** | Planner and required canonical package materialization/integrity are implemented. `not_required` still has no accepted success authority. |
 | OL08-C — provider credential disposition | **ACCEPTED / CURRENT-MODEL RUNTIME COVERED** | OL08-04A foundation, OL08-C2 MailerSend exact-secret reconciliation and OL09-B signing-secret zeroization are implemented. Individual credentials may remain blocked pending required external/operator evidence. |
 | OL08-D — product-data disposition | **POLICY + CURRENT-MODEL RUNTIME ACCEPTED** | Dependency-aware 19-class tenant product-data hard delete is implemented behind live grace/export/package/credential/artifact gates. Import embedded-byte destruction is coupled and certified through this phase. |
-| OL08-E — generated artifacts / closure package | **POLICY ACCEPTED / E1 + E2 CURRENT-MODEL RUNTIME ACCEPTED** | Canonical package/inventory/integrity, strict managed-file cleanup, external-reference non-action and package expiry/purge are implemented. Import embedded-byte non-existence is now reconciled through OL08-D. |
-| OL08-F — audit/security evidence | **TIMING POLICY ACCEPTED / PURGE RUNTIME OPEN** | Minimal non-secret evidence retention is 12 months from the accepted terminal closure milestone; later purge/de-identification runtime remains separate. |
+| OL08-E — generated artifacts / closure package | **POLICY ACCEPTED / E1 + E2 CURRENT-MODEL RUNTIME ACCEPTED** | Canonical package/inventory/integrity, strict managed-file cleanup, external-reference non-action and package expiry/purge are implemented. Import embedded-byte non-existence is reconciled through OL08-D. |
+| OL08-07 — terminal closure / Core tombstone | **POLICY + RUNTIME ACCEPTED** | Final same-episode Core tombstone, authoritative `deleted_at` -> FAIR `closed_at` reconciliation, restart safety and completed terminal state are implemented behind the complete pre-tombstone gate set. |
+| OL08-F — audit/security evidence | **TIMING POLICY ACCEPTED / PURGE RUNTIME OPEN** | Minimal non-secret evidence retention is 12 calendar months from certified terminal Core `deleted_at` / FAIR `closed_at`; purge/de-identification runtime remains to be implemented. |
 | OL08-G — backup/restore interaction | **POLICY + RESTORE RUNTIME ACCEPTED VIA OL10** | FAIR full-DB 30-day ageing/pruning and fail-closed restore reconciliation are runtime-accepted; residual total-loss Core authority boundary remains fail-closed. |
 | OL09-A through OL09-E | **TIMING POLICY COMPLETE** | 30-day reversible grace, zero-day webhook-secret retention, product-data timing, 12-month evidence retention and 30-day package retention are accepted. OL09-B runtime is separately accepted. |
 | OL10 | **POLICY + RUNTIME ACCEPTED** | Canonical restore reconciliation and backup-ageing contract recorded by Platform PRs #53/#54. |
@@ -300,14 +332,14 @@ Until the applicable runtime is implemented and its gate conditions are satisfie
 - purge the canonical closure package before its accepted `ready_at + 30 days` expiry unless the accepted closure-cancellation/reactivation path makes that package immediately purge-pending,
 - let package download reset its accepted 30-day expiry clock,
 - purge/de-identify retained minimal closure/security evidence before its accepted 12-month policy permits it,
-- add `cleanup_complete` / `ready_for_tombstone` before every required closure obligation is actually satisfied,
-- invoke final Core organization tombstone while any required FAIR closure phase remains incomplete or blocked.
+- invoke final Core organization tombstone while any required FAIR closure phase remains incomplete or blocked,
+- substitute FAIR wall-clock time for authoritative Core `deleted_at` when persisting terminal `closed_at`.
 
 ## Current resume point
 
 Proceed with the next executable closure runtime in dependency order:
 
-1. **OL08-F runtime** — implement purge/de-identification of the retained minimal non-secret closure/audit/security evidence only after the accepted 12-month retention clock from the separately accepted durable terminal closure milestone. It must preserve the accepted evidence boundary, avoid retaining deleted product payloads or secret-derived oracles, and remain fail-closed before the retention deadline.
-2. Continue toward terminal cleanup/tombstone readiness only after OL08-F and every remaining closure obligation are implemented, satisfied and certified.
+1. **OL08-F runtime** — implement purge/de-identification of the retained minimal non-secret closure/audit/security evidence only after **12 calendar months from the certified terminal Core `deleted_at` / FAIR `closed_at` timestamp**. It must preserve the accepted evidence boundary, avoid retaining deleted product payloads or secret-derived oracles, and remain fail-closed before the retention deadline.
+2. OL08-F is **post-terminal retention maintenance**. It is not a prerequisite for the already-certified OL08-07 tombstone path; rather, OL08-07 supplies the authoritative clock that OL08-F must consume.
 
 No accepted timing decision by itself authorizes destructive execution.
