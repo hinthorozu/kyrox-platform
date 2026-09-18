@@ -6,7 +6,7 @@ This file is the mandatory entry point for AI agents and a concise routing guide
 
 > **Humans and AI agents learn KYROX from `kyrox-platform`. Application repositories are implementation and verification layers.**
 
-Do not treat documentation, chat history, local conventions or tool-specific rule files in `fair-crm` / `kyrox-core` as independent sources of truth. Human-readable rules belong here.
+Do not treat documentation, chat history, local conventions or tool-specific rule files in `fair-crm` / `kyrox-core` / `fair-stand` as independent sources of truth for ecosystem ownership. Human-readable ecosystem rules belong here.
 
 ## Required reading order
 
@@ -16,6 +16,7 @@ Do not treat documentation, chat history, local conventions or tool-specific rul
 4. For every material product/platform delivery, read [ecosystem/SAAS_ROADMAP.md](ecosystem/SAAS_ROADMAP.md) and apply the SaaS-impact classification from the shared Feature Delivery / Applicability standards.
 5. Open the owning project entry:
    - Fair CRM → [projects/fair-crm/README.md](projects/fair-crm/README.md)
+   - Fair Stand → [projects/fair-stand/README.md](projects/fair-stand/README.md)
    - Core → [projects/kyrox-core/README.md](projects/kyrox-core/README.md)
 6. If the task changes current state or planned work, also read:
    - [ecosystem/STATUS.md](ecosystem/STATUS.md)
@@ -25,6 +26,7 @@ Do not treat documentation, chat history, local conventions or tool-specific rul
 
 - **Reusable behavior across products** → `standards/` first.
 - **Fair CRM-only behavior/domain/UI** → `projects/fair-crm/` after applicable shared standards.
+- **Fair Stand Item/Category/configurator ownership** → `projects/fair-stand/` after applicable shared standards and [ADR-0007](ecosystem/decisions/0007-fair-stand-product-ownership.md).
 - **Core-only architecture/API behavior** → `projects/kyrox-core/` after applicable shared standards.
 - **Cross-repo strategy/workflow/ownership** → `ecosystem/`.
 - **Historical material** → `archive/`; never use it as a live rule unless a canonical document explicitly says so.
@@ -45,7 +47,7 @@ When documents appear to overlap:
 ## Hard rules
 
 - This repository contains the human/AI knowledge base; do not add application code here.
-- Do not duplicate human-readable documentation into `fair-crm` or `kyrox-core`.
+- Do not duplicate ecosystem documentation into `fair-crm` or `kyrox-core`. Fair Stand may keep runtime change-gate contracts in its application repository.
 - One topic has one canonical source. Merge duplicate rules; use links for context instead of copied normative text.
 - Reusable rules go to `standards/`; product-only rules go to `projects/<name>/`.
 - Machine-readable contracts needed by CI/runtime may stay in code repositories, but they are not a second human documentation system.

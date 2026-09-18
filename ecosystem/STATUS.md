@@ -7,8 +7,8 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Active milestone | **M4 — FAIR CRM v1** |
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
-| Implementation repos | `kyrox-core`, `fair-crm` |
-| Last ecosystem sync | **2026-09-11** |
+| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand` |
+| Last ecosystem sync | **2026-09-18** |
 
 ## SaaS readiness
 
@@ -75,6 +75,7 @@ The current documentation/quality focus is to keep Platform as the single human/
 |------------|-------------|
 | `kyrox-platform` | All human/AI documentation, shared standards, project docs, ADRs, status and roadmap |
 | `kyrox-core` | Reusable SaaS platform implementation, tests, migrations and CI |
-| `fair-crm` | FAIR CRM product implementation, tests, migrations, CI and machine-readable contracts |
+| `fair-crm` | FAIR CRM product implementation, tests, migrations, CI and machine-readable contracts; physical host for Fair Stand `fair_stand_*` backend |
+| `fair-stand` | Fair Stand configurator runtime; Item/Category consumer of DB/API |
 
 See [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md) and [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md).

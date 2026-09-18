@@ -6,7 +6,7 @@ Single source of truth rules for all KYROX human- and AI-readable knowledge.
 
 > **Humans and AI agents learn the KYROX system from `kyrox-platform`. Application repositories are implementation and verification layers.**
 
-All human-readable standards, architecture, decisions, product rules, status, roadmap and operating instructions live in this repository. Application repositories (`kyrox-core`, `fair-crm`, future products) contain code, tests, migrations, CI and machine-readable contracts required by implementation or verification; they must not become parallel documentation systems.
+All human-readable standards, architecture, decisions, product rules, status, roadmap and operating instructions live in this repository. Application repositories (`kyrox-core`, `fair-crm`, `fair-stand`) contain code, tests, migrations, CI and machine-readable contracts required by implementation or verification; they must not become a second ecosystem documentation system.
 
 ## Classification rule
 
@@ -15,6 +15,7 @@ All human-readable standards, architecture, decisions, product rules, status, ro
 | Reusable rule/behavior | `standards/` | Write once; products consume it |
 | Cross-repo strategy/workflow/ownership | `ecosystem/` | Ecosystem-wide |
 | Fair CRM-only behavior | `projects/fair-crm/` | Extend shared standards; do not copy them |
+| Fair Stand-only behavior | `projects/fair-stand/` | Item/Category/configurator ownership; CRM host is not the domain owner |
 | Core-only behavior | `projects/kyrox-core/` | Extend shared standards; do not copy them |
 | Live ecosystem status | `ecosystem/STATUS.md` | Summary only |
 | Live project status | `projects/<name>/PROJECT_STATUS.md` | Current truth |
@@ -41,9 +42,11 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 | Ecosystem roadmap | `ecosystem/ROADMAP.md` |
 | Cross-repository SaaS readiness strategy / sequencing | `ecosystem/SAAS_ROADMAP.md` |
 | Workflow | `ecosystem/WORKFLOW.md` |
-| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 |
+| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 |
 | Core vs product boundary | ecosystem ADR-0002 |
+| Fair Stand product ownership | ecosystem ADR-0007 + `projects/fair-stand/` |
 | Fair CRM current state | `projects/fair-crm/PROJECT_STATUS.md` |
+| Fair Stand current state | `projects/fair-stand/PROJECT_STATUS.md` |
 | Fair CRM future work | `projects/fair-crm/ROADMAP.md` |
 | Fair CRM product invariants | `projects/fair-crm/CONSTITUTION.md` |
 | Fair CRM delivery extension | `projects/fair-crm/DEVELOPMENT_STANDARD.md` |

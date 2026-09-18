@@ -8,6 +8,8 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **Fair Stand product ownership (ADR-0007)** — Fair Stand Item/Category data is a Fair Stand domain hosted in this product process as `fair_stand_*`. CRM `crm_*` tables are not the Item owner. No Core Item domain and no new auth/gateway.
+
 ### Source-contract CRLF portability and Playwright test isolation — 2026-09-18
 
 - Frontend source-contract Vitest files now normalize CRLF to LF before `toContain` token checks, and `frontend/.gitattributes` pins `eol=lf` so Windows and GitHub Actions see the same line endings.

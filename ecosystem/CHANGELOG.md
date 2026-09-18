@@ -8,6 +8,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Added
 
+- **Fair Stand product ownership (ADR-0007)** — Fair Stand is a KYROX product. Item/Category backend is hosted in Fair CRM as `fair_stand_*` without transferring domain ownership. Core remains auth/org/RBAC only.
+- Canonical Fair Stand project entry under `projects/fair-stand/`.
+
+### Changed
+
+- Repository strategy now records the existing `fair-stand` runtime repository alongside platform, Core and Fair CRM. Optional extra repos still require a future ADR.
+
+### Added
+
 - **KYROX SaaS Readiness Roadmap** — canonical cross-repository priority/ownership/launch strategy covering tenant isolation, organization lifecycle, production security, entitlement/usage/billing decisions, data lifecycle, operational hardening and scale.
 - **SaaS-impact classification** — every material delivery now classifies affected organization/security/ownership/entitlement/usage/lifecycle/runtime dimensions before implementation.
 
