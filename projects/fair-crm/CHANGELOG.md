@@ -8,6 +8,12 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+### Source-contract CRLF portability and Playwright test isolation — 2026-09-18
+
+- Frontend source-contract Vitest files now normalize CRLF to LF before `toContain` token checks, and `frontend/.gitattributes` pins `eol=lf` so Windows and GitHub Actions see the same line endings.
+- The `source-contract-line-ending-portability` feature contract keeps `frontend.required=false` paired with `applicability.frontend_tests=na`; the Development Standard gate rejects the opposite pairing. Coverage remains the existing Vitest source-contract suite listed in `affected_paths`.
+- Scraper Playwright availability tests isolate `_default_ms_playwright_root` so a host `~/.cache/ms-playwright` install cannot satisfy the "browser not installed" cases. BrowserService launch tests prefer bundled Chromium when present instead of requiring the `msedge` channel.
+
 ### P0.2 Identity / SaaS onboarding final lifecycle certification — 2026-08-29
 
 - Completed the approved P0.2 identity/onboarding workstream through FAIR CRM PR #92 after CRM-UI-03 and CRM-UI-04 were merged and certified.
