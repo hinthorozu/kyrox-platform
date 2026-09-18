@@ -1,38 +1,42 @@
 # Fair Stand
 
-Fair / exhibition stand configurator product in the KYROX ecosystem.
+KYROX ekosistemindeki fuar standı configurator ürünü.
 
-**Code repository:** `https://github.com/hinthorozu/fair-stand`  
-**Human/AI ecosystem documentation:** this tree under `kyrox-platform`  
-**Runtime contracts:** `fair-stand` repository (`ITEM_CONTRACT.md`, change-gate)  
-**Ecosystem status:** [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md)  
-**Ownership ADR:** [../../ecosystem/decisions/0007-fair-stand-product-ownership.md](../../ecosystem/decisions/0007-fair-stand-product-ownership.md)
+**Kod deposu:** `https://github.com/hinthorozu/fair-stand`  
+**İnsan / AI ekosistem dokümantasyonu:** `kyrox-platform` altındaki bu ağaç  
+**Runtime sözleşmeleri:** `fair-stand` deposu (`ITEM_CONTRACT.md`, change-gate)  
+**Ekosistem durumu:** [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md)  
+**Sahiplik ADR:** [../../ecosystem/decisions/0007-fair-stand-product-ownership.md](../../ecosystem/decisions/0007-fair-stand-product-ownership.md)  
+**Item / Category as-built mimari:** [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md)
 
-## Ownership
+## Sahiplik
 
-| Concern | Owner |
-|---------|--------|
-| Item identity (`itemKey`) and Category identity (`catalogKey`) | Fair Stand product |
-| Item/Category relational data (`fair_stand_*`) | Fair Stand domain |
-| Configurator runtime, catalog projection, scene, BOM | Fair Stand repository |
-| Physical PostgreSQL + FastAPI process | Fair CRM **host** (not domain owner) |
-| Auth / org UUID / session | KYROX Core via existing Fair CRM session |
-| CRM customers, fairs, todos, `crm_*` tables | Fair CRM |
+| Konu | Sahip |
+|------|--------|
+| Item kimliği (`itemKey`) ve Category kimliği (`catalogKey`) | Fair Stand ürünü |
+| Item / Category ilişkisel veri (`fair_stand_*`) | Fair Stand domain |
+| Configurator, catalog projeksiyonu, sahne, BOM | Fair Stand deposu |
+| Fiziksel PostgreSQL + FastAPI process | Fair CRM **host** (domain owner değil) |
+| Auth / org UUID / session | KYROX Core, mevcut Fair CRM session üzerinden |
+| CRM müşteri, fuar, görev, `crm_*` tabloları | Fair CRM |
 
-Fair Stand being embedded at CRM `/fair-stand` does **not** make Item data a CRM domain.
+Fair Stand’ın CRM `/fair-stand` rotasına gömülmesi Item verisini CRM domaini yapmaz.
 
-Catalog is a projection of Items. `catalogKey` is never Item identity.
+Catalog, Item’ların projeksiyonudur. `catalogKey` asla Item kimliği değildir.
 
-## Canonical Fair Stand-only docs (this tree)
+Kanonik Item ürün verisi DB/API’den gelir; static JS Item/Category master yoktur. Ayrıntı: [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md).
 
-| Doc | Role |
-|-----|------|
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Live product status |
-| [ROADMAP.md](ROADMAP.md) | Product work queue |
+## Bu ağaçtaki Fair Stand-only kanonik belgeler
 
-Runtime Item contract and change-gate remain in the `fair-stand` repository because CI verifies them there.
+| Belge | Rol |
+|-------|-----|
+| [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md) | Item / Category as-built mimari (tek kaynak) |
+| [PROJECT_STATUS.md](PROJECT_STATUS.md) | Canlı ürün durumu |
+| [ROADMAP.md](ROADMAP.md) | Ürün iş kuyruğu |
 
-## Related
+Runtime Item sözleşmesi ve change-gate, CI orada doğruladığı için `fair-stand` deposunda kalır.
+
+## İlgili
 
 - [Document Governance](../../ecosystem/DOCUMENT_GOVERNANCE.md)
 - [Repository strategy](../../ecosystem/REPOSITORY_STRATEGY.md)

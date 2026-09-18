@@ -1,9 +1,9 @@
-# Fair Stand — Roadmap
+# Fair Stand — Yol Haritası
 
-Active work is the Item/Category relational cutover (DB authority, no static JS master, no dual source of truth).
+Item / Category ilişkisel cutover **lokal implementation + lokal acceptance** olarak tamamlandı. Kaynak kontrolü yayını / deployment bu belgenin kapsamında değildir.
 
-Later, out of this cutover:
+Sonraki işler cutover’ın dışında kalır:
 
-- Admin write UI for Items (read path is this delivery)
-- Tenant-specific catalogs
-- Cost-catalog slug joining (explicitly out of Fair CRM cost-catalog current phase)
+- Item admin / yazma UI (bu teslimat okuma yoludur)
+- Tenant-specific kataloglar
+- Cost-catalog slug birleşimi (Fair CRM cost-catalog mevcut fazının açıkça dışında)
