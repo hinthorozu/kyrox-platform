@@ -103,6 +103,14 @@ Local Vite and production Nginx use the **same relative-path system**. The brows
 | Local | Vite `/kyrox-core` → `http://127.0.0.1:8000` |
 | Server | Nginx `/kyrox-core` → `http://127.0.0.1:8000` |
 
+## Port 8001 sahipliği (lokal)
+
+Fair CRM backend `8001` workspace runtime tarafından sağlanmalıdır.
+
+Kurulu / eski bir `fair-crm` servisi (örneğin stale `/opt/fair-crm` systemd unit) workspace backend’ini gölgelememelidir. Systemd kullanılıyorsa working directory ve `PYTHONPATH` **mevcut workspace** Fair CRM backend’ini göstermelidir; aksi halde OpenAPI’de `/api/v1/fair-stand/catalog/bootstrap` görünmez.
+
+Bu kural makineye özel path dump’ı değildir. `dev-start.ps1` / `reset-dev.ps1` workspace sürecini başlatır; 8001 zaten başka bir kurulum tarafından tutuluyorsa önce o dinleyiciyi bırakın.
+
 ### Critical rules
 
 - Browser/frontend **never** uses `http://127.0.0.1:8000` or `http://127.0.0.1:8001` as an API base.

@@ -47,6 +47,7 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 | Fair Stand product ownership | ecosystem ADR-0007 + `projects/fair-stand/` |
 | Fair CRM current state | `projects/fair-crm/PROJECT_STATUS.md` |
 | Fair Stand current state | `projects/fair-stand/PROJECT_STATUS.md` |
+| Fair Stand Item/Category as-built architecture | `projects/fair-stand/ITEM_CATALOG_ARCHITECTURE.md` |
 | Fair CRM future work | `projects/fair-crm/ROADMAP.md` |
 | Fair CRM product invariants | `projects/fair-crm/CONSTITUTION.md` |
 | Fair CRM delivery extension | `projects/fair-crm/DEVELOPMENT_STANDARD.md` |

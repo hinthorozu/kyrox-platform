@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Added
 
+- **Fair Stand Item/Category as-built mimari** — `projects/fair-stand/ITEM_CATALOG_ARCHITECTURE.md` lokal ilişkisel katalog mimarisini belgeler (DB/API otoritesi, 13 `fair_stand_*` tablo, bootstrap, asset referansı vs static GLB depolama).
 - **Fair Stand product ownership (ADR-0007)** — Fair Stand is a KYROX product. Item/Category backend is hosted in Fair CRM as `fair_stand_*` without transferring domain ownership. Core remains auth/org/RBAC only.
 - Canonical Fair Stand project entry under `projects/fair-stand/`.
 
