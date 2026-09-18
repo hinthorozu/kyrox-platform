@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- OL08 retained-audit purge now canonicalizes naive tombstone timestamps as UTC. SQLite and some drivers return naive datetimes; `datetime.astimezone(UTC)` previously treated them as process-local time, so a 12-calendar-month deadline could pass a microsecond early and serialized `terminal_deleted_at` could shift by the local UTC offset.
+
 ### Added
 
 - P0.2 CORE-09 final Core security/adversarial certification; delivered through Core PR #20
