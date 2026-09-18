@@ -1,11 +1,11 @@
 # KYROX Workflow
 
-How humans and AI agents decide, document, and implement work across the three repositories.
+How humans and AI agents decide, document, and implement work across KYROX repositories.
 
 ## Principles
 
 1. **Decide in platform, implement in code repos.** Cross-repo strategy and ADRs land in `kyrox-platform` first.
-2. **Core stays product-agnostic.** Product domain behavior belongs in `fair-crm` (or future products).
+2. **Core stays product-agnostic.** Product domain behavior belongs in `fair-crm`, `fair-stand`, or a future product — never in Core.
 3. **Documentation lives only here.** Application repos must not grow Markdown doc trees. See [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md).
 4. **Status and roadmap stay separated.** Update the correct status/roadmap files; do not paste live status into standards.
 5. **SaaS safety is part of delivery.** Every material change classifies its SaaS impact and proves every affected organization/security/runtime boundary before it can be DONE.
@@ -16,7 +16,7 @@ How humans and AI agents decide, document, and implement work across the three r
 1. Classify work
    - Ecosystem / cross-repo → ecosystem/ + ADR if needed
    - Reusable platform capability → kyrox-core (respect freeze)
-   - Product feature → fair-crm
+   - Product feature → fair-crm or fair-stand according to [ADR-0007](decisions/0007-fair-stand-product-ownership.md)
 
 2. Classify SaaS impact
    - organization-owned data / tenant isolation
