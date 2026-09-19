@@ -77,6 +77,14 @@ Current SYSTEM permissions:
 fair_crm.admin.backups.read
 fair_crm.admin.backups.create
 fair_crm.admin.backups.execute
+fair_crm.admin.fair_stand.catalog.read
+fair_crm.admin.fair_stand.catalog.create
+fair_crm.admin.fair_stand.catalog.update
+fair_crm.admin.fair_stand.catalog.archive
+fair_crm.admin.fair_stand.previews.read
+fair_crm.admin.fair_stand.previews.create
+fair_crm.admin.fair_stand.previews.update
+fair_crm.admin.fair_stand.previews.archive
 identity.permissions.lifecycle
 identity.role_templates.read
 identity.role_templates.manage

@@ -13,7 +13,7 @@ KYROX ekosistemindeki fuar standı configurator ürünü.
 
 | Konu | Sahip |
 |------|--------|
-| Item kimliği (`itemKey`) ve Category kimliği (`catalogKey`) | Fair Stand ürünü |
+| Item kimliği (`itemKey`), Category kimliği (DB `id`) ve Preview kimliği (DB `id`) | Fair Stand ürünü |
 | Item / Category ilişkisel veri (`fair_stand_*`) | Fair Stand domain |
 | Configurator, catalog projeksiyonu, sahne, BOM | Fair Stand deposu |
 | Fiziksel PostgreSQL + FastAPI process | Fair CRM **host** (domain owner değil) |
@@ -22,7 +22,7 @@ KYROX ekosistemindeki fuar standı configurator ürünü.
 
 Fair Stand’ın CRM `/fair-stand` rotasına gömülmesi Item verisini CRM domaini yapmaz.
 
-Catalog, Item’ların projeksiyonudur. `catalogKey` asla Item kimliği değildir.
+Catalog, Item’ların projeksiyonudur. Category `id` asla Item kimliği değildir.
 
 Kanonik Item ürün verisi DB/API’den gelir; static JS Item/Category master yoktur. Ayrıntı: [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md).
 

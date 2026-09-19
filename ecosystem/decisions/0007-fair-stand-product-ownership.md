@@ -12,7 +12,7 @@ Fair Stand Item and Category data must move from a static JavaScript master to r
 
 ## Decision
 
-1. **Fair Stand is a KYROX product.** Canonical Item identity is `itemKey`. Canonical Category identity is `catalogKey`. Catalog is a projection of Items, not a second Item master.
+1. **Fair Stand is a KYROX product.** Canonical Item identity is `itemKey`. Canonical Category identity is the database-generated integer `id`. Catalog is a projection of Items, not a second Item master.
 2. **Documentation** lives under `projects/fair-stand/` in `kyrox-platform`.
 3. **Runtime/frontend code** lives in the existing `fair-stand` repository.
 4. **Item/Category backend** is a Fair Stand bounded context **physically hosted** in the Fair CRM application and Fair CRM PostgreSQL database, using `fair_stand_*` tables only.
