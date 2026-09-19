@@ -7,7 +7,8 @@ Bu belge Fair Stand Item ve Category sisteminin **yerelde doğrulanmış as-buil
 Fair Stand ürünü şunların sahibidir:
 
 - Item semantiği ve kanonik kimlik `itemKey`
-- Category semantiği ve kanonik kimlik `catalogKey`
+- Category semantiği ve kanonik kimlik: veritabanının ürettiği integer `id`
+- Preview semantiği ve kanonik kimlik: veritabanının ürettiği integer `id`
 - Item / Category ürün verisi (`fair_stand_*`)
 - Catalog projeksiyonu
 - Configurator, sahne, renderer tüketimi
@@ -60,29 +61,36 @@ Catalog, Item master’ın **projeksiyonudur**. İkinci Item master değildir.
 | Kimlik | Anlam |
 |--------|--------|
 | `itemKey` | Kanonik Item kimliği |
-| `catalogKey` | Kanonik Category kimliği |
+| `id` | Kanonik Category kimliği (DB-generated INTEGER) |
+| `id` | Kanonik Preview kimliği (DB-generated INTEGER) |
 
-`catalogKey` Item kimliği değildir. Runtime ürün kimliği olarak `catalogKey` okunmaz / yazılmaz.
+Category string `catalog_key` / `catalogKey` yoktur. Runtime ürün kimliği olarak Category `id` okunmaz / yazılmaz; Item kimliği yalnız `itemKey`dır.
 
 ## Veritabanı
 
 Tablolar Fair CRM PostgreSQL içinde `fair_stand_*` ad alanındadır. JSON / JSONB / EAV yoktur. `organization_id` yoktur; katalog global ürün verisidir. Bütün FK’ler `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
 
-Migration revision (son doğrulanan lokal): `0084_fair_stand_item_catalog`
+Migration revision (son doğrulanan lokal): `0087_fair_stand_preview_integer_id` (`0084` tablo iskeleti, `0085` preview entity, `0086` Category INTEGER `id`, `0087` Preview INTEGER `id`)
 
 ### 1. `fair_stand_categories`
 
-Category satırı. `catalog_key` birincil anahtardır; ad, sıra (`catalog_index`) ve aktiflik burada durur.
+Category satırı. `id` INTEGER PK AUTO INCREMENT birincil anahtardır; ad, sıra (`catalog_index`) ve aktiflik burada durur. `catalog_key` yoktur.
 
 ### 2. `fair_stand_catalog_preview_kinds`
 
-İzin verilen catalog preview renderer-key kayıtları. Referential integrity için FK hedefidir. Item sahipliği taşımaz.
+Yönetilebilir Catalog Preview entity’si. `id` INTEGER PK AUTO INCREMENT birincil anahtardır ve `fair_stand_items.preview_id` FK hedefidir. İkinci preview FK yoktur. `preview_key` yoktur.
+
+Satır alanları: `display_name`, `markup`, `css_code`, `sort_index`, `is_active`, `created_at`, `updated_at`.
+
+Runtime source of truth bu tablodur. Fair Stand generic renderer (`catalogPreviewRenderer.js`) bootstrap `previewKinds` kaydını Item context’i ile DOM/CSS silüetine çevirir. Key-specific JS renderer map yoktur. Fiziksel DELETE yok; kullanımdayken archive reddedilir, aksi halde `is_active=false`.
+
+Super Admin Fair CRM Admin ekranlarından SYSTEM izinleriyle CRUD yapar. OrganizationAdmin ve özel org rolleri bu izinleri alamaz.
 
 ### 3. `fair_stand_items`
 
-Ana Item satırı. `item_key`, ad, `item_type`, catalog görünürlüğü, `catalog_key`, `catalog_item_index` ve **`catalog_preview_key`** burada durur.
+Ana Item satırı. `item_key`, ad, `item_type`, catalog görünürlüğü, `category_id`, `catalog_item_index` ve **`preview_id`** burada durur. `category_id` `fair_stand_categories.id` FK’sıdır (CASCADE/CASCADE).
 
-Preview’in Item üzerindeki gerçek alanı `fair_stand_items.catalog_preview_key`dır. `fair_stand_catalog_preview_kinds` yalnızca izinli renderer-key bütünlüğünü sağlar.
+Preview’in Item üzerindeki gerçek alanı `fair_stand_items.preview_id`dır. `fair_stand_catalog_preview_kinds` hem FK bütünlüğünü hem de markup/CSS tanımının tek kaynağını taşır.
 
 ### 4. `fair_stand_item_dimensions`
 
@@ -171,7 +179,7 @@ Kodda kalanlar (algoritma / type-family):
 - `moduleBehavior.js` type-family contract
 - catalog preview **renderer implementasyonu**
 
-Örnek: DB `catalog_preview_key = "shelf"`; kod `shelf` preview fonksiyonunu çizer. Preview fonksiyonu DB’ye taşınmaz. Bilinmeyen preview key fail-closed kalır.
+Örnek: DB `preview_id = 20`; generic renderer bootstrap tanımının markup/CSS’ini çizer. Bilinmeyen preview id fail-closed kalır.
 
 ## Proje örneği state
 
@@ -217,7 +225,7 @@ Bu sayılar mimari invariant değildir; **son doğrulanan lokal implementation**
 
 | Ölçüm | Değer |
 |-------|--------|
-| Migration | `0084_fair_stand_item_catalog` |
+| Migration | `0087_fair_stand_preview_integer_id` |
 | Categories | 6 |
 | Items | 96 |
 | Visible Items | 58 |
