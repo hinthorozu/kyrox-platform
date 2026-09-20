@@ -112,23 +112,11 @@ Item → kanonik asset referansı (`asset_role`, `relative_path`). Binary blob t
 
 Ebeveyn–çocuk composition / BOM satırları (`quantity`, `sort_order`). Özyinelemeli A→B→C desteklenir; A→B→A yazımda reddedilir.
 
-### 9. `fair_stand_item_inner_corners`
-
-Inner-corner parent Item’ın panel Item ilişkisini tutar.
-
-### 10. `fair_stand_item_inner_corner_replacements`
-
-Inner-corner replacement grubu (hangi çocuk Item’ın yerine geçildiği).
-
-### 11. `fair_stand_item_inner_corner_replacement_members`
-
-Replacement grubunun çocuk Item üyeleri ve miktarları.
-
-### 12. `fair_stand_item_video_walls`
+### 9. `fair_stand_item_video_walls`
 
 Video wall yapısı (`rows`, `cols`, `panel_item_key`).
 
-### 13. `fair_stand_item_body_parts`
+### 10. `fair_stand_item_body_parts`
 
 Showcase / gövde çocuk Item rolleri (`side`, `horizontal`, `glass_shelf`).
 
