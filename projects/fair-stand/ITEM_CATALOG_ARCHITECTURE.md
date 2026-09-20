@@ -13,12 +13,13 @@ Fair Stand ürünü şunların sahibidir:
 - Catalog projeksiyonu
 - Configurator, sahne, renderer tüketimi
 - BOM / composition ilişkileri
+- Fair Stand FastAPI (`:8002`) ve PostgreSQL `fair_stand`
 
 Fair CRM:
 
-- fiziksel backend host
-- PostgreSQL host
-- FastAPI process host
+- `/fair-stand` konfigüratör kabuğu (`mountFairStand`)
+- Admin katalog / preview React sayfaları
+- same-origin `/api/v1/fair-stand/` proxy (Vite / Nginx → `:8002`)
 - Fair Stand Item domain owner **değildir**
 
 KYROX Core:
@@ -35,9 +36,9 @@ CRM kabuğunda `/fair-stand` gömülü olması CRM’e Item sahipliği vermez. `
 Kanonik Item ürün verisi şu zincirden gelir:
 
 ```text
-PostgreSQL fair_stand_*
-→ Fair Stand bounded context (Fair CRM içinde fiziksel host)
-→ API aggregate
+PostgreSQL fair_stand (ayrı DB)
+→ Fair Stand API (:8002)
+→ same-origin `/api/v1/fair-stand/...` (CRM Vite/Nginx proxy)
 → Fair Stand catalog bootstrap
 → bellek içi Item registry
 → catalog / designState / scene / renderer / BOM
@@ -68,9 +69,9 @@ Category string `catalog_key` / `catalogKey` yoktur. Runtime ürün kimliği ola
 
 ## Veritabanı
 
-Tablolar Fair CRM PostgreSQL içinde `fair_stand_*` ad alanındadır. JSON / JSONB / EAV yoktur. `organization_id` yoktur; katalog global ürün verisidir. Bütün FK’ler `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
+Tablolar ayrı PostgreSQL veritabanı `fair_stand` içindedir (`fair_stand_*` ad alanı). JSON / JSONB / EAV yoktur. `organization_id` yoktur; katalog global ürün verisidir. Bütün FK’ler `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
 
-Migration revision (son doğrulanan lokal): `0087_fair_stand_preview_integer_id` (`0084` tablo iskeleti, `0085` preview entity, `0086` Category INTEGER `id`, `0087` Preview INTEGER `id`)
+Migration (Stand): `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
 
 ### 1. `fair_stand_categories`
 
@@ -213,7 +214,7 @@ Bu sayılar mimari invariant değildir; **son doğrulanan lokal implementation**
 
 | Ölçüm | Değer |
 |-------|--------|
-| Migration | `0087_fair_stand_preview_integer_id` |
+| Migration | Fair Stand `0001_fair_stand_schema` |
 | Categories | 6 |
 | Items | 96 |
 | Visible Items | 58 |

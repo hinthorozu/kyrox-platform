@@ -2,9 +2,9 @@
 
 | Alan | Değer |
 |------|--------|
-| Son doğrulama | **2026-09-18** |
+| Son doğrulama | **2026-09-20** |
 | Implementation deposu | `hinthorozu/fair-stand` |
-| Hosted backend | Fair CRM bounded context `app.modules.fair_stand` / tablolar `fair_stand_*` |
+| Hosted backend | Fair Stand FastAPI (`:8002`) / PostgreSQL `fair_stand` |
 | Item master | İlişkisel PostgreSQL; catalog bootstrap API |
 | Category master | `fair_stand_categories` |
 | Catalog | Yalnız Item projeksiyonu |
@@ -22,13 +22,13 @@ Lokal runtime acceptance PASS. `deployed` / `merged` / `production` iddiası yok
 | Alan | Durum |
 |------|--------|
 | Ürün sahipliği | ADR-0007 ile kanonik |
-| Item / Category DB | Fair CRM PostgreSQL host; Fair Stand domain |
+| Item / Category DB | PostgreSQL `fair_stand`; Fair Stand API |
 | Configurator | Fair Stand runtime; Item registry API bootstrap |
 | Proje kaydet / yükle | İstemci IndexedDB (Item master değil) |
 | Tenant-scoped Item katalog | Kapsam dışı; katalog global |
 | Static JS Item master | Kaldırıldı |
 | Fallback / dual SoT | Yok |
-| Migration | `0087_fair_stand_preview_integer_id` |
+| Migration | Fair Stand Alembic `0001_fair_stand_schema`; CRM `0089` drops leftover `fair_crm.fair_stand_*` |
 
 Mimari ayrıntı: [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md).
 

@@ -9,11 +9,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 ### Added
 
 - **Fair Stand Item/Category as-built mimari** — `projects/fair-stand/ITEM_CATALOG_ARCHITECTURE.md` lokal ilişkisel katalog mimarisini belgeler (DB/API otoritesi, 13 `fair_stand_*` tablo, bootstrap, asset referansı vs static GLB depolama).
-- **Fair Stand product ownership (ADR-0007)** — Fair Stand is a KYROX product. Item/Category backend is hosted in Fair CRM as `fair_stand_*` without transferring domain ownership. Core remains auth/org/RBAC only.
+- **Fair Stand independent catalog API (ADR-0008)** — catalog process `:8002` and database `fair_stand`; CRM keeps shell, Admin UI, and same-origin proxy.
+- **Fair Stand product ownership (ADR-0007)** — Fair Stand is a KYROX product. Core remains auth/org/RBAC only. Physical catalog hosting is amended by ADR-0008.
 - Canonical Fair Stand project entry under `projects/fair-stand/`.
 
 ### Changed
 
+- Fair Stand catalog API/DB is the Fair Stand process (`:8002`, database `fair_stand`). CRM keeps UI + Admin + same-origin proxy; leftover `fair_crm.fair_stand_*` tables drop in CRM Alembic `0089`.
 - Repository strategy now records the existing `fair-stand` runtime repository alongside platform, Core and Fair CRM. Optional extra repos still require a future ADR.
 
 ### Added

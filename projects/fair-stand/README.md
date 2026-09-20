@@ -16,8 +16,9 @@ KYROX ekosistemindeki fuar standı configurator ürünü.
 | Item kimliği (`itemKey`), Category kimliği (DB `id`) ve Preview kimliği (DB `id`) | Fair Stand ürünü |
 | Item / Category ilişkisel veri (`fair_stand_*`) | Fair Stand domain |
 | Configurator, catalog projeksiyonu, sahne, BOM | Fair Stand deposu |
-| Fiziksel PostgreSQL + FastAPI process | Fair CRM **host** (domain owner değil) |
-| Auth / org UUID / session | KYROX Core, mevcut Fair CRM session üzerinden |
+| Fiziksel PostgreSQL `fair_stand` + FastAPI `:8002` | Fair Stand deposu |
+| Auth / org UUID / session | KYROX Core; CRM login köprüsü + same-origin JWT |
+
 | CRM müşteri, fuar, görev, `crm_*` tabloları | Fair CRM |
 
 Fair Stand’ın CRM `/fair-stand` rotasına gömülmesi Item verisini CRM domaini yapmaz.

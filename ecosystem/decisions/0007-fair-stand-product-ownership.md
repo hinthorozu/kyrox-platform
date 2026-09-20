@@ -1,7 +1,8 @@
 # ADR-0007: Fair Stand product ownership and hosted Item catalog
 
-- **Status:** Accepted
+- **Status:** Amended
 - **Date:** 2026-09-18
+- **Amended:** 2026-09-20 (ADR-0008 — catalog API/DB move to Fair Stand process; CRM remains shell + Admin UI + configurator mount)
 - **Deciders:** KYROX ecosystem maintainers
 
 ## Context
@@ -15,7 +16,7 @@ Fair Stand Item and Category data must move from a static JavaScript master to r
 1. **Fair Stand is a KYROX product.** Canonical Item identity is `itemKey`. Canonical Category identity is the database-generated integer `id`. Catalog is a projection of Items, not a second Item master.
 2. **Documentation** lives under `projects/fair-stand/` in `kyrox-platform`.
 3. **Runtime/frontend code** lives in the existing `fair-stand` repository.
-4. **Item/Category backend** is a Fair Stand bounded context **physically hosted** in the Fair CRM application and Fair CRM PostgreSQL database, using `fair_stand_*` tables only.
+4. **Item/Category backend** is a Fair Stand bounded context served by the Fair Stand API process and `fair_stand` database. Fair CRM hosts the configurator mount and Admin catalog screens only.
 5. **Physical hosting is not domain ownership.** Fair CRM remains the shell/host and owns `crm_*` CRM domain tables. Fair Stand owns Item/Category semantics, seed, and catalog APIs under `/api/v1/fair-stand/...`.
 6. **No Core Item domain.** Core remains auth, organization context, and RBAC. Products consume Core over HTTP. No new login, gateway, or service port is required.
 7. **No CRM business foreign keys** to `fair_stand_*` tables and no `fair_stand_*` foreign keys to `crm_*` tables.
@@ -24,8 +25,8 @@ Fair Stand Item and Category data must move from a static JavaScript master to r
 
 ## Consequences
 
-- Cross-repo delivery order for Item catalog: platform docs → Fair CRM hosted backend/API → Fair Stand frontend bootstrap/cutover.
-- Fair CRM quality/feature-contract machinery applies to the hosted API because the code lives in `fair-crm`.
+- Cross-repo delivery: Fair Stand API/DB own catalog schema; Fair CRM owns shell, Admin UI, and same-origin proxy.
+- Fair Stand backend tests cover catalog bootstrap/admin API. CRM tests assert the CRM process no longer hosts those routes.
 - Fair Stand change-gate/CI applies to the configurator runtime.
 - Category/Item physical DELETE remains forbidden at product level because KYROX FK policy is CASCADE/CASCADE; deactivate with `is_active` instead.
 
