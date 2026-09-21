@@ -28,7 +28,7 @@ Lokal runtime acceptance PASS. `deployed` / `merged` / `production` iddiası yok
 | Tenant-scoped Item katalog | Kapsam dışı; katalog global |
 | Static JS Item master | Kaldırıldı |
 | Fallback / dual SoT | Yok |
-| Migration | Fair Stand Alembic `0001_fair_stand_schema`; CRM `0089` drops leftover `fair_crm.fair_stand_*` |
+| Migration | Fair Stand Alembic head `0004_item_rotation` (zarf `0003_fair_stand_dimensions`); CRM `0089` drops leftover `fair_crm.fair_stand_*` |
 
 Mimari ayrıntı: [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md).
 

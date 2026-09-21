@@ -121,6 +121,8 @@ Video wall yapısı (`rows`, `cols`, `panel_item_key`).
 
 Showcase / gövde çocuk Item rolleri (`side`, `horizontal`, `glass_shelf`).
 
+Stand zarfı Item/Category katalog tablosu değildir. Canonical: Fair Stand `docs/refactor/STAND_DIMENSIONS.md`.
+
 ## Asset / GLB model
 
 GLB/JPG binary DB’de saklanmaz.
@@ -191,7 +193,7 @@ Okuma uçları (Fair CRM session auth, mevcut `X-Organization-Id` entegrasyonu; 
 - `GET /api/v1/fair-stand/catalog/bootstrap`
 - `GET /api/v1/fair-stand/items/{item_key}`
 
-Bootstrap tek snapshot’ta `revision`, `categories` ve `items` aggregate döner. Frontend tablo join’lerini bilmez.
+Bootstrap tek snapshot’ta `revision`, `categories`, `items` ve `previewKinds` döner. `standDimensions` aynı HTTP cevabında taşınır ama Item/Category katalog modeli değildir; `docs/refactor/STAND_DIMENSIONS.md`.
 
 Akış:
 
@@ -199,7 +201,8 @@ Akış:
 CRM authenticated shell
 → Fair Stand mount (catalogHeaders host window’a yazılır)
 → catalog bootstrap await
-→ categories + Items
+→ categories + Items + previewKinds
+→ initializeStandDimensions(standDimensions)
 → initialize in-memory registry
 → configurator start
 ```
@@ -214,7 +217,7 @@ Bu sayılar mimari invariant değildir; **son doğrulanan lokal implementation**
 
 | Ölçüm | Değer |
 |-------|--------|
-| Migration | Fair Stand `0001_fair_stand_schema` |
+| Migration | Fair Stand head `0004_item_rotation` (zarf tablosu `0003_fair_stand_dimensions`) |
 | Categories | 6 |
 | Items | 96 |
 | Visible Items | 58 |
