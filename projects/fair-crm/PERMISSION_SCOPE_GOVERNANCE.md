@@ -49,6 +49,8 @@ Typical examples:
 fair_crm.customers.read
 fair_crm.customers.create
 fair_crm.fairs.update
+fair_crm.fair_stand.projects.read
+fair_crm.fair_stand.projects.execute
 audit.logs.read
 identity.roles.assign_protected
 ```

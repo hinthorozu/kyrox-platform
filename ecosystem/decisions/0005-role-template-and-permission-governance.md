@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-08-14
+- **Amended:** 2026-09-22 — lock keeps role grants (temporary); only inactive strips mappings
 - **Deciders:** KYROX ecosystem maintainers
 
 ## Context
@@ -72,26 +73,34 @@ Before execution, the system must show a preview containing the affected organiz
 
 ### 6. Platform-wide permission control
 
-Template synchronization is insufficient when a capability must be removed from every non-Super-Admin role, including fully custom roles. Core therefore owns a permission-level lifecycle and assignment policy:
+Template synchronization is insufficient when a capability must be suspended or removed from every non-Super-Admin role, including fully custom roles. Core therefore owns a permission-level lifecycle and assignment policy:
 
-| State | Normal role behavior | Assignment behavior |
-|-------|----------------------|---------------------|
-| **Active and assignable** | Authorization follows role-permission mappings | Eligible roles may receive the permission |
-| **Active and platform-locked** | No non-Super-Admin role may authorize the permission | Permission is hidden/disabled in role editors and cannot be assigned |
-| **Inactive** | No non-Super-Admin role may authorize the permission | Permission cannot be assigned |
+| State | Normal role behavior | Role-permission mappings | Assignment behavior |
+|-------|----------------------|--------------------------|---------------------|
+| **Active** | Authorization follows role-permission mappings | Unchanged | Eligible roles may receive the permission |
+| **Locked** | No non-Super-Admin role may authorize the permission (runtime checks require `lifecycle_state == active`) | **Kept** so unlock restores prior access | Hidden/disabled in role editors; cannot be newly assigned |
+| **Inactive** | No non-Super-Admin role may authorize the permission | **Stripped** from every role | Cannot be assigned |
 
 Only Platform Super Admin may lock, unlock, activate, or deactivate a permission platform-wide.
 
-Locking or deactivating a permission must atomically:
+**Lock** (temporary suspension) must atomically:
 
-1. mark it unavailable for role assignment;
-2. remove it from `OrganizationAdmin` and every other system template;
-3. remove it from every derived organization role;
-4. remove it from every fully custom role;
-5. prevent organization administrators from adding it back;
-6. record the actor, reason, affected roles, and affected organizations in the audit trail.
+1. mark the permission unavailable for new role assignment;
+2. leave existing `role_permissions` rows in place (templates, derived, custom, and `OrganizationAdmin`);
+3. deny authorization for non-Super-Admin actors via active-only permission checks;
+4. ensure role editors and template sync preserve locked grants so they are not accidentally wiped while locked;
+5. record the actor, reason, and affected-role/user preview counts in the audit trail.
 
-Unlocking or reactivating a permission makes it assignable again but does not silently restore previous grants. Restoration requires an explicit template synchronization or deliberate role edit.
+**Unlock** (`locked` → `active`) makes the permission authorize again for every role that still holds the mapping. No separate re-assignment or template sync is required for restoration.
+
+**Deactivate** (`inactive`) must atomically:
+
+1. mark the permission unavailable for role assignment;
+2. delete it from every role-permission mapping (system templates, derived organization roles, custom roles, and `OrganizationAdmin`);
+3. prevent organization administrators from adding it back;
+4. record the actor, reason, and affected-role/user preview counts in the audit trail.
+
+**Reactivate** (`inactive` → `active`) makes the permission assignable again but does **not** restore previous grants. Restoration requires explicit template synchronization or deliberate role edit.
 
 Platform Super Admin remains authorized regardless of permission lifecycle state because their access comes only from `identity_users.is_super_admin`, as defined by ADR-0003.
 
@@ -116,7 +125,8 @@ Platform Super Admin remains authorized regardless of permission lifecycle state
 
 - Derived roles require template provenance and version metadata.
 - Template synchronization needs preview, diff, audit, and bulk-update support.
-- Permission lifecycle changes require transactional cleanup of all role-permission mappings.
+- Deactivating a permission requires transactional cleanup of all role-permission mappings; locking does not.
+- Role save/sync paths must preserve locked grants so unlock remains lossless.
 - Existing role records must be classified or migrated before forced synchronization can be trusted.
 
 ## Related
