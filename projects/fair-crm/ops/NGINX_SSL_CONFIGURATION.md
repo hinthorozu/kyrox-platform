@@ -35,8 +35,8 @@ git pull --ff-only origin main
 
 ```bash
 sudo bash /opt/fair-crm/scripts/server/setup-domain-ssl.sh \
-  --domain faircrm.umaay.com \
-  --email admin@umaay.com
+  --domain fuar.kyrox.studio \
+  --email admin@fuar.kyrox.studio
 ```
 
 Script sırasıyla şunları yapar:
@@ -60,15 +60,15 @@ Public IP otomatik tespit edilemezse açıkça verilebilir:
 
 ```bash
 sudo bash /opt/fair-crm/scripts/server/setup-domain-ssl.sh \
-  --domain faircrm.umaay.com \
-  --email admin@umaay.com \
+  --domain fuar.kyrox.studio \
+  --email admin@fuar.kyrox.studio \
   --server-ip 64.226.110.223
 ```
 
 Script tamamlandığında aşağıdaki adres HTTPS üzerinden çalışmalıdır:
 
 ```text
-https://faircrm.umaay.com
+https://fuar.kyrox.studio
 ```
 
 Aşağıdaki bölümler manuel kurulum, doğrulama, troubleshooting ve rollback referansıdır.
@@ -86,7 +86,7 @@ Aşağıdaki bölümler manuel kurulum, doğrulama, troubleshooting ve rollback 
 Mevcut domain:
 
 ```text
-faircrm.umaay.com
+fuar.kyrox.studio
 ```
 
 Mevcut sunucu IP:
@@ -108,13 +108,13 @@ Value: 64.226.110.223
 Doğrulama:
 
 ```bash
-nslookup faircrm.umaay.com
+nslookup fuar.kyrox.studio
 ```
 
 veya:
 
 ```bash
-dig +short faircrm.umaay.com
+dig +short fuar.kyrox.studio
 ```
 
 Beklenen:
@@ -170,7 +170,7 @@ server_name _;
 şuna çevir:
 
 ```nginx
-server_name faircrm.umaay.com;
+server_name fuar.kyrox.studio;
 ```
 
 Temel örnek:
@@ -180,7 +180,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name faircrm.umaay.com;
+    server_name fuar.kyrox.studio;
 
     root /opt/fair-crm/frontend/dist;
     index index.html;
@@ -230,7 +230,7 @@ systemctl status nginx --no-pager
 HTTP kontrol:
 
 ```bash
-curl -I http://faircrm.umaay.com
+curl -I http://fuar.kyrox.studio
 ```
 
 ## 6. Firewall
@@ -270,7 +270,7 @@ certbot --version
 ## 8. Let's Encrypt SSL
 
 ```bash
-certbot --nginx -d faircrm.umaay.com
+certbot --nginx -d fuar.kyrox.studio
 ```
 
 Certbot sırasında:
@@ -282,8 +282,8 @@ Certbot sırasında:
 Sertifika dosyaları tipik olarak:
 
 ```text
-/etc/letsencrypt/live/faircrm.umaay.com/fullchain.pem
-/etc/letsencrypt/live/faircrm.umaay.com/privkey.pem
+/etc/letsencrypt/live/fuar.kyrox.studio/fullchain.pem
+/etc/letsencrypt/live/fuar.kyrox.studio/privkey.pem
 ```
 
 ## 9. SSL Sonrası Kontrol
@@ -291,13 +291,13 @@ Sertifika dosyaları tipik olarak:
 ```bash
 nginx -t
 systemctl reload nginx
-curl -I https://faircrm.umaay.com
+curl -I https://fuar.kyrox.studio
 ```
 
 Tarayıcı:
 
 ```text
-https://faircrm.umaay.com
+https://fuar.kyrox.studio
 ```
 
 Frontend, login ve API çağrılarını kontrol et.
@@ -311,7 +311,7 @@ certbot certificates
 Alternatif:
 
 ```bash
-openssl s_client -connect faircrm.umaay.com:443 -servername faircrm.umaay.com </dev/null 2>/dev/null \
+openssl s_client -connect fuar.kyrox.studio:443 -servername fuar.kyrox.studio </dev/null 2>/dev/null \
   | openssl x509 -noout -subject -issuer -dates
 ```
 
@@ -351,13 +351,13 @@ curl -I http://127.0.0.1:8000
 Public API:
 
 ```bash
-curl -I https://faircrm.umaay.com/api/
+curl -I https://fuar.kyrox.studio/api/
 ```
 
 Public Kyrox Core:
 
 ```bash
-curl -I https://faircrm.umaay.com/kyrox-core/
+curl -I https://fuar.kyrox.studio/kyrox-core/
 ```
 
 Localhost çalışıyor ama public route çalışmıyorsa Nginx routing/config tarafını kontrol et.
@@ -367,7 +367,7 @@ Localhost çalışıyor ama public route çalışmıyorsa Nginx routing/config t
 ### DNS yanlış IP
 
 ```bash
-dig +short faircrm.umaay.com
+dig +short fuar.kyrox.studio
 ```
 
 Domain sunucu IP'sini göstermeli.
@@ -392,8 +392,8 @@ ufw allow 443/tcp
 ### Certbot domain doğrulayamıyor
 
 ```bash
-dig +short faircrm.umaay.com
-curl -I http://faircrm.umaay.com
+dig +short fuar.kyrox.studio
+curl -I http://fuar.kyrox.studio
 ufw status
 ```
 
@@ -442,12 +442,12 @@ Sertifikaları silmeden önce problemi DNS, firewall ve Nginx config seviyesinde
 ## 15. Hızlı Checklist
 
 ```bash
-dig +short faircrm.umaay.com
+dig +short fuar.kyrox.studio
 nginx -t
 systemctl is-active nginx
 ufw status
-curl -I http://faircrm.umaay.com
-curl -I https://faircrm.umaay.com
+curl -I http://fuar.kyrox.studio
+curl -I https://fuar.kyrox.studio
 certbot certificates
 certbot renew --dry-run
 ```

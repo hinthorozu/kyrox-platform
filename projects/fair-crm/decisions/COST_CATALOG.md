@@ -157,7 +157,7 @@ Maliyet hesabı daha sonra mevcut teklif akışına bağlanacaktır. Bu karar do
 
 ### 3. Fair Stand Entegrasyonu
 
-`fairstand.umaay.com` çizim/konfigüratör sistemindeki modüller daha sonra slug üzerinden Maliyet Kataloğu ürünleriyle eşleştirilecektir.
+`fuar.kyrox.studio` çizim/konfigüratör sistemindeki modüller daha sonra slug üzerinden Maliyet Kataloğu ürünleriyle eşleştirilecektir.
 
 Hedef gelecek akış:
 
