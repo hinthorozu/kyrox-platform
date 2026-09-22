@@ -24,6 +24,8 @@ Value: 64.226.110.223
 
 DNS kaydının sunucu IP'sine çözülmesini bekle.
 
+Canlı üretim domaini: `fuar.kyrox.studio`.
+
 ### 2. Sunucuda FAIR CRM reposunu güncelle
 
 ```bash
