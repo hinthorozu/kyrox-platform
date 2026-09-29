@@ -7,7 +7,7 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Last verified | **2026-08-29** |
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
-| Migration head in `main` | `20260827_0064_platform_identity_notifications` |
+| Migration head in `main` | `20260922_0069` |
 | Main CI | Core CI #84 green on P0.2 CORE-09 final certification head before merge |
 
 ## Current capability state
@@ -24,7 +24,7 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Background jobs | Implemented; internal jobs support platform scope where required by Core identity notifications while existing organization-scoped behavior remains available |
 | Notifications | Implemented baseline plus Core-owned production SMTP identity-email capability, platform-scoped recipients/jobs, identity templates, deterministic platform idempotency and redacted delivery logging |
 | Product authorization integration | Implemented |
-| FAIR CRM permission catalog support | Implemented, including quotation, cost-catalog and mail-send-operation permissions |
+| FAIR CRM permission catalog support | Implemented, including quotation, cost-catalog, mail-send-operation, and Fair Stand admin/projects/settings/items permissions (`20260919_0066`–`20260922_0069`, lifecycle `active`) |
 | File storage | Planned |
 | Caching | Demand-driven candidate |
 | Observability | Demand-driven candidate |
@@ -154,7 +154,7 @@ The proposed cross-repository lifecycle contract is [ADR-0006](../../ecosystem/d
 
 ## Migration status
 
-The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260827_0064_platform_identity_notifications`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration; CORE-06 added activation/set-password runtime and audit behavior without a schema migration; CORE-07 added password-recovery runtime, reset-token cooldown/supersession policy and credential invalidation without a schema migration; CORE-08 added authenticated password-change runtime, credential invalidation and audit behavior without a schema migration; CORE-09 added final adversarial certification tests only and no schema change.
+The former documentation baseline at `20260701_0025` is obsolete. The current Core migration tree reaches `20260922_0069`. Revisions `20260919_0066` through `20260922_0069` seed Fair Stand admin, project, settings, and item permissions with lifecycle `active`. Relevant identity evolution includes permission-scope enforcement, removal of the legacy Owner role, protected OrganizationAdmin governance, replacement of memberships with direct user organization ownership, direct user-role validation, later FAIR CRM permission additions, hashed one-time identity action-token persistence and explicit platform scope for Core identity notification/jobs. CORE-03 changed runtime session/credential behavior without schema changes; CORE-04 advanced the migration head from `0063` to `0064`; CORE-05 added string-backed `pending_activation` runtime semantics and public bootstrap without a schema migration; CORE-06 added activation/set-password runtime and audit behavior without a schema migration; CORE-07 added password-recovery runtime, reset-token cooldown/supersession policy and credential invalidation without a schema migration; CORE-08 added authenticated password-change runtime, credential invalidation and audit behavior without a schema migration; CORE-09 added final adversarial certification tests only and no schema change.
 
 The code repository is the implementation source for complete migration history. This document records the verified current head and capability-level state only.
 

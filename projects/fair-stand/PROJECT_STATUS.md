@@ -24,11 +24,11 @@ Lokal runtime acceptance PASS. `deployed` / `merged` / `production` iddiası yok
 | Ürün sahipliği | ADR-0007 ile kanonik |
 | Item / Category DB | PostgreSQL `fair_stand`; Fair Stand API |
 | Configurator | Fair Stand runtime; Item registry API bootstrap |
-| Proje kaydet / yükle | İstemci IndexedDB (Item master değil) |
+| Proje kaydet / yükle | Sunucu PostgreSQL `fair_stand_projects` (payload `{stand, modules}`). IndexedDB yalnız önbellek. Item master değil |
 | Tenant-scoped Item katalog | Kapsam dışı; katalog global |
 | Static JS Item master | Kaldırıldı |
 | Fallback / dual SoT | Yok |
-| Migration | Fair Stand Alembic head `0004_item_rotation` (zarf `0003_fair_stand_dimensions`); CRM `0089` drops leftover `fair_crm.fair_stand_*` |
+| Migration | Fair Stand Alembic head `0045_project_customer_id`. `0043` / `0044` kolon eklemez; cam panel SKU satırıdır. CRM `0089` drops leftover `fair_crm.fair_stand_*` |
 
 Mimari ayrıntı: [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md).
 
@@ -43,4 +43,4 @@ Invariant değildir. 2026-09-18 lokal implementation:
 | Visible Items | 58 |
 | Components | 186 |
 | Assets | 19 |
-| JSON / JSONB / EAV | yok |
+| JSON / JSONB / EAV | Katalog ilişkisel. Proje `payload` JSONB `{stand, modules}`. EAV yok |

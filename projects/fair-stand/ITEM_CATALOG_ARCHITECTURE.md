@@ -69,9 +69,9 @@ Category string `catalog_key` / `catalogKey` yoktur. Runtime ürün kimliği ola
 
 ## Veritabanı
 
-Tablolar ayrı PostgreSQL veritabanı `fair_stand` içindedir (`fair_stand_*` ad alanı). JSON / JSONB / EAV yoktur. `organization_id` yoktur; katalog global ürün verisidir. Bütün FK’ler `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
+Tablolar ayrı PostgreSQL veritabanı `fair_stand` içindedir (`fair_stand_*` ad alanı). Katalog tabloları ilişkiseldir (JSON / EAV yok) ve `organization_id` taşımaz. Proje kaydı `fair_stand_projects` satırıdır: `payload` JSONB `{stand, modules}`, zorunlu `customer_id` UUID (`crm_customers` FK’si yok). Bütün katalog FK’leri `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
 
-Migration (Stand): `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
+Migration head (Stand): `0045_project_customer_id`. `0043` / `0044` cam panel SKU satırıdır, kolon eklemez. İlk şema `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
 
 ### 1. `fair_stand_categories`
 
@@ -147,7 +147,7 @@ Item-specific model dosya adı renderer kodunda ikinci master olarak hardcode ed
 
 `default_screen` rolü aynı mantıktadır. Örnek: `tv-screen.jpg`. Aggregate alanı `defaultScreenFile`dır.
 
-Kullanıcı proje görseli (`imageAssetId` / IndexedDB blob) kanonik Item asset değildir; `fair_stand_item_assets` tablosuna taşınmaz.
+Kullanıcı proje görseli (`imageAssetId`) kanonik Item asset değildir; `fair_stand_item_assets` tablosuna taşınmaz. Binary `fair_stand_project_assets` ve disk yolundadır; IndexedDB önbellektir.
 
 ## Ürün verisi vs kod
 
@@ -174,7 +174,7 @@ Kodda kalanlar (algoritma / type-family):
 
 ## Proje örneği state
 
-Item master DB’dedir. Kayıtlı proje örneği IndexedDB (`projectStore` / configurator DB) içindedir ve Item master’a gömülmez.
+Item master DB’dedir. Kayıtlı proje örneği `fair_stand_projects.payload` (`{stand, modules}`) içindedir. Çizim kaydı `customer_id` değiştirmez. IndexedDB (`projectStore`) aynı kaydın önbelleğidir ve Item master’a gömülmez.
 
 Proje örneğine ait olanlar (örnek):
 
@@ -217,13 +217,13 @@ Bu sayılar mimari invariant değildir; **son doğrulanan lokal implementation**
 
 | Ölçüm | Değer |
 |-------|--------|
-| Migration | Fair Stand head `0004_item_rotation` (zarf tablosu `0003_fair_stand_dimensions`) |
+| Migration | Fair Stand head `0045_project_customer_id` (`0043` / `0044` kolon değil, cam panel SKU) |
 | Categories | 6 |
 | Items | 96 |
 | Visible Items | 58 |
 | Components | 186 |
 | Assets | 19 |
-| JSON / JSONB / EAV | yok |
+| JSON / JSONB / EAV | Katalog ilişkisel. Proje `payload` JSONB `{stand, modules}`. EAV yok |
 
 ## İlgili belgeler
 

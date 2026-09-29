@@ -75,7 +75,7 @@ The current documentation/quality focus is to keep Platform as the single human/
 |------------|-------------|
 | `kyrox-platform` | All human/AI documentation, shared standards, project docs, ADRs, status and roadmap |
 | `kyrox-core` | Reusable SaaS platform implementation, tests, migrations and CI |
-| `fair-crm` | FAIR CRM product implementation, tests, migrations, CI and machine-readable contracts; physical host for Fair Stand `fair_stand_*` backend |
-| `fair-stand` | Fair Stand configurator runtime; Item/Category consumer of DB/API |
+| `fair-crm` | FAIR CRM product implementation, tests, migrations, CI and machine-readable contracts; hosts the Fair Stand configurator UI, Admin screens, and same-origin proxy |
+| `fair-stand` | Fair Stand FastAPI (`:8002`) and PostgreSQL `fair_stand`; configurator runtime |
 
 See [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md) and [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md).
