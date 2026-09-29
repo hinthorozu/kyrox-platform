@@ -11,10 +11,8 @@ Fair CRM active/future queue: [../projects/fair-crm/ROADMAP.md](../projects/fair
 Potential future Core work, activated only by an explicit requirement:
 
 - email verification,
-- password reset,
 - MFA,
 - login rate limiting / account lockout,
-- refresh-token reuse detection,
 - device/session-management UX and policy hardening.
 
 The canonical identity/security architecture remains [ADR-0003](decisions/0003-identity-security-strategy.md).

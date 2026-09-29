@@ -76,8 +76,8 @@ Only an existing active Platform Super Admin may set or clear another user's `is
 
 ### Negative / deferred
 
-- Email verification and password reset remain required by strategy but are deferred in implementation ([KNOWN_DEFERRED.md](../KNOWN_DEFERRED.md))
-- Access tokens remain valid until expiry unless a denylist is added later
+- Email verification remains required by strategy but is deferred in implementation ([KNOWN_DEFERRED.md](../KNOWN_DEFERRED.md)). Password reset is implemented.
+- Access tokens are checked against the server-side session. A revoked or inactive session rejects the token before expiry. There is no separate token denylist.
 
 ## Related
 
