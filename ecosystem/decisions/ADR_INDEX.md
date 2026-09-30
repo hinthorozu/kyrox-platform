@@ -22,7 +22,9 @@ Index of architecture and ecosystem decisions for KYROX. ADRs live in this direc
 | [0004](0004-audit-service-strategy.md) | Audit service strategy | Accepted | 2026-07-01 |
 | [0005](0005-role-template-and-permission-governance.md) | Role template and permission governance | Accepted | 2026-08-14 |
 | [0006](0006-organization-lifecycle-and-onboarding.md) | Organization lifecycle and SaaS onboarding contract | Proposed | 2026-08-26 |
-| [0007](0007-fair-stand-product-ownership.md) | Fair Stand product ownership and hosted Item catalog | Accepted | 2026-09-18 |\n| [0008](0008-fair-stand-independent-service.md) | Fair Stand independent service | Accepted | 2026-09-18 |\n| [0009](0009-demo-recorder-repository.md) | Demo recorder repository | Accepted | 2026-09-30 |
+| [0007](0007-fair-stand-product-ownership.md) | Fair Stand product ownership and hosted Item catalog | Accepted | 2026-09-18 |
+| [0008](0008-fair-stand-independent-service.md) | Fair Stand independent service | Accepted | 2026-09-18 |
+| [0009](0009-demo-recorder-repository.md) | Demo recorder repository | Accepted | 2026-09-30 |
 
 ## Creating a new ADR
 
