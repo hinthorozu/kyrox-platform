@@ -7,8 +7,8 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Active milestone | **M4 — FAIR CRM v1** |
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
-| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand` |
-| Last ecosystem sync | **2026-09-18** |
+| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand`; tooling: `kyrox-demo-recorder` |
+| Last ecosystem sync | **2026-09-30** |
 
 ## SaaS readiness
 
@@ -46,6 +46,10 @@ Active planning: [projects/kyrox-core/ROADMAP.md](../projects/kyrox-core/ROADMAP
 Core remains the reusable, product-agnostic SaaS backend. Identity, authentication, authorization, organization/user/role governance and shared platform services are implemented in Core. Products consume Core through public contracts; product domain logic does not belong in Core.
 
 The approved P0.2 identity/onboarding primitives are complete. Core owns canonical organization/identity lifecycle and SYSTEM-scoped organization suspend/reactivate/delete authority. Product-specific closure progress/export/provider/data/artifact behavior remains outside Core. For current-model closure, Core additionally owns the final tombstone timestamp and Core audit-retention execution; FAIR CRM consumes those accepted public/internal product-lifecycle contracts without taking Core identity/audit ownership.
+
+## Demo recorder tooling
+
+ADR-0009 accepts `hinthorozu/kyrox-demo-recorder` as external Playwright tooling for repeatable product usage/demo video capture. It is not a production service and owns no product, auth, authorization, organization, or data semantics. Runtime credentials are secret-injected only; recorder output is auxiliary media rather than product acceptance evidence.
 
 ## FAIR CRM
 

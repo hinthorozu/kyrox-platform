@@ -21,6 +21,10 @@ Goal: ship and harden the first KYROX product on the reusable Core platform.
 
 M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated here. Core changes during M4 are limited to fixes and reusable platform capabilities required by real product needs.
 
+### Demo and usage-video tooling
+
+ADR-0009 authorizes `kyrox-demo-recorder` as a small external Playwright tooling repository for repeatable usage/demo video capture against deployed KYROX products. It owns no product behavior and does not replace FAIR CRM/Fair Stand acceptance gates.
+
 ## Cross-cutting SaaS readiness program
 
 KYROX now maintains a canonical cross-repository SaaS readiness strategy in [SAAS_ROADMAP.md](SAAS_ROADMAP.md).
