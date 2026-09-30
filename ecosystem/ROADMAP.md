@@ -19,7 +19,7 @@ Goal: ship and harden the first KYROX product on the reusable Core platform.
 **Product status:** [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PROJECT_STATUS.md)  
 **Product work queue:** [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.md)
 
-M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated here. Core changes during M4 are limited to fixes and reusable platform capabilities required by real product needs.
+M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated here. Core changes during M4 are limited to fixes and reusable platform capabilities required by real product needs.\n\n### Demo and usage-video tooling\n\nADR-0009 authorizes `kyrox-demo-recorder` as a small external Playwright tooling repository for repeatable usage/demo video capture against deployed KYROX products. It owns no product behavior and does not replace FAIR CRM/Fair Stand acceptance gates.
 
 ## Cross-cutting SaaS readiness program
 
