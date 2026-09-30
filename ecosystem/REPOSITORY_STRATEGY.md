@@ -9,7 +9,7 @@ Fixed KYROX repository model. Changes require a new ADR. Decision records: [ADR-
 | **kyrox-platform** | Management and documentation hub | No | **Yes — only docs hub** |
 | **kyrox-core** | Reusable SaaS backend platform | Yes | **No** |
 | **fair-crm** | First CRM product on KYROX Core; hosts Fair Stand configurator shell and Admin catalog UI with same-origin proxy | Yes | **No** |
-| **fair-stand** | Fair Stand configurator runtime plus independent catalog API (`:8002`) and `fair_stand` database | Yes | Machine-readable contracts plus Fair Stand runtime docs required by that repo's change-gate |
+| **fair-stand** | Fair Stand configurator runtime plus independent catalog API (`:8002`) and `fair_stand` database | Yes | Machine-readable contracts plus Fair Stand runtime docs required by that repo's change-gate |\n| **kyrox-demo-recorder** | External Playwright automation for repeatable KYROX usage/demo video capture | Yes — tooling only | No — ecosystem rules remain in `kyrox-platform` |
 
 All **ecosystem** and **cross-product** human documentation is maintained under this repository. See [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md). Fair Stand keeps its own runtime contracts in `fair-stand` because that repository's change-gate is machine-verified there; product ownership and ecosystem rules remain here.
 
@@ -57,14 +57,14 @@ Documentation: [projects/fair-stand/](../projects/fair-stand/).
 1. **Platform vs implementation** — Decide and document in kyrox-platform; implement in kyrox-core, fair-crm, or fair-stand according to ownership.
 2. **Core vs product** — Core never depends on products; products depend on Core via HTTP only ([ADR-0002](decisions/0002-core-product-separation.md)).
 3. **Fair Stand vs Fair CRM** — CRM hosts Fair Stand UI and Admin catalog screens. Catalog API/DB run as the Fair Stand process (`:8002`, database `fair_stand`). Hosting the UI is not Item domain ownership ([ADR-0007](decisions/0007-fair-stand-product-ownership.md), [ADR-0008](decisions/0008-fair-stand-independent-service.md)).
-4. **No extra optional repos yet** — Do not create kyrox-ui, kyrox-sdk, kyrox-docs, or similar without an ADR. Fair Stand is an existing product repository recognized by ADR-0007, not a new optional platform library.
+4. **No unapproved optional repos** — Do not create kyrox-ui, kyrox-sdk, kyrox-docs, or similar without an ADR. Fair Stand is recognized by ADR-0007/0008. `kyrox-demo-recorder` is the explicitly approved tooling exception under ADR-0009 and owns no product/runtime semantics.
 5. **No Markdown ecosystem-rule trees in Core/CRM** — Keep ecosystem/shared docs here. Fair Stand may keep runtime change-gate contracts in-repo.
 
 ## Naming and ownership
 
 - Platform and Core use the `kyrox-` prefix; products use their product name (`fair-crm`, `fair-stand`).
 - Fair Stand tables/APIs use the `fair_stand` / `/fair-stand` prefix. CRM tables use `crm_`.
-- Cross-repo references use repository names and milestone IDs (for example M4, ADR-0001).
+- Cross-repo references use repository names and milestone IDs (for example M4, ADR-0001).\n- `kyrox-demo-recorder` uses the `kyrox-` prefix because it is ecosystem tooling, not a product.
 
 ## When to add a repository
 
@@ -78,6 +78,6 @@ Adding another repository (beyond the four recorded here) requires:
 
 - [ADR-0001: Repository strategy](decisions/0001-repository-strategy.md)
 - [ADR-0002: Core and product separation](decisions/0002-core-product-separation.md)
-- [ADR-0007: Fair Stand product ownership](decisions/0007-fair-stand-product-ownership.md)
+- [ADR-0007: Fair Stand product ownership](decisions/0007-fair-stand-product-ownership.md)\n- [ADR-0009: Demo recorder repository](decisions/0009-demo-recorder-repository.md)
 - [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md)
 - [STATUS.md](STATUS.md)
