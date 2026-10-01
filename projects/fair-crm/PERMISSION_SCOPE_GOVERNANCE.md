@@ -94,6 +94,26 @@ identity.organizations.delete
 identity.organizations.suspend
 ```
 
+The list above is the seeded catalog. It is not the full set of accepted system operations.
+
+## Accepted system operations not yet seeded
+
+These operations are `permission_scope = system`. They are platform work, not organization fair CRUD. Catalog codes are assigned at implementation; until then they must not be added to an organization role, including OrganizationAdmin.
+
+```text
+TOBB catalog sync
+System Fair scraper start
+```
+
+Rules:
+
+- Only Super Admin may start them, through the Super Admin bypass or a future system permission with `is_assignable = false`.
+- OrganizationAdmin must not receive them.
+- They do not grant read or write access to another organization’s customers, participations, import batches, import rows, or organization scraper runs.
+- A system job started by these operations follows the background job standard: `job_scope = system` and `organization_id` null.
+
+Fair read of a shared system fair is not one of these operations. Visibility of system fairs is the constitution tenant rule.
+
 ## Super Admin and OrganizationAdmin are different concepts
 
 ### Super Admin

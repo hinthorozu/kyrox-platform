@@ -8,6 +8,8 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **System Fair decisions recorded** — Accepted documentation only. TOBB catalog identity is ADR-037. System jobs use `job_scope=system` and null `organization_id` in the background job standard. TOBB sync and system fair scraper start are system-scoped in permission governance. Import batches may target a system fair while remaining organization-scoped. No application code, migration, or permission seed.
+
 - **Fair Stand product ownership (ADR-0007)** — Fair Stand Item/Category data is a Fair Stand domain hosted in this product process as `fair_stand_*`. CRM `crm_*` tables are not the Item owner. No Core Item domain and no new auth/gateway.
 
 ### Source-contract CRLF portability and Playwright test isolation — 2026-09-18
