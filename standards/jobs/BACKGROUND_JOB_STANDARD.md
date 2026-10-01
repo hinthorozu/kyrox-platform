@@ -82,6 +82,7 @@ Her background job kaydında en az şu alanlar bulunmalıdır:
 
 ```text
 id
+job_scope
 organization_id
 job_type
 source_module
@@ -101,6 +102,37 @@ error_message
 created_at
 updated_at
 ```
+
+`job_scope` iki değerden biridir: `organization` veya `system`.
+
+### organization scope
+
+```text
+job_scope = organization
+organization_id = REQUIRED
+```
+
+İş, doğrulanmış organizasyon bağlamında çalışır. `organization_id` boş olamaz. Sahte bir platform organizasyonu kullanılmaz.
+
+### system scope
+
+Platform işi tenant işi değildir. TOBB katalog senkronu ve System Fair scraper bu kapsamdadır.
+
+```text
+job_scope = system
+organization_id = MUST be NULL
+permission_scope = system
+requested_by = başlatan kullanıcının user_id
+```
+
+Kurallar:
+
+- `organization_id` system job için boş olmalıdır. Dolu bir tenant id veya `PLATFORM_ORG` yazılmaz.
+- İşi başlatmak `permission_scope = system` ister. OrganizationAdmin bu izni alamaz.
+- `requested_by` audit kimliği olarak durur. Super Admin başlatır.
+- System job, organizasyon müşterisine, katılımına veya import batch’ine yazmaz. Organizasyon scraper’ı `job_scope = organization` kalır.
+
+Bu madde, “her job kaydında `organization_id` alanı bulunur” kuralını kaldırmaz. Alan durur. Dolu olması yalnız `job_scope = organization` için zorunludur.
 
 ### job_type örnekleri
 

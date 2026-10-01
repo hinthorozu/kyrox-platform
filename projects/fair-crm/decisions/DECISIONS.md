@@ -150,6 +150,7 @@ In real workflows, exhibitor lists are collected for a known fair. Requiring Fai
 - Hall/Stand belong to participation records, not Customer or Fair.
 - Import batch persists `fair_id` for the entire batch.
 - Alternative entry from Fair Detail pre-fills Fair context.
+- `fair_id` may reference an organization fair or a system fair (`origin = system`). The batch `organization_id` remains the tenant boundary. A shared system fair does not make the batch, its rows, or the resulting customers and participations shared. See Constitution §5 and [import/IMPORT_ARCHITECTURE.md](../import/IMPORT_ARCHITECTURE.md).
 
 ## ADR-014 — Detail Page Action Standard
 
@@ -279,6 +280,18 @@ Data Integration adopts a **Universal Source Adapter Framework**. External data 
 **Scraper rule:**
 
 One adapter per fair site (e.g. TUYAP, IFM). Each adapter owns URL structure, parsing, and pagination. Output is normalized to the same preview contract as file adapters.
+
+**Scraper configuration ownership (accepted, not yet implemented):**
+
+V1 stores at most one scraper configuration on the fair row: `adapter_key`, `source_url`, `scraper_config`. There is no scraper-binding table. A later need for multiple bindings per fair is a separate design.
+
+Organization fairs keep today’s behavior: the organization manages those fields, and the scraper wizard reads them without mutating the fair (ADR-036).
+
+System fairs keep the same columns, with different writers:
+
+- An organization user cannot change them. The organization fair mutation API cannot update a system fair (Constitution §5).
+- Only platform administration (Super Admin / system permission) may write them.
+- TOBB catalog sync must not overwrite `adapter_key`, `source_url`, or `scraper_config`. Sync writes catalog metadata only. Catalog identity is ADR-037.
 
 **Non-negotiable:**
 
@@ -886,4 +899,42 @@ Earlier roadmap wording implied a single shared Operation Wizard. Product clarif
 
 - Engine stays lifecycle-only; type rules live in `ScraperHandler`.
 - ROADMAP “ortak Operation Wizard” wording is superseded by per-type wizards for automation creation UX.
+- Points 3–5 apply to organization fairs. Starting a scraper for a system fair is a system job ([background job standard](../../../standards/jobs/BACKGROUND_JOB_STANDARD.md)); configuration ownership is ADR-017. An organization scraper run stays organization-scoped.
+
+---
+
+## ADR-037 — System Fair catalog identity (TOBB)
+
+**Status:** Accepted (documentation; not implemented)  
+**Date:** 2026-09-30
+
+**Context:**
+
+The public TOBB fair calendar (`https://fuarlar.tobb.org.tr/FuarTakvimi`) renders rows as HTML table cells. The row has no `data-id`, fair id, detail URL, or API identifier. The sequence number restarts within a year. Excel export is a Blazor button without a fetchable URL, so it is not a stable identity source.
+
+**Decision:**
+
+TOBB does not provide a durable external fair id. V1 identity is:
+
+```text
+source = tobb
+external_id = sha256(normalize(name)|start_date|city|venue)
+```
+
+This fingerprint is the upsert key for a system fair.
+
+Known behavior, accepted for V1:
+
+- A change to name, start date, city, or venue changes the fingerprint and may create a new system fair.
+- There is no fuzzy or automatic merge.
+- A duplicate system fair is preferred to a wrong automatic merge.
+- Manual reconciliation may be a later capability. It is not part of this decision.
+
+Visibility, mutation denial, and the rule that a shared fair does not share customers, participations, import batches, import rows, or organization scraper runs are Constitution §5. This ADR does not restate them.
+
+**Consequences:**
+
+- Catalog sync upserts on `(source, external_id)`.
+- Sync must not overwrite scraper configuration fields (ADR-017).
+- Existing organization fairs are not rewritten into system fairs by name.
 

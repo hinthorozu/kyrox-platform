@@ -100,6 +100,28 @@ Rules:
 - failure to resolve protected authorization fails closed,
 - dev-bypass/fallback identity behavior is development-only and must not become production authority.
 
+### System Fair visibility and child boundary
+
+A fair is visible to the current organization only when `fair.organization_id` equals that organization, or `fair.origin` is `system`. Another organization’s `origin = organization` fair stays invisible. Probing it fails closed and does not disclose the record.
+
+A system fair is shared catalog data. It is not customer-editable. For an organization user, read is allowed and update, archive, and restore are forbidden. The backend enforces the denial. Hiding the action in the UI is not the control.
+
+`fair_id` is not an authorization boundary for a tenant-owned child. Customer, participation, import batch, import row, and organization scraper run access still require that child’s `organization_id` to equal the current organization. Two organizations may both see System Fair X and must not see each other’s customers, participations, import batches, import rows, or organization scraper runs.
+
+```text
+SHARED FAIR != SHARED CUSTOMER
+SHARED FAIR != SHARED PARTICIPATION
+SHARED FAIR != SHARED IMPORT BATCH
+SHARED FAIR != SHARED IMPORT ROW
+SHARED FAIR != SHARED ORGANIZATION SCRAPER RUN
+```
+
+The shared system participant dataset is the system scraper handoff only. It is not a child row of an organization.
+
+Organization scraper runs must stay inside their organization. Aggregating scraper runs by fair name without `organization_id` violates this rule. `AdapterLinkedFairService._aggregate_runs_by_fair_name` is a known violation and must be corrected when system fairs are implemented. This constitution does not authorize that query.
+
+Catalog identity is [ADR-037](decisions/DECISIONS.md). Scraper field ownership is [ADR-017](decisions/DECISIONS.md). Import batch tenancy is [import/IMPORT_ARCHITECTURE.md](import/IMPORT_ARCHITECTURE.md). System job scope is [the background job standard](../../standards/jobs/BACKGROUND_JOB_STANDARD.md).
+
 Permission-scope details: [PERMISSION_SCOPE_GOVERNANCE.md](PERMISSION_SCOPE_GOVERNANCE.md).  
 Shared UI authorization semantics: [../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md](../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md).
 

@@ -141,7 +141,7 @@ v2 vizyonu, halihazırda çalışan bileşenleri **değiştirmek yerine genişle
 |--------------------|---------------|
 | Adapter Yönetimi UI | Üretilen adapter’ların listelenmesi, düzenlenmesi, aktif/pasif |
 | Adapter CRUD API | Builder çıktısının `scraper_adapters` kaydına dönüşümü |
-| Fuar ↔ adapter ilişkisi | Kaynak bağlantısı (`adapter_key`, `source_url`, `scraper_config`); scrape sonucu değil |
+| Fuar ↔ adapter ilişkisi | Kaynak bağlantısı (`adapter_key`, `source_url`, `scraper_config`); scrape sonucu değil. Organization fair davranışı budur. System fair yazma sahipliği [ADR-017](../decisions/DECISIONS.md) |
 | Scraper run / test console | Test scrape ve confidence doğrulaması için mevcut altyapı |
 
 Adapter Builder ayrı bir geliştirme hattı olarak planlanmalı; Sprint kapsamı ve API sözleşmeleri bu dokümandan türetilecek ayrı teknik tasarımlarda netleştirilecektir.

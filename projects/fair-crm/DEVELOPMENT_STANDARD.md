@@ -78,7 +78,7 @@ UI visibility follows [CRUD & UI Authorization Standard](../../standards/ui/CRUD
 - Product tables use the `crm_` prefix.
 - Organization-owned product records use `organization_id` where applicable.
 - Core identifiers stored in Fair CRM are logical IDs, never cross-database FKs.
-- Repository queries enforce organization scope; request-body organization IDs are not trusted as authorization context.
+- Repository queries enforce organization scope on tenant-owned records; request-body organization IDs are not trusted as authorization context. Shared system-fair visibility is Constitution §5 and does not relax that child boundary.
 - Fair CRM migrations use Alembic and advance with new migrations rather than rewriting already-applied behavior.
 - Core permission/scope/catalog changes are delivered through Core migrations and verified after migration.
 - Restore acceptance applies `alembic upgrade head` before runtime acceptance.

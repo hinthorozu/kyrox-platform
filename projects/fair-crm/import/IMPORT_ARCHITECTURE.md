@@ -13,7 +13,7 @@ This document defines the **Universal Import Standard** pipeline for KYROX Fair 
 
 1. **Import is not direct insert.** Every batch passes through analysis, mapping, matching, preview, and explicit user decisions before persistence.
 2. **Preview-first.** Upload and file analysis never write CRM domain data.
-3. **Fair context required.** Batch-level `fair_id` is mandatory (ADR-012). Hall/stand belong on `CustomerFairParticipation`.
+3. **Fair context required.** Batch-level `fair_id` is mandatory (ADR-012). The fair may be an organization fair or a system fair. Hall/stand belong on `CustomerFairParticipation`. The batch `organization_id` stays the tenant boundary (Constitution §5).
 4. **Background execution.** Apply runs as a background job with progress and a final report.
 5. **English backend, Turkish frontend.** API/module/table names in English; user-facing labels in Turkish.
 
@@ -263,13 +263,23 @@ Sprint 09.0 delivers **documentation and ADR-016 only**. No API or UI code chang
 
 ## Background job standard
 
-Import apply, future export, and sync jobs share:
+Import apply stays an organization job: `job_scope = organization` and a required batch `organization_id`. Status, progress, error aggregation, Import Geçmişi, and polling or SSE follow the [background job standard](../../../standards/jobs/BACKGROUND_JOB_STANDARD.md).
 
-- Job entity with organization scope
-- Status enum + progress counters
-- Error aggregation
-- List/detail API for **Import Geçmişi**
-- Frontend polling or SSE for progress (implementation choice in Phase 2)
+TOBB catalog sync and the system fair scraper are not import-apply jobs. They are `job_scope = system` with `organization_id` null. They do not write customers or participations.
+
+## Shared participant dataset and tenant batches
+
+A system scraper runs once. Its canonical handoff file is the shared dataset. Participant count is `scraper_run_history.total_rows`. There is no participant snapshot table in V1.
+
+Each organization creates its own import batch from that handoff through the existing canonical import path. The Import Engine is not copied. A new scrape does not mutate older organization batches.
+
+```text
+SYSTEM DATASET = shared handoff
+IMPORT BATCH = organization scoped
+IMPORT ROW = organization scoped
+```
+
+The system run and its handoff must not be deleted while organization import flows still need that dataset. Querying the shared list in SQL without opening a batch is out of scope until a later decision.
 
 ---
 

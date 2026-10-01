@@ -99,6 +99,8 @@ Each scraper adapter knows:
 
 The Import Engine does **not** know site-specific rules. Scraper output must be normalized to the same preview contract as Excel.
 
+System fair scraper configuration ownership, including the rule that TOBB catalog sync must not overwrite `adapter_key`, `source_url`, or `scraper_config`, is [ADR-017](../decisions/DECISIONS.md). The shared handoff versus organization import batch boundary is [IMPORT_ARCHITECTURE.md](IMPORT_ARCHITECTURE.md). This file does not restate those rules.
+
 ---
 
 ## Scraper requested output fields contract
