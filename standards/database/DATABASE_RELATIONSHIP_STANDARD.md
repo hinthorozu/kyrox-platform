@@ -21,8 +21,17 @@ This applies to existing and future foreign keys in both `kyrox-core` and produc
 4. No repository, module, migration, or feature may introduce a different foreign-key action unless the product owner explicitly changes this canonical rule first.
 5. Application-level delete/update code must not rely on manually reproducing child-row cascade behavior that belongs to the database relationship.
 
+## Explicit exceptions
+
+The product owner accepts these Fair Stand foreign keys. They use `ON UPDATE CASCADE` and `ON DELETE RESTRICT`. Hard delete must not remove or orphan catalog items. Closing a row is `is_active=false`, not `DELETE`.
+
+- `fair_stand_items.item_type` → `fair_stand_item_type.key`
+- `fair_stand_items.unit` → `fair_stand_units.unit_key`
+
+A unit key rename updates referencing `fair_stand_items.unit` values inside the same database statement. Application code must not copy that cascade.
+
 ## Verification
 
-After schema migrations, PostgreSQL foreign-key constraints must be checked and every FK must report cascade for both delete and update actions.
+After schema migrations, PostgreSQL foreign-key constraints must be checked. Every FK must report cascade for both delete and update actions, except the explicit exceptions above. Those exceptions must report `ON UPDATE CASCADE` and `ON DELETE RESTRICT`.
 
-Any non-CASCADE FK is a schema-policy failure.
+Any other non-CASCADE FK is a schema-policy failure.
