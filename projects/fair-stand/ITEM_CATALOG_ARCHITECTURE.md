@@ -69,9 +69,9 @@ Category string `catalog_key` / `catalogKey` yoktur. Runtime ürün kimliği ola
 
 ## Veritabanı
 
-Tablolar ayrı PostgreSQL veritabanı `fair_stand` içindedir (`fair_stand_*` ad alanı). Katalog tabloları ilişkiseldir (JSON / EAV yok) ve `organization_id` taşımaz. Proje kaydı `fair_stand_projects` satırıdır: `payload` JSONB `{stand, modules}`, zorunlu `customer_id` UUID (`crm_customers` FK’si yok). Bütün katalog FK’leri `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
+Tablolar ayrı PostgreSQL veritabanı `fair_stand` içindedir (`fair_stand_*` ad alanı). Katalog tabloları ilişkiseldir (JSON / EAV yok) ve `organization_id` taşımaz. Proje kaydı `fair_stand_projects` satırıdır: `payload` JSONB `{stand, modules}`, zorunlu `customer_id` UUID (`crm_customers` FK’si yok). Katalog FK’lerinin varsayılanı `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. İki açık istisna `ON DELETE RESTRICT` kullanır: `fair_stand_items.item_type` ve `fair_stand_items.unit`. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
 
-Migration head (Stand): `0045_project_customer_id`. `0043` / `0044` cam panel SKU satırıdır, kolon eklemez. İlk şema `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
+Migration head (Stand): `0057_foam_logo_item`. `0053_item_type_scene_behavior` item type sınıflandırmasını sahne davranışından ayırır. `0043` / `0044` cam panel SKU satırıdır, kolon eklemez. İlk şema `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
 
 ### 1. `fair_stand_categories`
 
@@ -86,6 +86,22 @@ Satır alanları: `display_name`, `markup`, `css_code`, `sort_index`, `is_active
 Runtime source of truth bu tablodur. Fair Stand generic renderer (`catalogPreviewRenderer.js`) bootstrap `previewKinds` kaydını Item context’i ile DOM/CSS silüetine çevirir. Key-specific JS renderer map yoktur. Fiziksel DELETE yok; kullanımdayken archive reddedilir, aksi halde `is_active=false`.
 
 Super Admin Fair CRM Admin ekranlarından SYSTEM izinleriyle CRUD yapar. OrganizationAdmin ve özel org rolleri bu izinleri alamaz.
+
+### `fair_stand_units`
+
+Global ölçü birimi kataloğu. `id` INTEGER PK AUTO INCREMENT. Kolonlar: `unit_key` (addan üretilen unique teknik kimlik; JSON `unitKey`; ad değişince yeniden üretilir), `name`, `symbol`, `is_active` (default true), `created_at`, `updated_at`. `organization_id` yoktur. Migration unit satırı eklemez. `fair_stand_items.unit` nullable `VARCHAR(64)` kolonudur ve `fair_stand_units.unit_key` hedefine gider: `fk_fair_stand_items_unit_key`, ON UPDATE CASCADE, ON DELETE RESTRICT. Unit key değişince bağlı Item değerlerini veritabanı aynı transaction içinde günceller. Uygulama bu kopyayı yapmaz. Archive yalnız `is_active=false` yazar; key ve Item unit değerleri durur. Inactive bir unit key’i Item’a yazmak reddedilmez; FK yalnız varlığı garanti eder. Yönetim Fair Stand admin API `/admin/units` üzerindedir. Yetki mevcut SYSTEM `fair_crm.admin.fair_stand.catalog.read|create|update|archive` izinleridir. CRM yalnız Super Admin `Ölçü Birimleri` ekranını sunar. Alembic head `0057_foam_logo_item`.
+
+### `fair_stand_item_type` ve `fair_stand_item_type_scene_behavior`
+
+`fair_stand_item_type` yalnız sınıflandırmadır: `id`, `key`, `display_name`, `is_active`, `created_at`, `updated_at`. Item `item_type` bu tablonun `key` kolonuna gider (ON UPDATE CASCADE, ON DELETE RESTRICT). Bu FK değiştirilmedi.
+
+Sahne davranışı isteğe bağlı 1:1 child tablodadır: `fair_stand_item_type_scene_behavior`. PK ve FK `item_type_id` → `fair_stand_item_type.id`, ON UPDATE CASCADE ve ON DELETE CASCADE. Ayrı `scene_enabled` kolonu yoktur. Behavior satırı varsa tip scene-capable’dır ve bootstrap bugünkü düz `placement`, `collision`, `moveSnapCm`, `ghost` alanlarını verir. Behavior satırı yoksa tip non-scene’dir ve bu alanlar payload’da yoktur.
+
+`production` non-scene sınıflandırmadır. `digital_print`, `mesh_fabric`, `lightbox_fabric` ve `foam_logo` bu tipe bağlı gizli Item’lardır. `catalog_visible` drag/drop katalog görünürlüğüdür. `is_render` çizim bayrağıdır. Scene capability bu iki bayrak değildir.
+
+Proje BOM’u bu Item’lara formül gömmez. `collectPrintAreas` mevcut baskı alanı toplamını üretir; `resolveProjectBom` o toplamı `resolveItemBom` ile leaf satıra çevirir. Dijital Baskı bölümü `digital_print`, Mesh - Delikli Branda bölümü `mesh_fabric`, Lightbox Bezi bölümü `lightbox_fabric`, Strafor Logo bölümü `foam_logo` olur. Birim Item kataloğundaki `unit` değeridir. Detay satırları (`printAreas`) durur. Bu key’ler bileşen reçetesinde yoktur; leaf, reçete miktarına eklenerek ikinci kez sayılmaz.
+
+Kayıtlı bir tipin behavior’ı yokken sahne API’si duvar paketine düşmez; `moduleBehavior.js` hata verir. Registry’de hiç olmayan eski string için mevcut duvar fallback’i durur.
 
 ### 3. `fair_stand_items`
 
@@ -166,7 +182,7 @@ DB’de duranlar (ürün verisi):
 Kodda kalanlar (algoritma / type-family):
 
 - generic renderer
-- placement, collision, snapping
+- placement, collision ve snapping algoritması; değerler scene behavior satırından okunur
 - `moduleBehavior.js` type-family contract
 - catalog preview **renderer implementasyonu**
 
@@ -217,9 +233,9 @@ Bu sayılar mimari invariant değildir; **son doğrulanan lokal implementation**
 
 | Ölçüm | Değer |
 |-------|--------|
-| Migration | Fair Stand head `0045_project_customer_id` (`0043` / `0044` kolon değil, cam panel SKU) |
+| Migration | Fair Stand head `0057_foam_logo_item` |
 | Categories | 6 |
-| Items | 96 |
+| Items | 121 |
 | Visible Items | 58 |
 | Components | 186 |
 | Assets | 19 |
