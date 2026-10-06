@@ -28,7 +28,7 @@ Lokal runtime acceptance PASS. `deployed` / `merged` / `production` iddiası yok
 | Tenant-scoped Item katalog | Kapsam dışı; katalog global |
 | Static JS Item master | Kaldırıldı |
 | Fallback / dual SoT | Yok |
-| Migration | Fair Stand Alembic head `0057_foam_logo_item`. `fair_stand_item_type` sınıflandırmadır. Sahne davranışı isteğe bağlı `fair_stand_item_type_scene_behavior` satırıdır; satır yoksa tip non-scene’dir. `production` behavior satırı taşımaz. `digital_print`, `mesh_fabric`, `lightbox_fabric`, `foam_logo` bu tipe bağlı gizli Item’lardır. `fair_stand_items.unit` → `fair_stand_units.unit_key` FK’sidir: ON UPDATE CASCADE, ON DELETE RESTRICT. Proje BOM’u mevcut Dijital Baskı / Mesh - Delikli Branda / Lightbox Bezi / Strafor Logo alan toplamlarını sırasıyla bu dört leaf’e bağlar. |
+| Migration | Fair Stand Alembic head `0058_item_cost_enabled`. `fair_stand_items.is_cost_enabled` NOT NULL, default false; mevcut satırlar false kalır. Bu bayrak fiyat, birim ve reçete miktarı değildir. `fair_stand_item_type` sınıflandırmadır. Sahne davranışı isteğe bağlı `fair_stand_item_type_scene_behavior` satırıdır; satır yoksa tip non-scene’dir. `production` behavior satırı taşımaz. `digital_print`, `mesh_fabric`, `lightbox_fabric`, `foam_logo` bu tipe bağlı gizli Item’lardır. `fair_stand_items.unit` → `fair_stand_units.unit_key` FK’sidir: ON UPDATE CASCADE, ON DELETE RESTRICT. Proje BOM’u mevcut Dijital Baskı / Mesh - Delikli Branda / Lightbox Bezi / Strafor Logo alan toplamlarını sırasıyla bu dört leaf’e bağlar. |
 
 Mimari ayrıntı: [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md).
 
