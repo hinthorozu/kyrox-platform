@@ -8,6 +8,8 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **System fair customers** — An organization user with `fair_crm.participations.create` or `fair_crm.participations.delete` can add or remove that organization's customers on a shared system fair. The system fair record stays read-only for that user (update, archive, and restore stay denied). Organization fairs keep their own CRUD. FAIR CRM PR #330. Constitution §5 states the rule.
+
 - **System Fair decisions recorded** — Accepted documentation only. TOBB catalog identity is ADR-037. System jobs use `job_scope=system` and null `organization_id` in the background job standard. TOBB sync and system fair scraper start are system-scoped in permission governance. Import batches may target a system fair while remaining organization-scoped. No application code, migration, or permission seed.
 
 - **Fair Stand product ownership (ADR-0007)** — Fair Stand Item/Category data is a Fair Stand domain hosted in this product process as `fair_stand_*`. CRM `crm_*` tables are not the Item owner. No Core Item domain and no new auth/gateway.
