@@ -104,7 +104,9 @@ Rules:
 
 A fair is visible to the current organization only when `fair.organization_id` equals that organization, or `fair.origin` is `system`. Another organization’s `origin = organization` fair stays invisible. Probing it fails closed and does not disclose the record.
 
-A system fair is shared catalog data. It is not customer-editable. For an organization user, read is allowed and update, archive, and restore are forbidden. The backend enforces the denial. Hiding the action in the UI is not the control.
+A system fair is shared catalog data. An organization user may read it and may not update, archive, or restore the fair record. The backend enforces that denial. Hiding the action in the UI is not the control. Super Admin may maintain the catalog and scraper fields; that write is not organization fair CRUD.
+
+The same organization user may add or remove that organization's own customers under the system fair when they hold `fair_crm.participations.create` or `fair_crm.participations.delete`. Those participation rows stay organization-scoped. An organization fair remains ordinary organization CRUD under `fair_crm.fairs.*`.
 
 `fair_id` is not an authorization boundary for a tenant-owned child. Customer, participation, import batch, import row, and organization scraper run access still require that child’s `organization_id` to equal the current organization. Two organizations may both see System Fair X and must not see each other’s customers, participations, import batches, import rows, or organization scraper runs.
 
