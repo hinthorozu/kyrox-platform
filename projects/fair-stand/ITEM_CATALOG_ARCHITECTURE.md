@@ -71,7 +71,7 @@ Category string `catalog_key` / `catalogKey` yoktur. Runtime ürün kimliği ola
 
 Tablolar ayrı PostgreSQL veritabanı `fair_stand` içindedir (`fair_stand_*` ad alanı). Katalog tabloları ilişkiseldir (JSON / EAV yok) ve `organization_id` taşımaz. Proje kaydı `fair_stand_projects` satırıdır: `payload` JSONB `{stand, modules}`, zorunlu `customer_id` UUID (`crm_customers` FK’si yok). Katalog FK’lerinin varsayılanı `ON DELETE CASCADE` + `ON UPDATE CASCADE`dır. İki açık istisna `ON DELETE RESTRICT` kullanır: `fair_stand_items.item_type` ve `fair_stand_items.unit`. Ürün silme stratejisi fiziksel DELETE değil `is_active` ile deaktive etmektir.
 
-Migration head (Stand): `0058_item_cost_enabled`. `0058` `fair_stand_items.is_cost_enabled` kolonunu ekler: BOOLEAN NOT NULL, default false. Mevcut satırlar false kalır. Kolon fiyat, birim ve reçete miktarı değildir. `0053_item_type_scene_behavior` item type sınıflandırmasını sahne davranışından ayırır. `0043` / `0044` cam panel SKU satırıdır, kolon eklemez. İlk şema `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
+Migration head (Stand): `0059_elektrik_panosu_item`. `0058` `fair_stand_items.is_cost_enabled` kolonunu ekler: BOOLEAN NOT NULL, default false. Mevcut satırlar false kalır. Kolon fiyat, birim ve reçete miktarı değildir. `0053_item_type_scene_behavior` item type sınıflandırmasını sahne davranışından ayırır. `0043` / `0044` cam panel SKU satırıdır, kolon eklemez. İlk şema `0001_fair_stand_schema`. CRM leftover drop: `0089_drop_fair_stand_tables`. Historical CRM revisions `0084`–`0088` yalnızca eski `fair_crm` kopyasını anlatır.
 
 ### 1. `fair_stand_categories`
 
@@ -89,7 +89,7 @@ Super Admin Fair CRM Admin ekranlarından SYSTEM izinleriyle CRUD yapar. Organiz
 
 ### `fair_stand_units`
 
-Global ölçü birimi kataloğu. `id` INTEGER PK AUTO INCREMENT. Kolonlar: `unit_key` (addan üretilen unique teknik kimlik; JSON `unitKey`; ad değişince yeniden üretilir), `name`, `symbol`, `is_active` (default true), `created_at`, `updated_at`. `organization_id` yoktur. Migration unit satırı eklemez. `fair_stand_items.unit` nullable `VARCHAR(64)` kolonudur ve `fair_stand_units.unit_key` hedefine gider: `fk_fair_stand_items_unit_key`, ON UPDATE CASCADE, ON DELETE RESTRICT. Unit key değişince bağlı Item değerlerini veritabanı aynı transaction içinde günceller. Uygulama bu kopyayı yapmaz. Archive yalnız `is_active=false` yazar; key ve Item unit değerleri durur. Inactive bir unit key’i Item’a yazmak reddedilmez; FK yalnız varlığı garanti eder. Yönetim Fair Stand admin API `/admin/units` üzerindedir. Yetki mevcut SYSTEM `fair_crm.admin.fair_stand.catalog.read|create|update|archive` izinleridir. CRM yalnız Super Admin `Ölçü Birimleri` ekranını sunar. Alembic head `0058_item_cost_enabled`.
+Global ölçü birimi kataloğu. `id` INTEGER PK AUTO INCREMENT. Kolonlar: `unit_key` (addan üretilen unique teknik kimlik; JSON `unitKey`; ad değişince yeniden üretilir), `name`, `symbol`, `is_active` (default true), `created_at`, `updated_at`. `organization_id` yoktur. Migration unit satırı eklemez. `fair_stand_items.unit` nullable `VARCHAR(64)` kolonudur ve `fair_stand_units.unit_key` hedefine gider: `fk_fair_stand_items_unit_key`, ON UPDATE CASCADE, ON DELETE RESTRICT. Unit key değişince bağlı Item değerlerini veritabanı aynı transaction içinde günceller. Uygulama bu kopyayı yapmaz. Archive yalnız `is_active=false` yazar; key ve Item unit değerleri durur. Inactive bir unit key’i Item’a yazmak reddedilmez; FK yalnız varlığı garanti eder. Yönetim Fair Stand admin API `/admin/units` üzerindedir. Yetki mevcut SYSTEM `fair_crm.admin.fair_stand.catalog.read|create|update|archive` izinleridir. CRM yalnız Super Admin `Ölçü Birimleri` ekranını sunar. Alembic head `0059_elektrik_panosu_item`.
 
 ### `fair_stand_item_type` ve `fair_stand_item_type_scene_behavior`
 
@@ -233,7 +233,7 @@ Bu sayılar mimari invariant değildir; **son doğrulanan lokal implementation**
 
 | Ölçüm | Değer |
 |-------|--------|
-| Migration | Fair Stand head `0058_item_cost_enabled` |
+| Migration | Fair Stand head `0059_elektrik_panosu_item` |
 | Categories | 6 |
 | Items | 121 |
 | Visible Items | 58 |
