@@ -8,6 +8,10 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **System Fair duplicate review** — A Super Admin can review ambiguous System Fair rows, choose which row stays, and merge the other in one transaction. References move first; the duplicate is archived and is not hard-deleted. A participation collision or a conflicting scraper mapping blocks the merge. `Ayrı Tut` keeps that identity pair out of later conflicts. Existing catalog rows are not merged automatically. ADR-039.
+
+- **System Fair persistent identity** — A System Fair is one catalog row across calendar years. TOBB sync updates schedule and display metadata on that row. Calendar year, dates, TOBB sequence and edition number do not open a new Fair. Same-year distinct editions stay separate, and an ambiguous match is a conflict with the involved fair names and ids. Existing duplicate rows are not merged. ADR-038 supersedes ADR-037 for catalog identity. Scraper fields stay owned by ADR-017.
+
 - **System fair customers** — An organization user with `fair_crm.participations.create` or `fair_crm.participations.delete` can add or remove that organization's customers on a shared system fair. The system fair record stays read-only for that user (update, archive, and restore stay denied). Organization fairs keep their own CRUD. FAIR CRM PR #330. Constitution §5 states the rule.
 
 - **System Fair decisions recorded** — Accepted documentation only. TOBB catalog identity is ADR-037. System jobs use `job_scope=system` and null `organization_id` in the background job standard. TOBB sync and system fair scraper start are system-scoped in permission governance. Import batches may target a system fair while remaining organization-scoped. No application code, migration, or permission seed.

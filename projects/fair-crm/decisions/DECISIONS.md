@@ -291,7 +291,7 @@ System fairs keep the same columns, with different writers:
 
 - An organization user cannot change them. The organization fair mutation API cannot update a system fair (Constitution §5).
 - Only platform administration (Super Admin / system permission) may write them.
-- TOBB catalog sync must not overwrite `adapter_key`, `source_url`, or `scraper_config`. Sync writes catalog metadata only. Catalog identity is ADR-037.
+- TOBB catalog sync must not overwrite `adapter_key`, `source_url`, or `scraper_config`. Sync writes catalog metadata only. Catalog identity is ADR-038.
 
 **Non-negotiable:**
 
@@ -905,7 +905,7 @@ Earlier roadmap wording implied a single shared Operation Wizard. Product clarif
 
 ## ADR-037 — System Fair catalog identity (TOBB)
 
-**Status:** Accepted (documentation; not implemented)  
+**Status:** Superseded for System Fair catalog identity by ADR-038. The historical decision text below is unchanged.  
 **Date:** 2026-09-30
 
 **Context:**
@@ -937,4 +937,87 @@ Visibility, mutation denial, and the rule that a shared fair does not share cust
 - Catalog sync upserts on `(source, external_id)`.
 - Sync must not overwrite scraper configuration fields (ADR-017).
 - Existing organization fairs are not rewritten into system fairs by name.
+
+---
+
+## ADR-038 — System Fair persistent identity
+
+**Status:** Accepted. User-directed duplicate cleanup is ADR-039. The decision text below is unchanged.  
+**Date:** 2026-10-08  
+**Supersedes:** ADR-037, for System Fair catalog identity only
+
+**Context:**
+
+TOBB still publishes no durable event id, detail URL or fair code. The calendar sequence restarts every year, and the official name carries the calendar year and the edition number. Treating each year as a new Fair splits one real fair into a new `crm_fairs` row every year.
+
+ADR-037 defined identity as `sha256(normalize(name)|start_date|city|venue)` and accepted a new Fair when the start date changed. That decision was documentation only. The shipped sync instead used `external_id = year:sequence` and matched the full normalized name inside one year. Both treat a later calendar year as a different Fair.
+
+**Decision:**
+
+System Fair is a persistent catalog identity. Calendar year, schedule dates and edition number are mutable occurrence metadata and do not independently create a new Fair identity.
+
+Matching applies only to `origin = system` rows for the source being synced. Organization fairs are not matched, updated, merged or claimed.
+
+`external_id = year:sequence` remains the current TOBB occurrence reference. It is not the logical Fair identity.
+
+The persistent label is `identity_name`: the normalized official name with calendar-year tokens and edition-number tokens removed. `normalized_name` keeps the official wording, including year and edition. City is compared with the fair's city field. An edition number distinguishes two occurrences in the same calendar year. It does not, by itself, continue one occurrence into the next year.
+
+Sync outcome for one source row:
+
+- No unambiguous System Fair for that label and city: create one System Fair.
+- One unambiguous System Fair: update its schedule and display metadata, including when the stored edition has not ended.
+- Two or more possible System Fairs, and the row is not a distinct same-year edition that can be told apart from the others: conflict. Do not update. Do not create.
+- A second edition in the same calendar year, with its own edition number, is stored as its own System Fair. It does not overwrite the other edition.
+- When several editions already share the label, a later year is a conflict. The sync does not guess which series continues.
+- An older calendar year does not replace a newer occurrence already stored on that Fair. That row is a conflict and is left unchanged.
+
+Existing duplicate System Fairs are not deleted, merged, re-pointed or archived by this decision.
+
+TOBB sync still must not overwrite `adapter_key`, `source_url` or `scraper_config` (ADR-017).
+
+A conflict result names the incoming fair and the involved System Fair ids. Choosing which duplicate to keep, and moving child rows, is a later decision.
+
+**Consequences:**
+
+- Constitution §5 tenant boundaries are unchanged. This ADR does not restate them.
+- ADR-037's fingerprint and its acceptance of a new Fair on a date change are no longer in force.
+- `identity_name` is stored on `crm_fairs`. It is not a unique key, because duplicate rows already exist.
+- Manual reconciliation of those existing rows is outside this decision.
+
+---
+
+## ADR-039 — System Fair duplicate review and safe merge
+
+**Status:** Accepted  
+**Date:** 2026-10-08
+
+**Context:**
+
+ADR-038 stopped new System Fair duplicates and left existing ambiguous rows in place. Those rows can already own participations, quotes, todos, activities, imports, mail, scraper runs and operation references. A hard delete is not a fair-removal path in this product, and the live database deletes several of those children when a fair row is deleted.
+
+**Decision:**
+
+Duplicate review and merge apply only to `origin = system` fairs. Organization fairs are rejected. The user chooses the fair that stays and the fair that is absorbed. The system does not choose.
+
+Review uses the ADR-038 identity label and city. It does not add a second matching algorithm. Same-year rows that already have distinct edition numbers are not review candidates. A group the user has marked distinct is not shown again and is not a later sync conflict.
+
+Merge is one database transaction:
+
+- Blocking conflicts are decided before any write. The same active customer on both fairs blocks the merge. Different non-empty `adapter_key`, `source_url` or `scraper_config` values block the merge. An empty scraper field on the kept fair may receive the other fair's value.
+- References move to the kept fair: participations, quotes, todos, activities, import batches, fair email batches, mail send operations, scraper runs, and fair reference keys inside operation `source_config` and `type_config`.
+- Historical text stays as stored. Mail fair name, scraper fair name and year, and activity metadata are not rewritten because the fair id changed.
+- The absorbed fair is then archived, which is the existing fair-removal lifecycle. Its occurrence reference is cleared. It is not hard-deleted. A system fair cannot be restored, so the archive is not a catalog undo.
+- A second merge of an already archived fair makes no further change and returns a conflict.
+
+`Ayrı Tut` records that the selected system fairs are intentionally distinct for this identity matcher. It is not a general review engine.
+
+The action is a Super Admin catalog change. It is not an organization permission. The merge is audited with the actor, both fair ids and the moved reference counts.
+
+Existing catalog rows are not merged by a migration or a script.
+
+**Consequences:**
+
+- Constitution §5 tenant boundaries are unchanged.
+- ADR-038 still decides identity matching. This ADR decides only what a user may do with an ambiguous pair.
+- Scraper field ownership in ADR-017 is unchanged for TOBB sync. A Super Admin merge may fill an empty scraper field and may not overwrite a filled one.
 
