@@ -124,7 +124,7 @@ The shared system participant dataset is the system scraper handoff only. It is 
 
 Organization scraper runs must stay inside their organization. Aggregating scraper runs by fair name without `organization_id` violates this rule. `AdapterLinkedFairService._aggregate_runs_by_fair_name` is a known violation and must be corrected when system fairs are implemented. This constitution does not authorize that query.
 
-Catalog identity is [ADR-037](decisions/DECISIONS.md). Scraper field ownership is [ADR-017](decisions/DECISIONS.md). Import batch tenancy is [import/IMPORT_ARCHITECTURE.md](import/IMPORT_ARCHITECTURE.md). System job scope is [the background job standard](../../standards/jobs/BACKGROUND_JOB_STANDARD.md).
+Catalog identity is [ADR-038](decisions/DECISIONS.md). ADR-037's catalog-identity decision is superseded by that ADR. User-directed duplicate cleanup is [ADR-039](decisions/DECISIONS.md). Scraper field ownership is [ADR-017](decisions/DECISIONS.md). Import batch tenancy is [import/IMPORT_ARCHITECTURE.md](import/IMPORT_ARCHITECTURE.md). System job scope is [the background job standard](../../standards/jobs/BACKGROUND_JOB_STANDARD.md).
 
 Permission-scope details: [PERMISSION_SCOPE_GOVERNANCE.md](PERMISSION_SCOPE_GOVERNANCE.md).  
 Shared UI authorization semantics: [../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md](../../standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md).
