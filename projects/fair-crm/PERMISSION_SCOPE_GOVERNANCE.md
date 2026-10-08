@@ -83,10 +83,12 @@ fair_crm.admin.fair_stand.catalog.read
 fair_crm.admin.fair_stand.catalog.create
 fair_crm.admin.fair_stand.catalog.update
 fair_crm.admin.fair_stand.catalog.archive
-fair_crm.admin.fair_stand.previews.read
-fair_crm.admin.fair_stand.previews.create
-fair_crm.admin.fair_stand.previews.update
-fair_crm.admin.fair_stand.previews.archive
+fair_crm.admin.fair_stand.settings.read
+fair_crm.admin.fair_stand.settings.update
+fair_crm.admin.fair_stand.items.read
+fair_crm.admin.fair_stand.items.create
+fair_crm.admin.fair_stand.items.update
+fair_crm.admin.fair_stand.items.archive
 identity.permissions.lifecycle
 identity.role_templates.read
 identity.role_templates.manage
@@ -94,7 +96,7 @@ identity.organizations.delete
 identity.organizations.suspend
 ```
 
-The list above is the seeded catalog. It is not the full set of accepted system operations.
+The list above is the seeded catalog. It is not the full set of accepted system operations. Catalog preview administration uses `fair_crm.admin.fair_stand.catalog.*`. The former `fair_crm.admin.fair_stand.previews.*` codes are removed.
 
 ## Accepted system operations not yet seeded
 
