@@ -104,6 +104,8 @@ Rules:
 
 A fair is visible to the current organization only when `fair.organization_id` equals that organization, or `fair.origin` is `system`. Another organization’s `origin = organization` fair stays invisible. Probing it fails closed and does not disclose the record.
 
+This visibility is not inherited by new code. A new `fair_id` use that means “a fair this organization may use” must call the visible-fair lookup (`get_visible`, or `get_visible_including_archived` only when an archived fair is in scope). `get_by_id` stays the organization-owned record lookup. It does not see a system fair, and it must not become the default for a new customer, task, mail, import, or later feature. Organization scraper start, dashboard fair inventory, and adapter-linked fair listing stay organization-only on purpose.
+
 A system fair is shared catalog data. An organization user may read it and may not update, archive, or restore the fair record. The backend enforces that denial. Hiding the action in the UI is not the control. Super Admin may maintain the catalog and scraper fields; that write is not organization fair CRUD.
 
 The same organization user may add or remove that organization's own customers under the system fair when they hold `fair_crm.participations.create` or `fair_crm.participations.delete`. Those participation rows stay organization-scoped. An organization fair remains ordinary organization CRUD under `fair_crm.fairs.*`.
