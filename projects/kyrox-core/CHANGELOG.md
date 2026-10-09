@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Granting Super Admin no longer clears `identity_users.organization_id` or revokes the user's active organization role. The user-management context returns that owned `organization_id`.
 - OL08 retained-audit purge now canonicalizes naive tombstone timestamps as UTC. SQLite and some drivers return naive datetimes; `datetime.astimezone(UTC)` previously treated them as process-local time, so a 12-calendar-month deadline could pass a microsecond early and serialized `terminal_deleted_at` could shift by the local UTC offset.
 
 ### Added
