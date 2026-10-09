@@ -8,6 +8,8 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **Super Admin session organization** — Fair CRM binds the session to the authenticated user's Core `organization_id`. A Super Admin with an organization no longer stays on the development organization placeholder. The user menu shows that organization name.
+
 - **System Fair duplicate review** — A Super Admin can review ambiguous System Fair rows, choose which row stays, and merge the other in one transaction. References move first; the duplicate is archived and is not hard-deleted. A participation collision or a conflicting scraper mapping blocks the merge. `Ayrı Tut` keeps that identity pair out of later conflicts. Existing catalog rows are not merged automatically. ADR-039.
 
 - **System Fair persistent identity** — A System Fair is one catalog row across calendar years. TOBB sync updates schedule and display metadata on that row. Calendar year, dates, TOBB sequence and edition number do not open a new Fair. Same-year distinct editions stay separate, and an ambiguous match is a conflict with the involved fair names and ids. Existing duplicate rows are not merged. ADR-038 supersedes ADR-037 for catalog identity. Scraper fields stay owned by ADR-017.
