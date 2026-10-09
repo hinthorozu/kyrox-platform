@@ -8,6 +8,8 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **System fair scraper start** — A scraper operation can target a system fair. The run stores the official TOBB title without a 255-character cut. Fair pickers and the scraper summary show `display_name`.
+
 - **Super Admin session organization** — Fair CRM binds the session to the authenticated user's Core `organization_id`. A Super Admin with an organization no longer stays on the development organization placeholder. The user menu shows that organization name.
 
 - **System Fair duplicate review** — A Super Admin can review ambiguous System Fair rows, choose which row stays, and merge the other in one transaction. References move first; the duplicate is archived and is not hard-deleted. A participation collision or a conflicting scraper mapping blocks the merge. `Ayrı Tut` keeps that identity pair out of later conflicts. Existing catalog rows are not merged automatically. ADR-039.
