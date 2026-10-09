@@ -152,7 +152,7 @@ Aşağıdakiler merkezi sistemden (`frontend/src/styles.css` `:root`) gelmelidir
 
 | Kategori | Örnekler |
 |----------|----------|
-| Surfaces | `--bg`, `--surface`, `--surface-raised`, `--surface-sunken`, `--surface-overlay` |
+| Surfaces | `--bg`, `--surface`, `--surface-raised`, `--surface-sunken`, `--surface-sidebar`, `--surface-overlay` |
 | Text | `--text`, `--muted` |
 | Borders | `--border`, `--border-strong` |
 | Semantic | `--primary*`, `--success*`, `--warning*`, `--danger*`, `--info*`, `--neutral*` |
