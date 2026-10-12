@@ -452,7 +452,7 @@ Yeni route kendi kafasına göre page chrome **oluşturamaz**.
 - List filters: `FilterPanel`
 - Auth Login: belgelenmiş PageShell istisnası (brand shell)
 
-`PageShell fullWidth` yalnızca specialty yoğun layout’lar içindir (ör. Import Wizard). Varsayılan içerik `--page-content-max-width` ile clamp edilir.
+`PageShell fullWidth` veri listeleme / tablo ekranlarında ve specialty yoğun layout’larda (ör. Import Wizard) kullanılır. Listeleme ve tablo sayfaları kullanılabilir sayfa genişliğini doldurur; `--page-content-max-width` bu sayfaları daraltmaz. Form, detay ve dashboard gibi tablo merkezli olmayan sayfalarda varsayılan clamp korunur. `fullWidth` tercihi tablo motorunu veya responsive davranışı değiştirmez; 390 / 768 / 1024 / 1440 / ultrawide ve container-resize kontrolleri aynen geçerlidir.
 
 ---
 
