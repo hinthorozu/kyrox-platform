@@ -1,5 +1,9 @@
 # Changelog
 
+## Locally verified extension — 2026-10-13
+
+The user-approved product need adds generic system in-app notifications to the existing notification store, public real-Super-Admin delivery/inbox endpoints and purpose-separated internal product delivery. Idempotency includes content/navigation metadata, organization endpoints cannot create system in-app notices, and no email dispatch occurs for the new channel. Migration `20261012_0073` and full Core quality gate (441 tests) passed. Cross-service PostgreSQL/JWT/UI acceptance passed; GitHub delivery is subject to strict-green checks and production deployment remains pending.
+
 All notable changes to KYROX Core are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

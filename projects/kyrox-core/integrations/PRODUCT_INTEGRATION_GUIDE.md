@@ -7,6 +7,16 @@
 
 ## 1. Overview
 
+### Local implementation contract: system in-app notifications (2026-10-12)
+
+Approved for the TOBB product requirement; local acceptance passed and production deployment is pending. Core reuses `platform_notifications` with channel `in_app`; persistence delivers the inbox entry without SMTP or a notification dispatch job.
+
+- `POST /api/v1/system/notifications/in-app`: active JWT/session and Core DB Super Admin flag required; organization headers are unnecessary. Body: `recipient` (`super_admin` broadcast or user UUID), `subject`, `body`, optional generic `variables`, required `idempotency_key`.
+- `GET /api/v1/system/notifications/in-app?limit=50`: same Super Admin guard; returns only platform-scoped in-app messages addressed to `super_admin` or the authenticated user. Limit 1–100, newest first. Response includes id, subject, body, variables and created_at.
+- `POST /api/v1/internal/notifications/in-app`: the same delivery payload, authenticated by `X-Kyrox-Notification-Token`. Core must explicitly configure `CORE_PRODUCT_NOTIFICATION_TOKEN` (minimum 32 characters); product workers configure the same secret as `KYROX_CORE_PRODUCT_NOTIFICATION_TOKEN`. Missing configuration fails closed with 503, wrong/missing credentials with 401. The credential is purpose-separated from lifecycle reads, suspension signals, user tokens and provider secrets, and is never persisted in job payloads or logs.
+
+Delivery is idempotent within system scope. Replaying a key with changed content or navigation variables returns 409. Inbox access cannot be granted to OrganizationAdmin through role permissions. Products keep domain run/review history in their own database and send only generic content/navigation metadata through HTTP. No cross-repository imports, shared sessions, foreign keys, second notification store or external notification are permitted.
+
 KYROX Core is a **standalone backend platform service**. Product applications are **separate services** that integrate through **Core public HTTP APIs** under `/api/v1`.
 
 Products must **not**:
