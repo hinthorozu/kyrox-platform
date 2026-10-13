@@ -33,9 +33,14 @@ Kanonik Item ürün verisi DB/API’den gelir; static JS Item/Category master yo
 |-------|-----|
 | [ITEM_CATALOG_ARCHITECTURE.md](ITEM_CATALOG_ARCHITECTURE.md) | Item / Category as-built mimari (tek kaynak) |
 | [PROJECT_STATUS.md](PROJECT_STATUS.md) | Canlı ürün durumu |
-| [ROADMAP.md](ROADMAP.md) | Ürün iş kuyruğu |
+| [ROADMAP.md](ROADMAP.md) | Katalog / platform iş kuyruğu; configurator üst seviye planı ve FAZ 4 detayı `fair-stand` deposundadır |
+| [ROADMAP_PHASE_5_6.md](ROADMAP_PHASE_5_6.md) | FAZ 5 (Final BOM) ve FAZ 6 (maliyet / Fair CRM) detaylı planı |
+| [PRODUCT_FUTURE.md](PRODUCT_FUTURE.md) | Henüz faza yerleşmemiş gelecek ürün gereksinimleri |
+| [RENDER_FUTURE_BACKLOG.md](RENDER_FUTURE_BACKLOG.md) | Render / HDRI / PBR gelecek backlog'u |
 
-Runtime Item sözleşmesi ve change-gate, CI orada doğruladığı için `fair-stand` deposunda kalır.
+Tarihsel Fair Stand kayıtları (normatif değil): [../../archive/fair-stand/](../../archive/fair-stand/) — `MILESTONES.md`, `CHANGELOG_2026-08.md`, `LEGACY_TRASH.md`, `BASE_FAMILY_MIGRATION_HANDOFF.md`.
+
+Runtime Item sözleşmesi, change-gate belgeleri ve CI'ın okuduğu `ROADMAP.md` / `ROADMAP_PHASE_4.md`, CI orada doğruladığı için `fair-stand` deposunda kalır.
 
 ## İlgili
 

@@ -12,19 +12,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 - **Fair Stand independent catalog API (ADR-0008)** — catalog process `:8002` and database `fair_stand`; CRM keeps shell, Admin UI, and same-origin proxy.
 - **Fair Stand product ownership (ADR-0007)** — Fair Stand is a KYROX product. Core remains auth/org/RBAC only. Physical catalog hosting is amended by ADR-0008.
 - Canonical Fair Stand project entry under `projects/fair-stand/`.
-
-### Changed
-
-- Fair Stand catalog API/DB is the Fair Stand process (`:8002`, database `fair_stand`). CRM keeps UI + Admin + same-origin proxy; leftover `fair_crm.fair_stand_*` tables drop in CRM Alembic `0089`.
-- Repository strategy now records the existing `fair-stand` runtime repository alongside platform, Core and Fair CRM. Optional extra repos still require a future ADR.
-
-### Added
-
 - **KYROX SaaS Readiness Roadmap** — canonical cross-repository priority/ownership/launch strategy covering tenant isolation, organization lifecycle, production security, entitlement/usage/billing decisions, data lifecycle, operational hardening and scale.
 - **SaaS-impact classification** — every material delivery now classifies affected organization/security/ownership/entitlement/usage/lifecycle/runtime dimensions before implementation.
 
 ### Changed
 
+- Fair Stand repository-local documents that its CI reads (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) are now an explicit governance exception; Platform links to them instead of copying them.
+- Fair Stand plan documents no CI reads moved into Platform: `ROADMAP_PHASE_5_6.md`, `PRODUCT_FUTURE.md`, `RENDER_FUTURE_BACKLOG.md` under `projects/fair-stand/`; `MILESTONES.md`, the August changelog, `LEGACY_TRASH.md` and the BASE migration handoff under `archive/fair-stand/`.
+- Status documents synchronized with code on 2026-10-13: FAIR CRM `main` migration head `0098_tobb_manual_date_revision`, Core `20261012_0073`, Fair Stand `0066_metal_separator_area`; TOBB workflow (FAIR CRM PR #342) and Core in-app notifications (Core PR #42) recorded as merged.
+- Fair Stand catalog API/DB is the Fair Stand process (`:8002`, database `fair_stand`). CRM keeps UI + Admin + same-origin proxy; leftover `fair_crm.fair_stand_*` tables drop in CRM Alembic `0089`.
+- Repository strategy now records the existing `fair-stand` runtime repository alongside platform, Core and Fair CRM. Optional extra repos still require a future ADR.
 - Feature Delivery Standard now treats SaaS-safety evidence as part of Definition of Done; green CI alone is not acceptance when an applicable tenant/security/runtime property remains unproven.
 - Feature Applicability Standard now requires affected SaaS dimensions to be REQUIRED and unaffected dimensions to be explicitly N/A rather than inventing speculative infrastructure.
 - Quality Gate Standard now forbids normal baseline admission of new tenant-isolation/security regressions and distinguishes strict-green CI from production-shaped SaaS acceptance.
@@ -72,7 +69,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 - ADR-0002: Core and product separation (Core independent; products depend on Core).
 - Milestone definitions M1–M4; M1 Foundation completed.
 
-[Unreleased]: https://github.com/kyrox/kyrox-platform/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/kyrox/kyrox-platform/compare/v0.2.0...v0.4.0
-[0.2.0]: https://github.com/kyrox/kyrox-platform/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/kyrox/kyrox-platform/releases/tag/v0.1.0
+[Unreleased]: https://github.com/hinthorozu/kyrox-platform/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/hinthorozu/kyrox-platform/compare/v0.2.0...v0.4.0
+[0.2.0]: https://github.com/hinthorozu/kyrox-platform/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/hinthorozu/kyrox-platform/releases/tag/v0.1.0

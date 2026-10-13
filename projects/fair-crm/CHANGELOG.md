@@ -8,7 +8,7 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
-- **TOBB controlled sync/review — 2026-10-13 locally verified** — ADR-040 adds durable independently decided date/metadata proposals, editable source mappings, manual preview/apply staleness guards, strict manual edition expiry checks, system jobs on existing execution/history infrastructure, bounded year retries, cancellation, detailed older-run access and Core-owned in-app notices. Actual Core authorization, concurrent PostgreSQL decisions, tenant relationship preservation and responsive browser workflows passed. Scheduler configuration is Monday 03:00 Europe/Istanbul with catch-up disabled; nothing was deployed. See project status for counts and verification limits.
+- **TOBB controlled sync/review — merged 2026-10-13 (PR #342)** — ADR-040 adds durable independently decided date/metadata proposals, editable source mappings, manual preview/apply staleness guards, strict manual edition expiry checks, system jobs on existing execution/history infrastructure, bounded year retries, cancellation, detailed older-run access and Core-owned in-app notices. Actual Core authorization, concurrent PostgreSQL decisions, tenant relationship preservation and responsive browser workflows passed. Scheduler configuration is Monday 03:00 Europe/Istanbul with catch-up disabled; nothing was deployed. See project status for counts and verification limits.
 
 - **System fair scraper start** — A scraper operation can target a system fair. The run stores the official TOBB title without a 255-character cut. Fair pickers and the scraper summary show `display_name`.
 

@@ -4,11 +4,11 @@ Canonical **future-work / active-work queue** for FAIR CRM. Current delivered tr
 
 ## Cross-cutting SaaS readiness
 
-### TOBB final workflow — locally verified 2026-10-13
+### TOBB final workflow — merged 2026-10-13; deployment pending
 
-ADR-040 implementation and required local acceptance are complete. Current implementation and verification limits are recorded in [PROJECT_STATUS.md](PROJECT_STATUS.md); delivery history is in [CHANGELOG.md](CHANGELOG.md). GitHub PR/CI/merge is authorized subject to strict-green checks; production deployment is not authorized.
+ADR-040 implementation and required local acceptance are complete and merged to `main` (PR #342, Core PR #42). Current implementation and verification limits are recorded in [PROJECT_STATUS.md](PROJECT_STATUS.md); delivery history is in [CHANGELOG.md](CHANGELOG.md). Production deployment is not authorized.
 
-The approved 2026-10-12 ADR-038 amendment for TOBB System Fair identity, expiry-gated edition rollover and preserved-date warnings has passed the existing local feature-contract, quality, behavior-map regression, UI and production-shaped authorization gates. Merge/deployment remains pending explicit authorization; no new Core, schema, permission or scraper capability is sequenced by this change. Current verification boundaries are in [PROJECT_STATUS.md](PROJECT_STATUS.md).
+The approved 2026-10-12 ADR-038 amendment for TOBB System Fair identity, expiry-gated edition rollover and preserved-date warnings has passed the existing local feature-contract, quality, behavior-map regression, UI and production-shaped authorization gates. It shipped in the same merge; deployment remains pending explicit authorization; no new Core, schema, permission or scraper capability is sequenced by this change. Current verification boundaries are in [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 FAIR CRM participates in the canonical cross-repository [KYROX SaaS Readiness Roadmap](../../ecosystem/SAAS_ROADMAP.md). Every material FAIR CRM change follows the shared SaaS-impact, tenant-isolation, authorization-scope and runtime-acceptance gates even when the concrete SaaS roadmap item is not itself active product work.
 
