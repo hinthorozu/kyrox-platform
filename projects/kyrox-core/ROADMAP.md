@@ -23,6 +23,10 @@ The existing Core baseline covers identity/authentication, organization/user/rol
 
 ## Active product-driven platform work
 
+### Platform in-app notifications — approved 2026-10-12
+
+The FAIR CRM TOBB workflow requires durable application-only completion notices for Super Admins. The user approved extending Core's existing notification module; this is a concrete product-driven need permitted under the M4 freeze. Reuse `platform_notifications`, add `in_app` delivery without an email provider, expose a DB-flag-protected system inbox and idempotent system delivery. Automated product workers use a purpose-separated notification credential; no user JWT is persisted and lifecycle credentials are not repurposed. Product-specific TOBB decisions remain in FAIR CRM. Local acceptance passed on 2026-10-13: full Core quality gate and production-shaped cross-service/UI evidence. Current capability and limits are recorded in PROJECT_STATUS.md; GitHub delivery is authorized subject to strict-green checks, while production deployment remains pending.
+
 ### P0.2 Identity / SaaS onboarding foundation — ACTIVE 2026-08-27
 
 The ecosystem approved the reusable identity/onboarding subset of ADR-0006 as a real FAIR CRM commercial requirement. This work is therefore allowed under the M4 Core freeze and is not speculative platform expansion.

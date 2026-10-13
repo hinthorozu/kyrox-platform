@@ -1,5 +1,25 @@
 # Architecture Decisions
 
+## ADR-040 — TOBB persistent review and controlled synchronization
+
+Status: Accepted product requirements (2026-10-12); local implementation and acceptance verified 2026-10-13; GitHub delivery authorized; production deployment pending.
+
+The approved follow-up extends ADR-038 without changing persistent fair ownership or ADR-039's explicit duplicate merge. One logical fair retains its id, manual name, scraper settings and relationships. A new edition requires the stored end date to be strictly before the Istanbul calendar day, even after a manual edition selection. Missing, current-day and future end dates block replacement.
+
+Name ambiguity requires a Super Admin decision to map an existing fair, create a distinct fair or postpone. Approved source identity/city mappings must be remembered and editable without moving tenant relationships. City changes require a same/different-fair decision. A source sequence alone is never identity.
+
+Date proposals are durable and atomically apply both start/end dates or keep both. Only complete valid ranges may be applied. Date bulk decisions permit independent successes and retain failed pending items. Organizer, venue and website are independently reviewable; blank source values neither erase data nor create warnings. Pending proposals update with the latest source, remain indefinitely until a decision and have no duplicate active fair/type entry. Rejected identical proposals do not reopen unless source values or the stored baseline change. First valid concurrent decision wins; stale decisions return the current state. Missing source fairs remain untouched.
+
+Manual synchronization fetches and stores a preview before fair mutations, then requires explicit apply. Apply must validate the shown source and stored baseline; unseen changes require a refreshed preview. Automated runs bypass preview approval. Existing job execution, audit and run-history mechanisms must be reused, with deliberate system scope (`organization_id = NULL`), one globally active TOBB run, cooperative cancellation, per-year results and independently retryable failed years. Successfully processed records survive cancellation. Weekly scheduling is Monday 03:00 Europe/Istanbul, current and next calendar years, without catch-up after downtime. The existing systemd scheduling pattern is reused with persistence disabled for this timer.
+
+The existing review/table UI exposes search, type filters, pending counts, value comparison, single decisions and selected-date bulk decisions. TOBB suggestions and duplicate merge share the system-fair review surface; mapping never implicitly merges records. Every run records actor/system, timing, years, counters, errors, retries and fair-level details.
+
+Core owns generic notifications. Inspection found its current channel is email only. The user explicitly approved including kyrox-core on 2026-10-12 to extend the existing platform_notifications module with an in-app channel and public system-scoped Super Admin delivery/inbox APIs. No second notification store, email delivery or external notification is introduced. TOBB domain payloads remain in Fair CRM; Core receives only generic notification content and navigation metadata through HTTP.
+
+Initial decision/code mapping: A VAR; B KISMEN (durable mappings and decisions missing); C KISMEN (manual multi-edition choice missing); D KISMEN (transient warnings only); E ÇELİŞKİ (metadata previously overwritten); F YOK; G KISMEN (existing duplicate review reusable); H YOK (shared execution and systemd pattern reusable); I YOK; J KISMEN (existing run history/audit reusable, Core in-app channel missing). These labels describe the starting state, not acceptance.
+
+This amendment supersedes ADR-038's earlier no-extra-alias-storage constraint where durable approved mappings now require product persistence. It does not authorize customer/participation reassignment, tenant writes or production deployment. GitHub commit, PR and strict-green merge were subsequently authorized by the user. Required evidence includes contracts, migrations, strict regression gates, real Core authorization, concurrency, cancellation/retry/partial success, scheduler configuration, production-shaped workflows and responsive UI verification. The previous task's green results do not establish acceptance for this expansion.
+
 ## ADR-001 — Use `fair-crm` as the product repository name
 
 Status: Accepted
@@ -942,8 +962,8 @@ Visibility, mutation denial, and the rule that a shared fair does not share cust
 
 ## ADR-038 — System Fair persistent identity
 
-**Status:** Accepted. User-directed duplicate cleanup is ADR-039. The decision text below is unchanged.  
-**Date:** 2026-10-08  
+**Status:** Accepted. Updated by the approved 2026-10-12 product decision. User-directed duplicate cleanup is ADR-039.
+**Date:** 2026-10-08; amended 2026-10-12
 **Supersedes:** ADR-037, for System Fair catalog identity only
 
 **Context:**
@@ -960,15 +980,17 @@ Matching applies only to `origin = system` rows for the source being synced. Org
 
 `external_id = year:sequence` remains the current TOBB occurrence reference. It is not the logical Fair identity.
 
-The persistent label is `identity_name`: the normalized official name with calendar-year tokens and edition-number tokens removed. `normalized_name` keeps the official wording, including year and edition. City is compared with the fair's city field. An edition number distinguishes two occurrences in the same calendar year. It does not, by itself, continue one occurrence into the next year.
+The persistent label is `identity_name`: the normalized official name with calendar-year tokens and edition-number tokens removed. `normalized_name` carries the latest synchronized official wording, including year and edition. The existing `name` is system-owned display metadata: TOBB sync never replaces it, including a manually shortened name. Manual catalog editing remains the existing system-fair update path. No extra alias table or name-ownership field is introduced.
+
+Matching compares the normalized identity against the existing `name`, `normalized_name` and `identity_name`, together with the normalized city. An exact identity or an informative short name appearing as an independent word or contiguous word sequence in the longer identity can match. A character substring alone cannot match. Generic fair-only words cannot establish a short-name match. Every possible candidate is considered; an exact match does not hide another plausible short-name candidate. TOBB sequence alone never establishes fair identity.
 
 Sync outcome for one source row:
 
-- No unambiguous System Fair for that label and city: create one System Fair.
-- One unambiguous System Fair: update its schedule and display metadata, including when the stored edition has not ended.
-- Two or more possible System Fairs, and the row is not a distinct same-year edition that can be told apart from the others: conflict. Do not update. Do not create.
-- A second edition in the same calendar year, with its own edition number, is stored as its own System Fair. It does not overwrite the other edition.
-- When several editions already share the label, a later year is a conflict. The sync does not guess which series continues.
+- No System Fair candidate: create at most one System Fair for the identity and city. If several source editions are present, select the uniquely ongoing edition (`start_date <= today <= end_date`). If none or several are ongoing, report conflict rather than invent a selection policy.
+- One unambiguous System Fair: keep the same `fair_id` across years and all editions, including multiple editions in one year. New-edition replacement requires the stored `end_date < today`. Equality, a future end date or a missing end date blocks replacement without inserting another Fair.
+- Same-edition date corrections are separate from replacement. If either date differs, sync returns a date-change warning with the fair id, stored name, old dates and incoming dates, and preserves the entire current record. This applies even before the edition ends and on repeated synchronization; it never silently accepts a correction. The warning is shown separately from matching conflicts in the existing Fairs UI. Manual catalog editing remains the correction path. Same occurrence is established within the same year by equal explicit edition markers, or, when markers do not determine it, the existing occurrence reference or equal non-empty start/end dates. Conflicting explicit edition markers cannot be overridden by the sequence reference.
+- After expiry, a replacement must start after the stored end date; older editions cannot roll the record backwards. If several eligible editions are supplied, select only a uniquely ongoing edition. Otherwise report conflict.
+- Two or more possible System Fairs: conflict. Do not update. Do not create. Existing legacy same-year duplicates are not automatically consolidated.
 - An older calendar year does not replace a newer occurrence already stored on that Fair. That row is a conflict and is left unchanged.
 
 Existing duplicate System Fairs are not deleted, merged, re-pointed or archived by this decision.
@@ -983,6 +1005,7 @@ A conflict result names the incoming fair and the involved System Fair ids. Choo
 - ADR-037's fingerprint and its acceptance of a new Fair on a date change are no longer in force.
 - `identity_name` is stored on `crm_fairs`. It is not a unique key, because duplicate rows already exist.
 - Manual reconciliation of those existing rows is outside this decision.
+- The 2026-10-12 amendment replaces the earlier active-edition rollover, same-year separate-row and exact-full-label-only behavior. It preserves the existing API/conflict shape, scraper ownership, fair ids and all child relationships.
 
 ---
 
@@ -999,7 +1022,7 @@ ADR-038 stopped new System Fair duplicates and left existing ambiguous rows in p
 
 Duplicate review and merge apply only to `origin = system` fairs. Organization fairs are rejected. The user chooses the fair that stays and the fair that is absorbed. The system does not choose.
 
-Review uses the ADR-038 identity label and city. It does not add a second matching algorithm. Same-year rows that already have distinct edition numbers are not review candidates. A group the user has marked distinct is not shown again and is not a later sync conflict.
+Review uses the existing exact ADR-038 identity-label and city inventory. It does not add a second matching algorithm. Legacy same-year rows that already have distinct edition numbers remain excluded from automatic review selection; this exception does not authorize the sync to create new rows for later editions. The 2026-10-12 ADR-038 amendment changes synchronization, not the user-directed merge scope. A group the user has marked distinct is not shown again and is not a later sync conflict. Such rows are only refreshed for an unambiguous same occurrence; they are not guessed across editions or years.
 
 Merge is one database transaction:
 

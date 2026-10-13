@@ -10,6 +10,10 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 | Migration head in `main` | `20260922_0069` |
 | Main CI | Core CI #84 green on P0.2 CORE-09 final certification head before merge |
 
+## Locally verified product-driven extension — 2026-10-13
+
+The explicitly approved FAIR CRM requirement extends the existing notification module with a generic `in_app` system channel, idempotent delivery and a real Super Admin inbox. A purpose-separated product notification credential supports automated product jobs; user JWTs are not persisted. Email delivery is unchanged. Local migration head for this branch is `20261012_0073`; full Core quality gate passed with 441 tests. Actual Core JWT/session/DB-flag authorization, internal delivery, audit and FAIR CRM notification navigation were verified on isolated PostgreSQL. GitHub delivery is authorized subject to strict-green checks; production deployment remains pending. The table below describes the previously merged baseline unless stated otherwise.
+
 ## Current capability state
 
 | Area | Status |

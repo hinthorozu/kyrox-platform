@@ -8,13 +8,15 @@ Format: one version section per completed sprint milestone. Update this file aft
 
 ## Unreleased
 
+- **TOBB controlled sync/review — 2026-10-13 locally verified** — ADR-040 adds durable independently decided date/metadata proposals, editable source mappings, manual preview/apply staleness guards, strict manual edition expiry checks, system jobs on existing execution/history infrastructure, bounded year retries, cancellation, detailed older-run access and Core-owned in-app notices. Actual Core authorization, concurrent PostgreSQL decisions, tenant relationship preservation and responsive browser workflows passed. Scheduler configuration is Monday 03:00 Europe/Istanbul with catch-up disabled; nothing was deployed. See project status for counts and verification limits.
+
 - **System fair scraper start** — A scraper operation can target a system fair. The run stores the official TOBB title without a 255-character cut. Fair pickers and the scraper summary show `display_name`.
 
 - **Super Admin session organization** — Fair CRM binds the session to the authenticated user's Core `organization_id`. A Super Admin with an organization no longer stays on the development organization placeholder. The user menu shows that organization name.
 
 - **System Fair duplicate review** — A Super Admin can review ambiguous System Fair rows, choose which row stays, and merge the other in one transaction. References move first; the duplicate is archived and is not hard-deleted. A participation collision or a conflicting scraper mapping blocks the merge. `Ayrı Tut` keeps that identity pair out of later conflicts. Existing catalog rows are not merged automatically. ADR-039.
 
-- **System Fair persistent identity** — A System Fair is one catalog row across calendar years. TOBB sync updates schedule and display metadata on that row. Calendar year, dates, TOBB sequence and edition number do not open a new Fair. Same-year distinct editions stay separate, and an ambiguous match is a conflict with the involved fair names and ids. Existing duplicate rows are not merged. ADR-038 supersedes ADR-037 for catalog identity. Scraper fields stay owned by ADR-017.
+- **System Fair persistent identity — 2026-10-12 locally verified amendment, unmerged** — One catalog row and `fair_id` across years and all editions, including multiple editions in one year. Sync preserves the stored name, considers safe short-name/official-title word-sequence matches with city, and advances only after the stored `end_date < today`. Same-edition date changes warn with both schedules and preserve the record. When several editions are supplied, only a uniquely ongoing edition can be selected; ambiguity fails closed. Existing duplicates remain user-directed ADR-039 work. ADR-038 supersedes ADR-037; scraper fields stay owned by ADR-017. Runtime/quality evidence and the remaining static-map review debt are recorded in project status rather than inferred from this entry.
 
 - **System fair customers** — An organization user with `fair_crm.participations.create` or `fair_crm.participations.delete` can add or remove that organization's customers on a shared system fair. The system fair record stays read-only for that user (update, archive, and restore stay denied). Organization fairs keep their own CRUD. FAIR CRM PR #330. Constitution §5 states the rule.
 
