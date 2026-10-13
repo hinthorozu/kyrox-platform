@@ -1,23 +1,23 @@
 # KYROX Fair CRM — Project Status
 
-## TOBB final workflow — locally verified; GitHub delivery authorized (2026-10-13)
+## TOBB final workflow — merged to `main` (2026-10-13)
 
-ADR-040 is implemented locally, preserving the earlier ADR-038 work. Durable independent proposals and editable mappings, strict end-date locks, manual preview/apply with staleness validation, system-scoped existing jobs, bounded per-year retry/cancellation, run history with access to older pages, shared review UI and Core-owned in-app completion notices are verified. Evidence: full CRM quality gate 2,211 passed / 4 existing Windows skips; final fairs regression 222 passed and the subsequently added API bulk/older-history/stale-response suite 9 passed; Core quality gate 441 passed; frontend 666 passed plus build; existing production-shaped E2E 35 passed; expanded isolated PostgreSQL + real Core JWT/session/DB authorization/audit/in-app workflow 19 acceptance checks, including actual browser decisions and 13 viewport widths. Calendar input is a controlled provider fixture. UI governance gates have zero violations; system-behavior comparison has zero new findings, one improvement and 21 existing review findings. Temporary services/databases were cleaned up. GitHub PR/CI/merge was subsequently authorized and is governed by strict-green checks; production deployment remains outside this delivery. Weekly timer configuration is verified; no deployed Monday run is claimed.
+ADR-040 is merged to FAIR CRM `main` through PR #342 (with Core PR #42 for in-app notices), preserving the earlier ADR-038 work. Durable independent proposals and editable mappings, strict end-date locks, manual preview/apply with staleness validation, system-scoped existing jobs, bounded per-year retry/cancellation, run history with access to older pages, shared review UI and Core-owned in-app completion notices are verified. Evidence: full CRM quality gate 2,211 passed / 4 existing Windows skips; final fairs regression 222 passed and the subsequently added API bulk/older-history/stale-response suite 9 passed; Core quality gate 441 passed; frontend 666 passed plus build; existing production-shaped E2E 35 passed; expanded isolated PostgreSQL + real Core JWT/session/DB authorization/audit/in-app workflow 19 acceptance checks, including actual browser decisions and 13 viewport widths. Calendar input is a controlled provider fixture. UI governance gates have zero violations; system-behavior comparison has zero new findings, one improvement and 21 existing review findings. Temporary services/databases were cleaned up. The change then merged on 2026-10-13 with migrations `0096_tobb_review_workflow`, `0097_tobb_run_history` and `0098_tobb_manual_date_revision`; production deployment remains outside this delivery. Weekly timer configuration is verified; no deployed Monday run is claimed.
 
 Living status for FAIR CRM. This file records **current implementation truth only**. Detailed delivery history belongs in [CHANGELOG.md](CHANGELOG.md); the previous long-form status snapshot is preserved at [../../archive/fair-crm/status/PROJECT_STATUS_2026-07-24.md](../../archive/fair-crm/status/PROJECT_STATUS_2026-07-24.md).
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-09-11** |
+| Last verified | **2026-10-13** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
 | Implementation repository | `hinthorozu/fair-crm` |
-| Migration head in `main` | `0083_terminal_closure` |
+| Migration head in `main` | `0098_tobb_manual_date_revision` |
 | Current work queue | [ROADMAP.md](ROADMAP.md) |
 | Shared standards | [../../standards/README.md](../../standards/README.md) |
 
 ## Current capability state
 
-The approved 2026-10-12 ADR-038 amendment is implemented and verified on the local feature branch: one System Fair across all editions, preserved manual names, safe short-title matching, strict expiry before rollover, and non-mutating same-edition date-change warnings. The local backend quality gate, frontend tests/build, existing prod-path E2E and real JWT/UI warning flow passed using isolated test databases; the calendar provider was a controlled fixture. That earlier phase had 22 behavior-map review findings; final ADR-040 verification now has 21 findings with zero new regressions. This is not yet a merged/deployed capability. ADR-039 user-directed merge and Constitution §5 organization boundaries remain in force.
+The approved 2026-10-12 ADR-038 amendment is merged to `main` together with ADR-040 (PR #342): one System Fair across all editions, preserved manual names, safe short-title matching, strict expiry before rollover, and non-mutating same-edition date-change warnings. The local backend quality gate, frontend tests/build, existing prod-path E2E and real JWT/UI warning flow passed using isolated test databases; the calendar provider was a controlled fixture. That earlier phase had 22 behavior-map review findings; final ADR-040 verification now has 21 findings with zero new regressions. It is merged but not claimed as deployed. ADR-039 user-directed merge and Constitution §5 organization boundaries remain in force.
 
 | Area | Status |
 |------|--------|
@@ -120,7 +120,7 @@ The current-model required-export OL08 lifecycle/offboarding path is complete th
 
 ## Current implementation notes
 
-The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0083_terminal_closure`; recent closure migration history includes `0077` durable closure execution/events, `0078` export-plan metadata, `0079` credential-disposition evidence, `0080` canonical package/inventory, `0081` artifact purge evidence, `0082` product cleanup and `0083` terminal closure state. OL08-F adds runtime behavior without a new FAIR migration.
+The old July status referenced earlier migration/test snapshots and is no longer authoritative. FAIR CRM `main` now reaches migration `0098_tobb_manual_date_revision`. The closure migration history includes `0077` durable closure execution/events, `0078` export-plan metadata, `0079` credential-disposition evidence, `0080` canonical package/inventory, `0081` artifact purge evidence, `0082` product cleanup and `0083` terminal closure state. OL08-F adds runtime behavior without a new FAIR migration.
 
 Exact implementation details, tests and full migration history remain source truth in the `fair-crm` code repository. This Platform document intentionally records only durable capability-level state.
 

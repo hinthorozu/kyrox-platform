@@ -22,6 +22,7 @@ All human-readable standards, architecture, decisions, product rules, status, ro
 | Future work | `ecosystem/ROADMAP.md` or `projects/<name>/ROADMAP.md` | Plans only |
 | Historical/superseded material | `archive/` | Never normative |
 | Machine-readable CI/runtime contracts | Application repo when technically required | Not human documentation |
+| Fair Stand documents read by its CI (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) | `fair-stand` repository | Explicit exception: CI tests read them; Platform links, never copies. Other Fair Stand plans live in `projects/fair-stand/`, history in `archive/fair-stand/` |
 
 Decision test: **Would another KYROX product reasonably use this same rule?** Yes → `standards/`; no → owning project; cross-repo → `ecosystem/`.
 

@@ -4,15 +4,15 @@ Living status for KYROX Core. Ecosystem summary: [../../ecosystem/STATUS.md](../
 
 | Field | Value |
 |-------|-------|
-| Last verified | **2026-08-29** |
+| Last verified | **2026-10-13** |
 | Repository mode | Stable platform baseline; fixes and reusable product-driven changes continue |
 | Active ecosystem milestone | M4 — FAIR CRM v1 |
-| Migration head in `main` | `20260922_0069` |
+| Migration head in `main` | `20261012_0073` |
 | Main CI | Core CI #84 green on P0.2 CORE-09 final certification head before merge |
 
-## Locally verified product-driven extension — 2026-10-13
+## Product-driven extension merged — 2026-10-13
 
-The explicitly approved FAIR CRM requirement extends the existing notification module with a generic `in_app` system channel, idempotent delivery and a real Super Admin inbox. A purpose-separated product notification credential supports automated product jobs; user JWTs are not persisted. Email delivery is unchanged. Local migration head for this branch is `20261012_0073`; full Core quality gate passed with 441 tests. Actual Core JWT/session/DB-flag authorization, internal delivery, audit and FAIR CRM notification navigation were verified on isolated PostgreSQL. GitHub delivery is authorized subject to strict-green checks; production deployment remains pending. The table below describes the previously merged baseline unless stated otherwise.
+The explicitly approved FAIR CRM requirement extends the existing notification module with a generic `in_app` system channel, idempotent delivery and a real Super Admin inbox. A purpose-separated product notification credential supports automated product jobs; user JWTs are not persisted. Email delivery is unchanged. It merged to `main` through Core PR #42 with migration `20261012_0073_in_app_notifications`; the full Core quality gate passed with 441 tests before merge. Actual Core JWT/session/DB-flag authorization, internal delivery, audit and FAIR CRM notification navigation were verified on isolated PostgreSQL. Production deployment remains pending.
 
 ## Current capability state
 
@@ -26,7 +26,7 @@ The explicitly approved FAIR CRM requirement extends the existing notification m
 | Audit | Implemented; activation completion records secret-safe `identity.activation.complete`, password reset records `identity.password.reset`, and authenticated password change records `identity.password.change` evidence |
 | Settings | Implemented |
 | Background jobs | Implemented; internal jobs support platform scope where required by Core identity notifications while existing organization-scoped behavior remains available |
-| Notifications | Implemented baseline plus Core-owned production SMTP identity-email capability, platform-scoped recipients/jobs, identity templates, deterministic platform idempotency and redacted delivery logging |
+| Notifications | Implemented baseline plus Core-owned production SMTP identity-email capability, platform-scoped recipients/jobs, identity templates, deterministic platform idempotency and redacted delivery logging; generic `in_app` system channel with idempotent delivery and Super Admin inbox (Core PR #42) |
 | Product authorization integration | Implemented |
 | FAIR CRM permission catalog support | Implemented, including quotation, cost-catalog, mail-send-operation, and Fair Stand admin/projects/settings/items permissions (`20260919_0066`–`20260922_0069`, lifecycle `active`) |
 | File storage | Planned |

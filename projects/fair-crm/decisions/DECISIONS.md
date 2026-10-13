@@ -2,7 +2,7 @@
 
 ## ADR-040 — TOBB persistent review and controlled synchronization
 
-Status: Accepted product requirements (2026-10-12); local implementation and acceptance verified 2026-10-13; GitHub delivery authorized; production deployment pending.
+Status: Accepted product requirements (2026-10-12); local implementation and acceptance verified 2026-10-13; merged 2026-10-13 (FAIR CRM PR #342, Core PR #42); production deployment pending.
 
 The approved follow-up extends ADR-038 without changing persistent fair ownership or ADR-039's explicit duplicate merge. One logical fair retains its id, manual name, scraper settings and relationships. A new edition requires the stored end date to be strictly before the Istanbul calendar day, even after a manual edition selection. Missing, current-day and future end dates block replacement.
 

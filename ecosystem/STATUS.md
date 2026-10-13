@@ -8,7 +8,7 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
 | Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand`; tooling: `kyrox-demo-recorder` |
-| Last ecosystem sync | **2026-09-30** |
+| Last ecosystem sync | **2026-10-13** |
 
 ## SaaS readiness
 
@@ -47,6 +47,8 @@ Core remains the reusable, product-agnostic SaaS backend. Identity, authenticati
 
 The approved P0.2 identity/onboarding primitives are complete. Core owns canonical organization/identity lifecycle and SYSTEM-scoped organization suspend/reactivate/delete authority. Product-specific closure progress/export/provider/data/artifact behavior remains outside Core. For current-model closure, Core additionally owns the final tombstone timestamp and Core audit-retention execution; FAIR CRM consumes those accepted public/internal product-lifecycle contracts without taking Core identity/audit ownership.
 
+Core PR #42 (2026-10-13) added a generic `in_app` system notification channel and Super Admin inbox, requested by the FAIR CRM TOBB workflow; Core `main` migration head is `20261012_0073`.
+
 ## Demo recorder tooling
 
 ADR-0009 accepts `hinthorozu/kyrox-demo-recorder` as external Playwright tooling for repeatable product usage/demo video capture. It is not a production service and owns no product, auth, authorization, organization, or data semantics. Runtime credentials are secret-injected only; recorder output is auxiliary media rather than product acceptance evidence.
@@ -56,7 +58,9 @@ ADR-0009 accepts `hinthorozu/kyrox-demo-recorder` as external Playwright tooling
 Canonical detail: [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PROJECT_STATUS.md)  
 Current work queue: [projects/fair-crm/ROADMAP.md](../projects/fair-crm/ROADMAP.md)
 
-FAIR CRM remains the active M4 product. Its P0.1 tenant-isolation certification, P0.2 identity bridge, OL-07 suspension/reactivation runtime and the current-model required-export OL08 closure path are complete within their accepted boundaries. FAIR CRM `main` reaches migration `0083_terminal_closure`; OL08-F adds post-terminal retention runtime without a new FAIR migration.
+FAIR CRM remains the active M4 product. Its P0.1 tenant-isolation certification, P0.2 identity bridge, OL-07 suspension/reactivation runtime and the current-model required-export OL08 closure path are complete within their accepted boundaries. FAIR CRM `main` reaches migration `0098_tobb_manual_date_revision`; the closure path itself ends at `0083_terminal_closure`, and OL08-F adds post-terminal retention runtime without a new FAIR migration.
+
+The TOBB System Fair review and controlled synchronization workflow (ADR-038 amendment + ADR-040) merged on 2026-10-13 through FAIR CRM PR #342; production deployment is pending. Detail: [projects/fair-crm/PROJECT_STATUS.md](../projects/fair-crm/PROJECT_STATUS.md).
 
 The required-export closure path now covers durable closure execution/quiescence, versioned export planning, current-model credential disposition, canonical package/inventory/integrity, strict managed-artifact/package purge, dependency-aware product-data hard delete, final Core tombstone and exact 12-calendar-month retained-evidence expiry. The terminal clock remains authoritative Core `deleted_at`, mirrored exactly as FAIR `closed_at`. FAIR invokes Core-owned audit purge first and only then purges its own closure evidence in FK-safe order.
 
