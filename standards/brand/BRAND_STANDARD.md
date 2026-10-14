@@ -47,24 +47,107 @@ Kaynak dosya SVG'dir. PNG yalnızca SVG kullanılamayan yerlerde kullanılır.
 
 ## 6. Renkler
 
-Logo renkleri sabittir. Değerler `kyrox-brand/tokens/colors.css` ve `tokens.json` dosyalarındadır; projeler değerleri elle yazmak yerine bu dosyaları kullanır.
+Palet üç ana renge dayanır: **mürekkep, kağıt, bakır**. Değerler `kyrox-brand/tokens/colors.css` ve `tokens.json` dosyalarındadır; projeler değerleri elle yazmak yerine bu dosyaları kullanır.
+
+### 6.1 Ana renkler
 
 | Ad | Token | Değer | Kullanım |
 | --- | --- | --- | --- |
-| Çelik | `--kyrox-steel` | `#B4B7BB` | Logo, açık zemin |
-| Çelik, koyu zemin | `--kyrox-steel-on-dark` | `#C9CCD0` | Logo, koyu zemin |
-| Ahşap | `--kyrox-wood` | `#A2652C` | Logo |
-| Deri | `--kyrox-leather` | `#7B3B1D` | Logo |
-| Mürekkep | `--kyrox-ink` | `#0B0B0B` | Yazı, koyu zemin |
-| Kağıt | `--kyrox-paper` | `#F5F3EF` | Açık zemin |
-| Bakır | `--kyrox-copper` | `#C47A3A` | Marka vurgu rengi |
+| Mürekkep | `--kyrox-ink` | `#0B0B0B` | Başlık, metin, koyu zemin |
+| Kağıt | `--kyrox-paper` | `#F5F3EF` | Ana zemin |
+| Beyaz | `--kyrox-white` | `#FFFFFF` | Kart, form, tablo |
 
-Tam marka paleti, fontlar ve ses tonu henüz tanımlanmadı. Tanımlandığında bu dokümana eklenir.
+### 6.2 Bakır, üç ton
 
-## 7. Ürünlerle ilişki
+Logodaki bakır açık zeminde yazı için fazla açıktır (kağıtta kontrast 3,06; okunabilir metin için en az 4,5 gerekir). Bu yüzden bakır üç tonda kullanılır:
+
+| Ad | Token | Değer | Kullanım | Kontrast |
+| --- | --- | --- | --- | --- |
+| Bakır | `--kyrox-copper` | `#C47A3A` | Çizgi, ikon, grafik, 24 px ve üstü başlık | Kağıtta 3,06. Gövde metni ve buton zemini olarak **kullanılmaz** |
+| Bakır koyu | `--kyrox-copper-text` | `#99602D` | Link, buton zemini, vurgulu metin | Kağıtta 4,66; üstünde beyaz yazı 5,17 |
+| Bakır açık | `--kyrox-copper-on-dark` | `#CD8D56` | Koyu zeminde link ve vurgu | Mürekkep üstünde 7,07 |
+
+### 6.3 Sıcak griler
+
+| Ad | Token | Değer | Kullanım | Kağıtta kontrast |
+| --- | --- | --- | --- | --- |
+| Gri 900 | `--kyrox-gray-900` | `#2A2724` | Gövde metni | 13,4 |
+| Gri 600 | `--kyrox-gray-600` | `#6B655D` | İkincil metin, açıklama | 5,2 |
+| Gri 400 | `--kyrox-gray-400` | `#A39C93` | Pasif öğe, ikon. **Metin için kullanılmaz** | 2,45 |
+| Gri 200 | `--kyrox-gray-200` | `#DEDAD4` | Çizgi, kenarlık | — |
+| Gri 100 | `--kyrox-gray-100` | `#EBE8E3` | İkincil yüzey | — |
+| Gece | `--kyrox-night` | `#1A1816` | Koyu bölüm zemini | — |
+
+### 6.4 Logo malzeme renkleri
+
+Çelik, ahşap ve deri yalnızca logoda ve malzeme görsellerinde kullanılır; arayüz rengi değildir.
+
+| Ad | Token | Değer |
+| --- | --- | --- |
+| Çelik | `--kyrox-steel` | `#B4B7BB` |
+| Çelik, koyu zemin | `--kyrox-steel-on-dark` | `#C9CCD0` |
+| Ahşap | `--kyrox-wood` | `#A2652C` |
+| Deri | `--kyrox-leather` | `#7B3B1D` |
+
+### 6.5 Kullanım kuralları
+
+- Oran: kağıt ve beyaz yaklaşık %60, mürekkep %30, bakır %10. Bakır az kullanıldıkça değerli kalır: sayfa başına bir vurgu, bir buton türü.
+- Gövde metni en az 4,5, 24 px ve üstü başlık en az 3 kontrast taşır (WCAG AA).
+- Koyu zeminde bakır vurgu her zaman `--kyrox-copper-on-dark` ile yapılır.
+
+## 7. Yazı tipleri
+
+| Rol | Font | Ağırlık | Nerede |
+| --- | --- | --- | --- |
+| Metin ve arayüz | **Inter** | 400, 500, 600, 700 | Her yerde: web, ürünler, sunum, teklif, sosyal medya metni |
+| Başlık | **Archivo** | 800, genişlik `font-stretch: 112%`, büyük harf | Web sitesi, sunum ve sosyal medyada büyük başlıklar |
+
+- Logodaki `.studio` Inter Medium'dur. Fair CRM ve Fair Stand arayüzleri Inter kullanır; ürün arayüzlerinde başlık fontu kullanılmaz.
+- Her iki font da Google Fonts'tan ücretsizdir ve Türkçe karakterleri tam destekler.
+- Archivo yalnızca 22 px ve üstünde kullanılır. Gövde metni, buton, form ve tabloda kullanılmaz.
+
+### 7.1 Boyut ölçeği
+
+| Seviye | Boyut / ağırlık | Not |
+| --- | --- | --- |
+| Başlık 1 | 48 px / Archivo 800 | Sitede ana başlık; ürünlerde Inter 800 |
+| Başlık 2 | 32 px / 700 | |
+| Başlık 3 | 22 px / 600 | |
+| Gövde | 16 px / 400 | Satır aralığı 1,6; satır uzunluğu en fazla ~70 karakter |
+| Açıklama | 13 px / 500 | Gri 600 |
+| Üst başlık | 12 px / 600 | Büyük harf, harf aralığı 0,08 em, bakır koyu |
+
+### 7.2 Türkçe büyük harf
+
+CSS `text-transform: uppercase` sayfanın dili Türkçe işaretlenmezse "i" harfini noktasız "I" yapar ("ATÖLYEMİZDEN" yerine "ATÖLYEMIZDEN"). Büyük harfli başlık kullanan her sayfa `lang="tr"` taşır; İngilizce metinler kendi öğesinde `lang="en"` ile işaretlenir.
+
+## 8. Ses tonu
+
+Kyrox bir ustanın konuştuğu gibi konuşur: az, net, ölçüyle. Reklam dili değil, atölye dili.
+
+| İlke | Anlamı |
+| --- | --- |
+| Net | Bir cümle, bir fikir. Sıfat yerine ölçü, malzeme ve tarih. |
+| Ölçülü | Abartı yok. "En iyi", "muhteşem", "eşsiz" kullanılmaz; iş kendini gösterir. |
+| Malzemeden konuşur | Meşe, alüminyum profil, deri, dijital baskı. Müşteri neyle çalışıldığını bilir. |
+| Az ama derin | "Limited projects. Lasting impact." Az iş alınır, her biri sonuna kadar götürülür. |
+
+Örnekler (sayılar örnektir):
+
+| Yerine | Böyle |
+| --- | --- |
+| Muhteşem fuar standlarımızla markanızı zirveye taşıyoruz! | 48 m² ada stand. Meşe kaplama, 3 metre ışıklı duvar. Tasarımdan kuruluma 21 gün. |
+| Profesyonel ekibimiz her türlü ihtiyacınıza çözüm sunar. | Çizen, kesen ve kuran aynı ekip. Fuar sabahı sürpriz çıkmaz. |
+| Hemen arayın, kaçırılmayacak fırsatlar sizi bekliyor! | Bu yıl 12 proje alıyoruz. Fuar tarihinizi ve metrekarenizi yazın, iki gün içinde dönelim. |
+
+- Ana dil Türkçedir. İngilizce yalnızca slogan ve uluslararası fuar işlerinde kullanılır.
+- Hitap "siz"dir: samimi, ama resmi olmadan değil.
+- Ünlem işareti ve emoji kullanılmaz.
+
+## 9. Ürünlerle ilişki
 
 - Ürünler logoyu `kyrox-brand`'den kopyalar. Ürün reposundaki logo dosyası elle düzenlenmez; logo değişirse önce `kyrox-brand` güncellenir, sonra ürünler.
-- Ürün arayüzünün kendi renk sistemi (birincil renk, durum renkleri, yüzeyler) ürüne aittir ve [UI Foundation Standard](../ui/UI_FOUNDATION_STANDARD.md) ile ürünün UI standardına uyar. Bu doküman yalnızca logo ve marka renklerini tanımlar; ürün arayüz renklerini bağlamaz.
+- Ürün arayüzünün kendi renk sistemi (birincil renk, durum renkleri, yüzeyler) ürüne aittir ve [UI Foundation Standard](../ui/UI_FOUNDATION_STANDARD.md) ile ürünün UI standardına uyar. Bu doküman logo, marka renkleri ve yazı tiplerini tanımlar; ürün arayüz renklerini bağlamaz. Ürünler marka renklerine geçmeye karar verirse bakır tonları 6.2 kurallarıyla kullanılır.
 
 ## İlgili
 
