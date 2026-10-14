@@ -31,8 +31,10 @@ If the same rule appears in more than one place, that is a documentation defect:
 | Repository | Role |
 |------------|------|
 | [kyrox-platform](.) | **All human/AI documentation**, shared standards, project docs, ADRs, roadmap, status |
-| [kyrox-core](https://github.com/hinthorozu/kyrox-core) | Shared SaaS backend implementation, tests, migrations and CI |
-| [fair-crm](https://github.com/hinthorozu/fair-crm) | Fair CRM implementation, tests, migrations, CI and machine-readable feature contracts |
+| [kyrox-core](https://github.com/kyrox-studio/kyrox-core) | Shared SaaS backend implementation, tests, migrations and CI |
+| [fair-crm](https://github.com/kyrox-studio/fair-crm) | Fair CRM implementation, tests, migrations, CI and machine-readable feature contracts |
+| [fair-stand](https://github.com/kyrox-studio/fair-stand) | Fair Stand konfigüratörü, katalog API'si ve `fair_stand` veritabanı |
+| [kyrox-brand](https://github.com/kyrox-studio/kyrox-brand) | Marka varlıkları: logo dosyaları ve renk token'ları |
 
 ## Knowledge layout
 

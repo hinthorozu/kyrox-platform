@@ -22,6 +22,7 @@ All human-readable standards, architecture, decisions, product rules, status, ro
 | Future work | `ecosystem/ROADMAP.md` or `projects/<name>/ROADMAP.md` | Plans only |
 | Historical/superseded material | `archive/` | Never normative |
 | Machine-readable CI/runtime contracts | Application repo when technically required | Not human documentation |
+| Marka varlıkları (logo dosyaları, renk token'ları) | `kyrox-brand` repository | Ürünler buradan kopyalar; marka kuralları `standards/brand/` altındadır ([ADR-0010](decisions/0010-brand-repository.md)) |
 | Fair Stand documents read by its CI (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) | `fair-stand` repository | Explicit exception: CI tests read them; Platform links, never copies. Other Fair Stand plans live in `projects/fair-stand/`, history in `archive/fair-stand/` |
 
 Decision test: **Would another KYROX product reasonably use this same rule?** Yes → `standards/`; no → owning project; cross-repo → `ecosystem/`.
@@ -37,13 +38,14 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 | Feature applicability / REQUIRED-N/A | `standards/development/FEATURE_APPLICABILITY_STANDARD.md` |
 | Quality / strict-green / regression policy | `standards/quality/QUALITY_GATE_STANDARD.md` |
 | UI foundation / responsive / visual QA / a11y | `standards/ui/UI_FOUNDATION_STANDARD.md` |
+| Marka: logo kullanımı, marka renkleri, yazım | `standards/brand/BRAND_STANDARD.md` |
 | CRUD / permission-driven UI behavior | `standards/ui/CRUD_UI_AUTHORIZATION_STANDARD.md` |
 | Backend layered architecture | `standards/backend/BACKEND_ARCHITECTURE_STANDARDS.md` |
 | Ecosystem status | `ecosystem/STATUS.md` |
 | Ecosystem roadmap | `ecosystem/ROADMAP.md` |
 | Cross-repository SaaS readiness strategy / sequencing | `ecosystem/SAAS_ROADMAP.md` |
 | Workflow | `ecosystem/WORKFLOW.md` |
-| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 |
+| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 + ADR-0009 + ADR-0010 |
 | Core vs product boundary | ecosystem ADR-0002 |
 | Fair Stand product ownership | ecosystem ADR-0007 + `projects/fair-stand/` |
 | Fair CRM current state | `projects/fair-crm/PROJECT_STATUS.md` |

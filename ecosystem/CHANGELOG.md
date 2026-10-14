@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Added
 
+- **Marka varlıkları reposu (ADR-0010)** — `kyrox-brand` logo dosyaları ve renk token'ları için onaylandı. Marka kuralları `standards/brand/BRAND_STANDARD.md` altında tek kaynak olarak eklendi: tek düz logo, versiyonlar, kullanım kuralları, küçük harfli `.studio`, slogan ve logo renkleri.
 - **Fair Stand Item/Category as-built mimari** — `projects/fair-stand/ITEM_CATALOG_ARCHITECTURE.md` lokal ilişkisel katalog mimarisini belgeler (DB/API otoritesi, 13 `fair_stand_*` tablo, bootstrap, asset referansı vs static GLB depolama).
 - **Fair Stand independent catalog API (ADR-0008)** — catalog process `:8002` and database `fair_stand`; CRM keeps shell, Admin UI, and same-origin proxy.
 - **Fair Stand product ownership (ADR-0007)** — Fair Stand is a KYROX product. Core remains auth/org/RBAC only. Physical catalog hosting is amended by ADR-0008.
@@ -17,6 +18,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Changed
 
+- Tüm repolar `kyrox-studio` GitHub organizasyonuna taşındı; README, proje README'leri, proje durum dosyaları ve changelog linkleri yeni adresleri gösteriyor. Geçmiş PR kayıtları eski adresleriyle bırakıldı (GitHub yönlendirir).
 - Fair Stand repository-local documents that its CI reads (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) are now an explicit governance exception; Platform links to them instead of copying them.
 - Fair Stand plan documents no CI reads moved into Platform: `ROADMAP_PHASE_5_6.md`, `PRODUCT_FUTURE.md`, `RENDER_FUTURE_BACKLOG.md` under `projects/fair-stand/`; `MILESTONES.md`, the August changelog, `LEGACY_TRASH.md` and the BASE migration handoff under `archive/fair-stand/`.
 - Status documents synchronized with code on 2026-10-13: FAIR CRM `main` migration head `0098_tobb_manual_date_revision`, Core `20261012_0073`, Fair Stand `0066_metal_separator_area`; TOBB workflow (FAIR CRM PR #342) and Core in-app notifications (Core PR #42) recorded as merged.
@@ -69,7 +71,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 - ADR-0002: Core and product separation (Core independent; products depend on Core).
 - Milestone definitions M1–M4; M1 Foundation completed.
 
-[Unreleased]: https://github.com/hinthorozu/kyrox-platform/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/hinthorozu/kyrox-platform/compare/v0.2.0...v0.4.0
-[0.2.0]: https://github.com/hinthorozu/kyrox-platform/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/hinthorozu/kyrox-platform/releases/tag/v0.1.0
+[Unreleased]: https://github.com/kyrox-studio/kyrox-platform/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/kyrox-studio/kyrox-platform/compare/v0.2.0...v0.4.0
+[0.2.0]: https://github.com/kyrox-studio/kyrox-platform/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/kyrox-studio/kyrox-platform/releases/tag/v0.1.0

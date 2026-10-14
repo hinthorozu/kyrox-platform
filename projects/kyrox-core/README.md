@@ -2,7 +2,7 @@
 
 Reusable SaaS backend platform for KYROX products. Provides identity, organization/membership, authorization, and shared platform services.
 
-**Code repository:** `https://github.com/hinthorozu/kyrox-core`  
+**Code repository:** `https://github.com/kyrox-studio/kyrox-core`  
 **Human/AI documentation:** this tree under `kyrox-platform`  
 **Ecosystem status:** [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md)
 

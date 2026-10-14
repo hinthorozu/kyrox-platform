@@ -3,7 +3,7 @@
 | Alan | Değer |
 |------|--------|
 | Son doğrulama | **2026-10-13** |
-| Implementation deposu | `hinthorozu/fair-stand` |
+| Implementation deposu | `kyrox-studio/fair-stand` |
 | Hosted backend | Fair Stand FastAPI (`:8002`) / PostgreSQL `fair_stand` |
 | Item master | İlişkisel PostgreSQL; catalog bootstrap API |
 | Category master | `fair_stand_categories` |
