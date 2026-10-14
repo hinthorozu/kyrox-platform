@@ -148,6 +148,6 @@ $env:TARGET_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@localhost:54
 # Server (Linux) — manual only; deploy-all.sh never runs this
 export ALLOW_RESTORE=true
 export TARGET_DATABASE_URL='postgresql+psycopg2://postgres:postgres@127.0.0.1:5432/fair_crm'
-sudo -E /opt/fair-crm/scripts/server/run-restore-job.sh <job-id>
+sudo -E /opt/kyrox/fair-crm/scripts/server/run-restore-job.sh <job-id>
 # optional: RESTART_BACKEND=1 sudo -E .../run-restore-job.sh <job-id>
 ```

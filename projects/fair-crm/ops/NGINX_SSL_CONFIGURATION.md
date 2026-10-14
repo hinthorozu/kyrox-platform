@@ -29,14 +29,14 @@ Canlı üretim domaini: `fuar.kyrox.studio`.
 ### 2. Sunucuda FAIR CRM reposunu güncelle
 
 ```bash
-cd /opt/fair-crm
+cd /opt/kyrox/fair-crm
 git pull --ff-only origin main
 ```
 
 ### 3. Kurulum scriptini çalıştır
 
 ```bash
-sudo bash /opt/fair-crm/scripts/server/setup-domain-ssl.sh \
+sudo bash /opt/kyrox/fair-crm/scripts/server/setup-domain-ssl.sh \
   --domain fuar.kyrox.studio \
   --email admin@fuar.kyrox.studio
 ```
@@ -61,7 +61,7 @@ Script sırasıyla şunları yapar:
 Public IP otomatik tespit edilemezse açıkça verilebilir:
 
 ```bash
-sudo bash /opt/fair-crm/scripts/server/setup-domain-ssl.sh \
+sudo bash /opt/kyrox/fair-crm/scripts/server/setup-domain-ssl.sh \
   --domain fuar.kyrox.studio \
   --email admin@fuar.kyrox.studio \
   --server-ip 64.226.110.223
@@ -184,7 +184,7 @@ server {
 
     server_name fuar.kyrox.studio;
 
-    root /opt/fair-crm/frontend/dist;
+    root /opt/kyrox/fair-crm/frontend/dist;
     index index.html;
 
     client_max_body_size 64m;
