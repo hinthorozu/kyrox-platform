@@ -7,7 +7,7 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Active milestone | **M4 — FAIR CRM v1** |
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
-| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand`; tooling: `kyrox-demo-recorder`; marka varlıkları: `kyrox-brand` |
+| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand`; marka varlıkları: `kyrox-brand` |
 | Last ecosystem sync | **2026-10-13** |
 
 ## SaaS readiness
@@ -48,10 +48,6 @@ Core remains the reusable, product-agnostic SaaS backend. Identity, authenticati
 The approved P0.2 identity/onboarding primitives are complete. Core owns canonical organization/identity lifecycle and SYSTEM-scoped organization suspend/reactivate/delete authority. Product-specific closure progress/export/provider/data/artifact behavior remains outside Core. For current-model closure, Core additionally owns the final tombstone timestamp and Core audit-retention execution; FAIR CRM consumes those accepted public/internal product-lifecycle contracts without taking Core identity/audit ownership.
 
 Core PR #42 (2026-10-13) added a generic `in_app` system notification channel and Super Admin inbox, requested by the FAIR CRM TOBB workflow; Core `main` migration head is `20261012_0073`.
-
-## Demo recorder tooling
-
-ADR-0009 accepts `hinthorozu/kyrox-demo-recorder` as external Playwright tooling for repeatable product usage/demo video capture. It is not a production service and owns no product, auth, authorization, organization, or data semantics. Runtime credentials are secret-injected only; recorder output is auxiliary media rather than product acceptance evidence.
 
 ## FAIR CRM
 

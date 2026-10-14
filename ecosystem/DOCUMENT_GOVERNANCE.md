@@ -45,7 +45,7 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 | Ecosystem roadmap | `ecosystem/ROADMAP.md` |
 | Cross-repository SaaS readiness strategy / sequencing | `ecosystem/SAAS_ROADMAP.md` |
 | Workflow | `ecosystem/WORKFLOW.md` |
-| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 + ADR-0009 + ADR-0010 |
+| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 + ADR-0010 |
 | Core vs product boundary | ecosystem ADR-0002 |
 | Fair Stand product ownership | ecosystem ADR-0007 + `projects/fair-stand/` |
 | Fair CRM current state | `projects/fair-crm/PROJECT_STATUS.md` |

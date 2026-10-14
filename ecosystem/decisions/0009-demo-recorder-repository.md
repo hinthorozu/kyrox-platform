@@ -1,8 +1,10 @@
 # ADR-0009: Demo recorder repository
 
-- **Status:** Accepted
+- **Status:** Deprecated (2026-10-14)
 - **Date:** 2026-09-30
 - **Deciders:** KYROX ecosystem maintainers
+
+> **Kullanımdan kaldırıldı (2026-10-14):** `kyrox-demo-recorder` reposu silindi. Bu karar artık geçerli değil; aşağıdaki metin tarihsel kayıt olarak bırakıldı. Demo/kullanım videosu otomasyonu yeniden gerekirse yeni bir ADR yazılır.
 
 ## Context
 

@@ -16,6 +16,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 - **KYROX SaaS Readiness Roadmap** — canonical cross-repository priority/ownership/launch strategy covering tenant isolation, organization lifecycle, production security, entitlement/usage/billing decisions, data lifecycle, operational hardening and scale.
 - **SaaS-impact classification** — every material delivery now classifies affected organization/security/ownership/entitlement/usage/lifecycle/runtime dimensions before implementation.
 
+### Removed
+
+- **`kyrox-demo-recorder` (ADR-0009 Deprecated)** — repo 2026-10-14'te silindi; REPOSITORY_STRATEGY, STATUS, ROADMAP ve DOCUMENT_GOVERNANCE kayıtları kaldırıldı. ADR-0009 tarihsel kayıt olarak duruyor.
+
 ### Changed
 
 - Tüm repolar `kyrox-studio` GitHub organizasyonuna taşındı; README, proje README'leri, proje durum dosyaları ve changelog linkleri yeni adresleri gösteriyor. Geçmiş PR kayıtları eski adresleriyle bırakıldı (GitHub yönlendirir).
