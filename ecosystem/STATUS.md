@@ -51,7 +51,7 @@ Core PR #42 (2026-10-13) added a generic `in_app` system notification channel an
 
 ## Demo recorder tooling
 
-ADR-0009 accepts `hinthorozu/kyrox-demo-recorder` as external Playwright tooling for repeatable product usage/demo video capture. It is not a production service and owns no product, auth, authorization, organization, or data semantics. Runtime credentials are secret-injected only; recorder output is auxiliary media rather than product acceptance evidence.
+ADR-0009 accepts `kyrox-studio/kyrox-demo-recorder` (2026-10-14 tarihinde `hinthorozu` hesabından organizasyona taşındı) as external Playwright tooling for repeatable product usage/demo video capture. It is not a production service and owns no product, auth, authorization, organization, or data semantics. Runtime credentials are secret-injected only; recorder output is auxiliary media rather than product acceptance evidence.
 
 ## FAIR CRM
 

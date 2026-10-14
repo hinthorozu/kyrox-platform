@@ -16,6 +16,8 @@ This work is operational/demo automation. It must not become FAIR CRM or Fair St
 
 Create `hinthorozu/kyrox-demo-recorder` as a dedicated automation repository.
 
+> **Not (2026-10-14):** Repo `kyrox-studio` organizasyonuna taşındı ve artık `kyrox-studio/kyrox-demo-recorder` adresinde. Karar ve kapsam değişmedi.
+
 Its scope is limited to:
 
 - Playwright-driven browser automation against deployed KYROX product UIs,
