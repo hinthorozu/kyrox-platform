@@ -2,7 +2,7 @@
 
 First KYROX product: multi-tenant fair / exhibition CRM built on KYROX Core identity and platform services.
 
-**Code repository:** `https://github.com/hinthorozu/fair-crm`  
+**Code repository:** `https://github.com/kyrox-studio/fair-crm`  
 **Human/AI documentation:** this tree under `kyrox-platform`  
 **Ecosystem status:** [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md)
 

@@ -2,7 +2,7 @@
 
 KYROX ekosistemindeki fuar standı configurator ürünü.
 
-**Kod deposu:** `https://github.com/hinthorozu/fair-stand`  
+**Kod deposu:** `https://github.com/kyrox-studio/fair-stand`  
 **İnsan / AI ekosistem dokümantasyonu:** `kyrox-platform` altındaki bu ağaç  
 **Runtime sözleşmeleri:** `fair-stand` deposu (`ITEM_CONTRACT.md`, change-gate)  
 **Ekosistem durumu:** [../../ecosystem/STATUS.md](../../ecosystem/STATUS.md)  

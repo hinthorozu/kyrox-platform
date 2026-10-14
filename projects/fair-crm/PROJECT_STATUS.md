@@ -10,7 +10,7 @@ Living status for FAIR CRM. This file records **current implementation truth onl
 |-------|-------|
 | Last verified | **2026-10-13** |
 | Active ecosystem milestone | **M4 — FAIR CRM v1** |
-| Implementation repository | `hinthorozu/fair-crm` |
+| Implementation repository | `kyrox-studio/fair-crm` |
 | Migration head in `main` | `0098_tobb_manual_date_revision` |
 | Current work queue | [ROADMAP.md](ROADMAP.md) |
 | Shared standards | [../../standards/README.md](../../standards/README.md) |
