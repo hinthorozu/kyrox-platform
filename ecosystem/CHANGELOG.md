@@ -8,6 +8,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Added
 
+- **Marka standardı: renk, yazı tipi ve ses tonu** — `standards/brand/BRAND_STANDARD.md` bölüm 6–8: mürekkep/kağıt/bakır paleti, kontrast gereği üç bakır tonu, sıcak griler, Inter (metin ve arayüz) ve Archivo (başlık), Türkçe büyük harf kuralı (`lang="tr"`), ses tonu ilkeleri.
 - **Marka varlıkları reposu (ADR-0010)** — `kyrox-brand` logo dosyaları ve renk token'ları için onaylandı. Marka kuralları `standards/brand/BRAND_STANDARD.md` altında tek kaynak olarak eklendi: tek düz logo, versiyonlar, kullanım kuralları, küçük harfli `.studio`, slogan ve logo renkleri.
 - **Fair Stand Item/Category as-built mimari** — `projects/fair-stand/ITEM_CATALOG_ARCHITECTURE.md` lokal ilişkisel katalog mimarisini belgeler (DB/API otoritesi, 13 `fair_stand_*` tablo, bootstrap, asset referansı vs static GLB depolama).
 - **Fair Stand independent catalog API (ADR-0008)** — catalog process `:8002` and database `fair_stand`; CRM keeps shell, Admin UI, and same-origin proxy.

@@ -23,7 +23,7 @@ M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated 
 
 ### Marka
 
-ADR-0010, `kyrox-brand`'i Kyrox Studio logo dosyaları ve renk token'ları için marka varlıkları reposu olarak kabul eder. Marka kuralları [standards/brand/BRAND_STANDARD.md](../standards/brand/BRAND_STANDARD.md) dosyasındadır. Sıradaki marka işleri: Fair CRM'in eski logosunun değiştirilmesi, ardından tam marka paleti, fontlar ve ses tonu.
+ADR-0010, `kyrox-brand`'i Kyrox Studio logo dosyaları ve renk token'ları için marka varlıkları reposu olarak kabul eder. Marka kuralları [standards/brand/BRAND_STANDARD.md](../standards/brand/BRAND_STANDARD.md) dosyasındadır. Logo, renk paleti, yazı tipleri ve ses tonu tanımlandı. Sıradaki marka işleri: Instagram ve LinkedIn şablonları, kyrox.studio web sitesi.
 
 ## Cross-cutting SaaS readiness program
 

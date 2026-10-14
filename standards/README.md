@@ -27,7 +27,7 @@ Before reading a product-specific standard, check this index and read every shar
 
 ### Marka
 
-- [Kyrox Studio Marka Standardı](brand/BRAND_STANDARD.md) — tek logo, logo versiyonları ve kullanım kuralları, `.studio` yazımı, slogan ve marka renkleri. Dosyalar `kyrox-brand` reposundadır.
+- [Kyrox Studio Marka Standardı](brand/BRAND_STANDARD.md) — tek logo, logo versiyonları ve kullanım kuralları, `.studio` yazımı, slogan, renk paleti (bakır üç ton, sıcak griler), yazı tipleri (Inter, başlıkta Archivo) ve ses tonu. Dosyalar `kyrox-brand` reposundadır.
 
 ### Backend
 
