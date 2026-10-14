@@ -19,7 +19,7 @@
 ## Adım 1 — İlk kurulum (yeni makine)
 
 ```powershell
-cd fair-crm
+cd kyrox-fair-crm
 .\scripts\dev\setup-dev.ps1
 ```
 
@@ -66,7 +66,7 @@ python -m alembic current   # (head) olmalı
 ## Adım 4 — Dev identity seed (Core RBAC)
 
 ```powershell
-cd fair-crm
+cd kyrox-fair-crm
 python scripts/seed_core_dev_identity.py
 ```
 
@@ -131,7 +131,7 @@ Detay: [DEV_RUNTIME.md](DEV_RUNTIME.md#browser--frontend-network-local--server),
 ### Seçenek A — Script (önerilen)
 
 ```powershell
-cd fair-crm
+cd kyrox-fair-crm
 $env:FAIR_CRM_DEV_BYPASS_CORE = "false"
 .\scripts\dev\reset-dev.ps1
 ```
@@ -148,12 +148,12 @@ cd kyrox-core\backend
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 # Terminal 2 — Fair CRM
-cd fair-crm\backend
+cd kyrox-fair-crm\backend
 $env:FAIR_CRM_DEV_BYPASS_CORE = "false"
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 
 # Terminal 3 — Frontend
-cd fair-crm\frontend
+cd kyrox-fair-crm\frontend
 npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
@@ -183,7 +183,7 @@ UI üzerinden doğrulama: tarayıcıda `http://127.0.0.1:5173` aç; Fair CRM ist
 ## Adım 8 — Prod-path E2E gate
 
 ```powershell
-cd fair-crm
+cd kyrox-fair-crm
 $env:FAIR_CRM_DEV_BYPASS_CORE = "false"
 python scripts/e2e_validation.py --prod-path
 ```
@@ -203,7 +203,7 @@ Rapor: `scripts/e2e_validation_report.json`
 ## Adım 9 — Hızlı pytest (servis gerekmez)
 
 ```powershell
-cd fair-crm\backend
+cd kyrox-fair-crm\backend
 python -m pytest tests/modules/test_endpoint_permission_enforcement.py tests/modules/test_role_matrix_authorization.py -q
 ```
 
