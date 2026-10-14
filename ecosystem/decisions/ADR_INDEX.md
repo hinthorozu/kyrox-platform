@@ -26,6 +26,7 @@ Index of architecture and ecosystem decisions for KYROX. ADRs live in this direc
 | [0008](0008-fair-stand-independent-service.md) | Fair Stand independent service | Accepted | 2026-09-18 |
 | [0009](0009-demo-recorder-repository.md) | Demo recorder repository | Deprecated | 2026-09-30 |
 | [0010](0010-brand-repository.md) | Marka varlıkları reposu (kyrox-brand) | Accepted | 2026-10-14 |
+| [0011](0011-web-site-repository.md) | kyrox.studio web sitesi reposu (kyrox-web) | Proposed | 2026-10-14 |
 
 ## Creating a new ADR
 
