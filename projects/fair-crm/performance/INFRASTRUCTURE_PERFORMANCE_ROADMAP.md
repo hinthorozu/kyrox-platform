@@ -63,7 +63,7 @@ Revises: `0022_duplicate_group_merge_audit_logs`
 **Apply via Alembic (preferred):**
 
 ```bash
-cd fair-crm/backend
+cd kyrox-fair-crm/backend
 alembic upgrade head
 ```
 

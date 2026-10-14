@@ -66,7 +66,7 @@ Kills listeners on Core `8000`, backend `8001`, and frontend `5173`–`5177`, th
 4. Waits for Redis if the `redis` service exists in `docker-compose.yml` (skipped today)
 5. Starts **KYROX Core** only if `http://127.0.0.1:8000/api/v1/health` is not OK (sibling `../kyrox-core` or `KYROX_CORE_ROOT`)
 6. Starts Fair CRM backend only if `http://127.0.0.1:8001/health` is not OK
-7. Ensures PostgreSQL database `fair_stand`, runs Fair Stand alembic, then starts Fair Stand API only if `http://127.0.0.1:8002/health` is not OK (sibling `../fair-stand` or `FAIR_STAND_ROOT`)
+7. Ensures PostgreSQL database `fair_stand`, runs Fair Stand alembic, then starts Fair Stand API only if `http://127.0.0.1:8002/health` is not OK (sibling `../kyrox-fair-stand` or `FAIR_STAND_ROOT`)
 8. Starts frontend only if `http://127.0.0.1:5173` is not OK
 9. Starts worker only if `scripts/dev/start-worker.ps1` exists (not configured in current sprint)
 10. Prints service URLs and `docker compose ps`
@@ -113,7 +113,7 @@ Local Vite and production Nginx use the **same relative-path system**. The brows
 
 Fair CRM backend `8001` workspace runtime tarafından sağlanmalıdır.
 
-Kurulu / eski bir `fair-crm` servisi (örneğin stale `/opt/fair-crm` systemd unit) workspace backend’ini gölgelememelidir. Systemd kullanılıyorsa working directory ve `PYTHONPATH` **mevcut workspace** Fair CRM backend’ini göstermelidir. Fair Stand katalog API’si CRM OpenAPI’de yoktur; Vite/Nginx `/api/v1/fair-stand/` → `http://127.0.0.1:8002`. `dev-start.ps1` / `reset-dev.ps1` Fair Stand API sürecini de `:8002` üzerinde başlatır.
+Kurulu / eski bir `fair-crm` servisi (örneğin stale `/opt/kyrox/kyrox-fair-crm` systemd unit) workspace backend’ini gölgelememelidir. Systemd kullanılıyorsa working directory ve `PYTHONPATH` **mevcut workspace** Fair CRM backend’ini göstermelidir. Fair Stand katalog API’si CRM OpenAPI’de yoktur; Vite/Nginx `/api/v1/fair-stand/` → `http://127.0.0.1:8002`. `dev-start.ps1` / `reset-dev.ps1` Fair Stand API sürecini de `:8002` üzerinde başlatır.
 
 Bu kural makineye özel path dump’ı değildir. `dev-start.ps1` / `reset-dev.ps1` workspace sürecini başlatır; 8001 zaten başka bir kurulum tarafından tutuluyorsa önce o dinleyiciyi bırakın.
 
@@ -190,7 +190,7 @@ scripts/dev/logs/frontend-5173.log
 
 - Docker Desktop (PostgreSQL container)
 - Sibling **kyrox-core** repo (`../kyrox-core`) or `KYROX_CORE_ROOT`
-- Sibling **fair-stand** repo (`../fair-stand`) or `FAIR_STAND_ROOT`
+- Sibling **kyrox-fair-stand** repo (`../kyrox-fair-stand`) or `FAIR_STAND_ROOT`
 - Python 3.12+ with `pip install -r backend/requirements.txt` (Fair CRM and Core)
 - Node.js 16+ with `npm install` in `frontend/`
 - Migrations applied: `alembic upgrade head` (Fair CRM); Core migrations via Core repo
@@ -206,15 +206,15 @@ cd kyrox-core\backend
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 # Terminal 2 — Fair CRM backend
-cd fair-crm\backend
+cd kyrox-fair-crm\backend
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 
 # Terminal 3 — Fair Stand catalog API
-cd fair-stand\backend
+cd kyrox-fair-stand\backend
 python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8002
 
 # Terminal 4 — Frontend
-cd fair-crm\frontend
+cd kyrox-fair-crm\frontend
 npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 

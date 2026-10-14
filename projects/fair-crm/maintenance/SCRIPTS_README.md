@@ -7,7 +7,7 @@ Internal developer/admin scripts for one-time database maintenance, analysis, an
 Run all commands from the project root:
 
 ```powershell
-cd fair-crm
+cd kyrox-fair-crm
 python scripts/maintenance/<folder>/<script_name>.py
 ```
 
