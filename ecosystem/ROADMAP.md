@@ -21,10 +21,6 @@ Goal: ship and harden the first KYROX product on the reusable Core platform.
 
 M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated here. Core changes during M4 are limited to fixes and reusable platform capabilities required by real product needs.
 
-### Demo and usage-video tooling
-
-ADR-0009 authorizes `kyrox-demo-recorder` as a small external Playwright tooling repository for repeatable usage/demo video capture against deployed KYROX products. It owns no product behavior and does not replace FAIR CRM/Fair Stand acceptance gates.
-
 ### Marka
 
 ADR-0010, `kyrox-brand`'i Kyrox Studio logo dosyaları ve renk token'ları için marka varlıkları reposu olarak kabul eder. Marka kuralları [standards/brand/BRAND_STANDARD.md](../standards/brand/BRAND_STANDARD.md) dosyasındadır. Sıradaki marka işleri: Fair CRM'in eski logosunun değiştirilmesi, ardından tam marka paleti, fontlar ve ses tonu.
