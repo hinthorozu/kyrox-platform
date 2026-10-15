@@ -6,7 +6,7 @@ This file is the mandatory entry point for AI agents and a concise routing guide
 
 > **Humans and AI agents learn KYROX from `kyrox-platform`. Application repositories are implementation and verification layers.**
 
-Do not treat documentation, chat history, local conventions or tool-specific rule files in `fair-crm` / `kyrox-core` / `fair-stand` as independent sources of truth for ecosystem ownership. Human-readable ecosystem rules belong here.
+Do not treat documentation, chat history, local conventions or tool-specific rule files in `kyrox-fair-crm` / `kyrox-core` / `kyrox-fair-stand` as independent sources of truth for ecosystem ownership. Human-readable ecosystem rules belong here.
 
 ## Required reading order
 
@@ -47,7 +47,7 @@ When documents appear to overlap:
 ## Hard rules
 
 - This repository contains the human/AI knowledge base; do not add application code here.
-- Do not duplicate ecosystem documentation into `fair-crm` or `kyrox-core`. Fair Stand may keep in its application repository the documents its CI reads: runtime change-gate and Item contracts (`SYSTEM_*.md`, `docs/items/contract/ITEM_CONTRACT.md`) and the two roadmaps its tests read (`ROADMAP.md`, `ROADMAP_PHASE_4.md`). Every other Fair Stand plan or history document lives in `projects/fair-stand/` or `archive/fair-stand/`; Platform links to the repository-local ones instead of copying them.
+- Do not duplicate ecosystem documentation into `kyrox-fair-crm` or `kyrox-core`. Fair Stand may keep in its application repository the documents its CI reads: runtime change-gate and Item contracts (`SYSTEM_*.md`, `docs/items/contract/ITEM_CONTRACT.md`) and the two roadmaps its tests read (`ROADMAP.md`, `ROADMAP_PHASE_4.md`). Every other Fair Stand plan or history document lives in `projects/fair-stand/` or `archive/fair-stand/`; Platform links to the repository-local ones instead of copying them.
 - One topic has one canonical source. Merge duplicate rules; use links for context instead of copied normative text.
 - Reusable rules go to `standards/`; product-only rules go to `projects/<name>/`.
 - Machine-readable contracts needed by CI/runtime may stay in code repositories, but they are not a second human documentation system.

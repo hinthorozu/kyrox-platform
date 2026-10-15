@@ -2,7 +2,7 @@
 
 **KYROX Platform is the single documentation and knowledge hub for the entire KYROX ecosystem.**
 
-Human-readable rules, standards, architecture decisions, project documentation, status, roadmap and AI operating instructions live here. Application repositories (`kyrox-core`, `fair-crm`, and future products) are implementation and verification repositories: code, tests, migrations, CI and machine-readable runtime/quality contracts may live there, but human/AI documentation must not be duplicated there.
+Human-readable rules, standards, architecture decisions, project documentation, status, roadmap and AI operating instructions live here. Application repositories (`kyrox-core`, `kyrox-fair-crm`, and future products) are implementation and verification repositories: code, tests, migrations, CI and machine-readable runtime/quality contracts may live there, but human/AI documentation must not be duplicated there.
 
 ## First read — humans and AI agents
 

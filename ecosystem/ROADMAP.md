@@ -23,7 +23,7 @@ M4 work is intentionally managed in the Fair CRM roadmap rather than duplicated 
 
 ### Marka
 
-ADR-0010, `kyrox-brand`'i Kyrox Studio logo dosyaları ve renk token'ları için marka varlıkları reposu olarak kabul eder. Marka kuralları [standards/brand/BRAND_STANDARD.md](../standards/brand/BRAND_STANDARD.md) dosyasındadır. Logo, renk paleti, yazı tipleri ve ses tonu tanımlandı. Instagram ve LinkedIn şablonları hazırlandı. kyrox.studio web sitesi ve blogu için ayrı bir repo önerildi ([ADR-0011](decisions/0011-web-site-repository.md), Proposed); karar kabul edilince site `kyrox-web`'e taşınıp `kyrox.studio` adresinde yayına alınacak.
+ADR-0010, `kyrox-brand`'i Kyrox Studio logo dosyaları ve renk token'ları için marka varlıkları reposu olarak kabul eder. Marka kuralları [standards/brand/BRAND_STANDARD.md](../standards/brand/BRAND_STANDARD.md) dosyasındadır. Logo, renk paleti, yazı tipleri ve ses tonu tanımlandı. Instagram ve LinkedIn şablonları hazırlandı. kyrox.studio web sitesi ve blogu için `kyrox-web` reposu kabul edildi ([ADR-0011](decisions/0011-web-site-repository.md)). Site, yönetim paneli için WordPress'e taşınıyor: sıradaki adımlar onaylı tasarımın özel WordPress temasına çevrilmesi, Kyrox sunucusunda WordPress + MariaDB kurulumu (Docker, `/opt/kyrox/kyrox-web`), `kyrox.studio` DNS ve SSL, WordPress verisinin gecelik yedeğe eklenmesi.
 
 ## Cross-cutting SaaS readiness program
 
