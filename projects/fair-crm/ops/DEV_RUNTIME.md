@@ -62,7 +62,7 @@ Kills listeners on Core `8000`, backend `8001`, and frontend `5173`–`5177`, th
 
 1. Verifies Docker Engine is running
 2. `docker compose up -d` (infra containers use `restart: unless-stopped`)
-3. Waits for PostgreSQL health (`kyrox-postgres-dev`)
+3. Waits for PostgreSQL health (`kyrox-db`)
 4. Waits for Redis if the `redis` service exists in `docker-compose.yml` (skipped today)
 5. Starts **KYROX Core** only if `http://127.0.0.1:8000/api/v1/health` is not OK (sibling `../kyrox-core` or `KYROX_CORE_ROOT`)
 6. Starts Fair CRM backend only if `http://127.0.0.1:8001/health` is not OK
