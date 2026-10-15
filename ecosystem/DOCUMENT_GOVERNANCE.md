@@ -23,6 +23,7 @@ All human-readable standards, architecture, decisions, product rules, status, ro
 | Historical/superseded material | `archive/` | Never normative |
 | Machine-readable CI/runtime contracts | Application repo when technically required | Not human documentation |
 | Marka varlıkları (logo dosyaları, renk token'ları) | `kyrox-brand` repository | Ürünler buradan kopyalar; marka kuralları `standards/brand/` altındadır ([ADR-0010](decisions/0010-brand-repository.md)) |
+| kyrox.studio web sitesi teması ve kurulumu | `kyrox-web` repository | Site içeriği (blog, sayfa metinleri) WordPress panelinde yönetilir, repoda Markdown olarak tutulmaz ([ADR-0011](decisions/0011-web-site-repository.md)) |
 | Fair Stand documents read by its CI (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) | `fair-stand` repository | Explicit exception: CI tests read them; Platform links, never copies. Other Fair Stand plans live in `projects/fair-stand/`, history in `archive/fair-stand/` |
 
 Decision test: **Would another KYROX product reasonably use this same rule?** Yes → `standards/`; no → owning project; cross-repo → `ecosystem/`.
@@ -45,7 +46,7 @@ Decision test: **Would another KYROX product reasonably use this same rule?** Ye
 | Ecosystem roadmap | `ecosystem/ROADMAP.md` |
 | Cross-repository SaaS readiness strategy / sequencing | `ecosystem/SAAS_ROADMAP.md` |
 | Workflow | `ecosystem/WORKFLOW.md` |
-| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 + ADR-0010 |
+| Repository strategy | `ecosystem/REPOSITORY_STRATEGY.md` + ADR-0001 + ADR-0007 + ADR-0010 + ADR-0011 |
 | Core vs product boundary | ecosystem ADR-0002 |
 | Fair Stand product ownership | ecosystem ADR-0007 + `projects/fair-stand/` |
 | Fair CRM current state | `projects/fair-crm/PROJECT_STATUS.md` |

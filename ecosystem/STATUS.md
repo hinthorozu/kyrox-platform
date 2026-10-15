@@ -7,8 +7,8 @@ Single source of truth for **cross-repository current state**. Detailed product/
 | Active milestone | **M4 — FAIR CRM v1** |
 | Core policy | Frozen for speculative product work; bug/security/performance fixes and approved reusable product-driven platform needs are allowed |
 | Documentation hub | `kyrox-platform` |
-| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand`; marka varlıkları: `kyrox-brand` |
-| Last ecosystem sync | **2026-10-13** |
+| Implementation repos | `kyrox-core`, `fair-crm`, `fair-stand`; marka varlıkları: `kyrox-brand`; web sitesi: `kyrox-web` |
+| Last ecosystem sync | **2026-10-15** |
 
 ## SaaS readiness
 
@@ -82,5 +82,6 @@ The current documentation/quality focus is to keep Platform as the single human/
 | `fair-crm` | FAIR CRM product implementation, tests, migrations, CI and machine-readable contracts; hosts the Fair Stand configurator UI, Admin screens, and same-origin proxy |
 | `fair-stand` | Fair Stand FastAPI (`:8002`) and PostgreSQL `fair_stand`; configurator runtime |
 | `kyrox-brand` | Logo dosyaları ve marka renk token'ları; kurallar `standards/brand/` altında |
+| `kyrox-web` | kyrox.studio: özel WordPress teması ve sunucu kurulumu; içerik WordPress panelinde |
 
 See [REPOSITORY_STRATEGY.md](REPOSITORY_STRATEGY.md) and [DOCUMENT_GOVERNANCE.md](DOCUMENT_GOVERNANCE.md).
