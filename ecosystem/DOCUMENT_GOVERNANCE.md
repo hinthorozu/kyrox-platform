@@ -6,7 +6,7 @@ Single source of truth rules for all KYROX human- and AI-readable knowledge.
 
 > **Humans and AI agents learn the KYROX system from `kyrox-platform`. Application repositories are implementation and verification layers.**
 
-All human-readable standards, architecture, decisions, product rules, status, roadmap and operating instructions live in this repository. Application repositories (`kyrox-core`, `fair-crm`, `fair-stand`) contain code, tests, migrations, CI and machine-readable contracts required by implementation or verification; they must not become a second ecosystem documentation system.
+All human-readable standards, architecture, decisions, product rules, status, roadmap and operating instructions live in this repository. Application repositories (`kyrox-core`, `kyrox-fair-crm`, `kyrox-fair-stand`) contain code, tests, migrations, CI and machine-readable contracts required by implementation or verification; they must not become a second ecosystem documentation system.
 
 ## Classification rule
 
@@ -24,7 +24,7 @@ All human-readable standards, architecture, decisions, product rules, status, ro
 | Machine-readable CI/runtime contracts | Application repo when technically required | Not human documentation |
 | Marka varlıkları (logo dosyaları, renk token'ları) | `kyrox-brand` repository | Ürünler buradan kopyalar; marka kuralları `standards/brand/` altındadır ([ADR-0010](decisions/0010-brand-repository.md)) |
 | kyrox.studio web sitesi teması ve kurulumu | `kyrox-web` repository | Site içeriği (blog, sayfa metinleri) WordPress panelinde yönetilir, repoda Markdown olarak tutulmaz ([ADR-0011](decisions/0011-web-site-repository.md)) |
-| Fair Stand documents read by its CI (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) | `fair-stand` repository | Explicit exception: CI tests read them; Platform links, never copies. Other Fair Stand plans live in `projects/fair-stand/`, history in `archive/fair-stand/` |
+| Fair Stand documents read by its CI (change-gate, Item contract, `ROADMAP.md`, `ROADMAP_PHASE_4.md`) | `kyrox-fair-stand` repository | Explicit exception: CI tests read them; Platform links, never copies. Other Fair Stand plans live in `projects/fair-stand/`, history in `archive/fair-stand/` |
 
 Decision test: **Would another KYROX product reasonably use this same rule?** Yes → `standards/`; no → owning project; cross-repo → `ecosystem/`.
 
