@@ -5,7 +5,8 @@
 > | Faz | Durum |
 > |---|---|
 > | Faz 1 — Kilit | Uygulandı: `kyrox-fair-stand` PR #278, CI yeşil, `main`'de |
-> | Faz 2–6 | Plan, kod yok |
+> | Faz 2 — Geri al / İleri al | Uygulandı: `kyrox-fair-stand` PR #281, CI yeşil, `main`'de |
+> | Faz 3–6 | Plan, kod yok |
 >
 > Her faz ayrı PR'dır ve kodlamadan önce kullanıcı onayı alınır (`kyrox-fair-stand/AGENTS.md` kod öncesi checkpoint).
 >
@@ -108,6 +109,17 @@ Kesin liste `contract:verify` discovery'si ile çıkarılır.
 **Kabul.** Kilitli öğe hiçbir yolla (sürükleme, ok, döndürme, sil, zincir kaydırması) yer değiştirmez; kilit kayıttan sonra korunur; CI zinciri yeşil.
 
 ### Faz 2 — Geri al / İleri al (B)
+
+> **Durum: uygulandı** (`kyrox-fair-stand` PR #281).
+> - Kaynak `src/designHistory.js`.
+> - Testler `test/designHistory.test.js` ve `e2e/design-undo.spec.mjs`.
+> - Uygulamada verilen kararlar:
+>   - Değişiklik, tasarım imzası (stand + modüller) ile algılanır: `pointerup` / `keyup` / `change` sonrası ve saniyede bir.
+>   - Ctrl/Cmd+Z, Ctrl/Cmd+Y, Ctrl/Cmd+Shift+Z; üst bantta iki düğme.
+>   - Son 50 adım; geçmiş kaydedilmez.
+>   - Görsel kütüphanesinden görsel silinince geçmiş sıfırlanır.
+>   - Geçmiş revizyon görünümünde kapalı.
+>   - Stand ölçüsü ve tipi proje içinde değişmediği için geri yükleme yalnız modülleri ve zemini (tip, renk, zemin alanı) yeniden çizer.
 
 **Amaç.** Tasarımda yapılan her değişikliği geri alabilmek. Gruplamadan önce gelir; grup işlerinde yapılan hata da geri alınabilsin.
 
@@ -256,8 +268,8 @@ Kesin liste `contract:verify` discovery'si ile çıkarılır.
 | Grup seçiliyken Sil | Bütün grup, onaylı | Öneri |
 | Çoğaltılan öğe / grup | Kilitsiz doğar (Faz 1 karar); grup kopyası yeni gruptur (öneri) | Kısmen karar |
 | Grupta duvar sayısı (Faz 3) | En fazla 1 | Öneri |
-| Geri alma geçmişi | Kaydedilmez, son 50 adım | Öneri |
-| Görsel silme geri alınır mı | Hayır, ayrı onaylı işlem | Öneri |
+| Geri alma geçmişi | Kaydedilmez, son 50 adım | Karar (Faz 2) |
+| Görsel silme geri alınır mı | Hayır; görsel silinince geçmiş sıfırlanır | Karar (Faz 2) |
 | Şablon Item mı | Hayır, sahnede normal parçalara açılan şablon | Öneri |
 | Şablonda görseller | 5a'da yok, 5b'de ayrı depolama | Öneri |
 | Kilit / grup / şablon BOM'a girer mi | Hayır (parçalar girer) | Ürün kararı |
