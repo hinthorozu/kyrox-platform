@@ -163,7 +163,7 @@ Kesin liste `contract:verify` discovery'si ile çıkarılır.
 - Satırdan **gruptan çıkar**; grup başlığından **yeniden adlandır / kilitle / çöz**.
 
 **Davranış: grup çoğaltma (F)**
-- Sağ tık → **Grubu çoğalt**. Bütün üyeler yeni kimliklerle kopyalanır (`duplicateModuleState`), kopyalar yeni bir gruba alınır: "Grup adı (kopya)". Renk, görsel ve göreli konumlar aynı kalır; kopyalar kilitsiz doğar.
+- Sağ tık → **Grubu çoğalt**. Bütün üyeler yeni kimliklerle kopyalanır (`duplicateModuleState`), kopyalar yeni bir gruba alınır: "Grup adı (kopya)". Renk, görsel ve göreli konumlar aynı kalır; kopyalar kilitsiz doğar. `duplicateModuleState` metal separatör grup kimliklerini zaten yeniliyor; kopya grubun metal levhaları orijinalden ayrı sayılır.
 - **Yerleşim:**
   - Serbest gruplarda (masa + sandalyeler) kopya grubun yanına konur. Yer yoksa uyarı verilir ve hiçbir şey eklenmez.
   - Duvar çapalı gruplarda çapa bugünkü duvar çoğaltma kuralıyla yanına eklenir (zincir planı), üyeler yeni duvara göre yerleştirilir.
