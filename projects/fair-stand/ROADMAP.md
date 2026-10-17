@@ -16,3 +16,4 @@ Sonraki işler cutover’ın dışında kalır:
 
 - Tenant-specific kataloglar
 - Cost-catalog slug birleşimi (Fair CRM cost-catalog mevcut fazının açıkça dışında)
+- Admin Item formu ↔ DB uyumu: serbest metin alanlarının açılır listeye çevrilmesi, ghost alanları ve ölü kolonlar. Ayrıntı ve öneriler: [ADMIN_FORM_DB_AUDIT.md](ADMIN_FORM_DB_AUDIT.md)
