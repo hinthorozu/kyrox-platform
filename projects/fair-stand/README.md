@@ -35,6 +35,7 @@ Kanonik Item ürün verisi DB/API’den gelir; static JS Item/Category master yo
 | [PROJECT_STATUS.md](PROJECT_STATUS.md) | Canlı ürün durumu |
 | [ROADMAP.md](ROADMAP.md) | Katalog / platform iş kuyruğu; configurator üst seviye planı ve FAZ 4 detayı `fair-stand` deposundadır |
 | [ROADMAP_PHASE_5_6.md](ROADMAP_PHASE_5_6.md) | FAZ 5 (Final BOM) ve FAZ 6 (maliyet / Fair CRM) detaylı planı |
+| [GROUP_LOCK_ROADMAP.md](GROUP_LOCK_ROADMAP.md) | Sahne editörü planı: kilit (Faz 1 uygulandı), geri al, grup, çok duvarlı grup, kurumsal şablon |
 | [PRODUCT_FUTURE.md](PRODUCT_FUTURE.md) | Henüz faza yerleşmemiş gelecek ürün gereksinimleri |
 | [RENDER_FUTURE_BACKLOG.md](RENDER_FUTURE_BACKLOG.md) | Render / HDRI / PBR gelecek backlog'u |
 
