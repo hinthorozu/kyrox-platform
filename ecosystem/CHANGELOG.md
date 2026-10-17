@@ -8,6 +8,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Added
 
+- **Fair Stand otomatik kayıt süresi** — `kyrox-fair-stand` PR #282.
+  - Seçenekler: Kapalı, 3, 5, 7, 10 dk. Varsayılan 3 dk.
+  - Seçim tarayıcıda saklanır.
+  - Kaydedilmemiş değişiklik sekme gizlenince ve editörden çıkılınca kaydedilir. Sayfa kapatılırken tarayıcı uyarır.
+  - Ayrıntı: `projects/fair-stand/PROJECT_STATUS.md`.
 - **Fair Stand sahne editörü yol haritası** — `projects/fair-stand/GROUP_LOCK_ROADMAP.md`. Fazlar: kilit, geri al / ileri al, çapalı grup (liste paneli ve çoğaltma dahil), çok duvarlı grup, kurumsal şablon, gelişmiş. Faz 1 (kilit) `kyrox-fair-stand` PR #278 ile, Faz 2 (geri al / ileri al) PR #281 ile uygulandı. Belge önce `kyrox-fair-stand/docs/refactor/` altına yazılmıştı; `AGENTS.md` sert kuralı gereği buraya taşındı.
 - **kyrox.studio web sitesi reposu (ADR-0011, Accepted)** — site ve blog `kyrox-web` reposunda. Teknik tercih kabulden önce statik derleyici + Cloudflare Pages yerine WordPress + özel tema olarak güncellendi: içerik panelden yönetilir, site Kyrox sunucusunda Docker ile çalışır. REPOSITORY_STRATEGY, DOCUMENT_GOVERNANCE ve STATUS repoyu tanır.
 - **Marka standardı: renk, yazı tipi ve ses tonu** — `standards/brand/BRAND_STANDARD.md` bölüm 6–8: mürekkep/kağıt/bakır paleti, kontrast gereği üç bakır tonu, sıcak griler, Inter (metin ve arayüz) ve Archivo (başlık), Türkçe büyük harf kuralı (`lang="tr"`), ses tonu ilkeleri.
