@@ -8,6 +8,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This ch
 
 ### Added
 
+- **Fair Stand admin formu ↔ DB denetimi** — `projects/fair-stand/ADMIN_FORM_DB_AUDIT.md`.
+  - Item tipi formu birebir uyumlu.
+  - Item formunda 4 serbest metin alanı DB kısıtıyla uyuşmuyor.
+  - Ayrıca işlevsiz ghost alanları ve ölü snap kolonları kayda alındı.
+  - Düzeltmeler onay bekliyor.
 - **Fair Stand otomatik kayıt süresi** — `kyrox-fair-stand` PR #282.
   - Seçenekler: Kapalı, 3, 5, 7, 10 dk. Varsayılan 3 dk.
   - Seçim tarayıcıda saklanır.
